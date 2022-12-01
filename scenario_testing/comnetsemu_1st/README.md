@@ -31,6 +31,10 @@ ryu run --observe-links --ofp-tcp-listen-port 10003 --wsapi-port 8084 /usr/local
 
 Change 'localhost' to your Flowvisor instance IP, in case your Flowvisor is installed on a different Instance.
 ```bash
+nano flowvisor_slicing.sh
+```
+
+```bash
 # Define the FlowVisor slices
 echo "Definition of FlowVisor slices..."
 fvctl -f /etc/flowvisor/flowvisor.passwd add-slice upper tcp:localhost:10001 admin@upperslice
