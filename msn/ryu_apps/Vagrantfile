@@ -1,0 +1,16 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+    config.vm.box = "ubuntu/bionic64"
+    config.vm.network :forwarded_port, guest: 8080, host: 8080
+    config.vm.network :forwarded_port, guest: 6633, host: 6633
+
+    config.vm.provision "shell", inline: <<-SHELL
+        apt-get update
+        apt-get install -y python3-pip
+        pip3 install ryu
+    SHELL
+
+    # ryu-manager /vagrant/ofp_emitter.py /vagrant/ofctl_rest.py
+end
