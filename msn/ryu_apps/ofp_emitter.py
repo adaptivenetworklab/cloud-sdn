@@ -21,7 +21,7 @@ from ryu.controller.handler import MAIN_DISPATCHER
 from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_0
 
-simpleswitch = "http://137.204.57.106:8090/packetin"
+simpleswitch = "http://10.0.2.207:8090/packetin"
 #simpleswitch = "http://172.17.0.3:8090/packetin"
 #simpleswitch = "http://sswitch:8090/packetin"
 
