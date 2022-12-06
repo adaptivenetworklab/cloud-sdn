@@ -1,4 +1,4 @@
-FROM python:3.9.7
+FROM python:3.8-alpine
 WORKDIR /usr/src/app
 
 COPY ofp_emitter.py .
@@ -7,8 +7,8 @@ COPY requirements.txt .
 
 #RUN pip install ryu 
 RUN pip install --upgrade pip
-RUN apt-get update -y && \ apt-get install -y python-pip python-dev
-RUN pip install -r requirement.text
+RUN pip install --root-user-action=ignore requests
+RUN pip install -r requirements.txt
 
 EXPOSE 8080
 EXPOSE 6633
