@@ -64,6 +64,8 @@ Bandwidth - requires queue support. The idea being that a slice will have a queu
 
 5. Limit flow timeout values - FV should handle flow timeout. Possibly by re-writing them to some (small-ish) value and reinstalling flowmod for the time the controller expects the flow to be installed.
 
+![Alt text](https://img1.sdnlab.com/wp-content/uploads/2014/11/02-flowvisor%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86.png"a title")
+
 ##### Notes
 - All connections (to switches and controllers) are handled through a single poll loop
 - Switches are handed off to an FVClassifier instance per switch once they make a connection to FlowVisor
