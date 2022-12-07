@@ -5,3 +5,7 @@ Pada penelitian ini akan digunakan Ryu SDN Controller yang sudah berbasis micros
 
 ## Spesifikasi Testbed
 Pada riset ini penelitian yang dilakukan menggunakan 2 Virtual machine (VM) yang akan dibangun di atas Openstack. Sistem operasi yang digunakan adalah Ubuntu 20.04. VM pertama akan diinstal Minikube sebagai container orchestrator, dan VM kedua akan diinstal mininet sebagai simulasi skenario topologi jaringan. 
+
+Attempt | #1 | #2 | #3 | #4 | #5 | #6 | #7 | #8 | #9 | #10 | #11
+--- | --- | --- | --- |--- |--- |--- |--- |--- |--- |--- |---
+Seconds | 301 | 283 | 290 | 286 | 289 | 285 | 287 | 287 | 272 | 276 | 269
