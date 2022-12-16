@@ -29,11 +29,10 @@ ryu run --observe-links --ofp-tcp-listen-port 10003 --wsapi-port 8084 /usr/local
 
 ## 3. Flowvisor
 
-Change 'localhost' to your Flowvisor instance or container/pod IP, in case your Flowvisor is installed on a different Instance.
 ```bash
 nano flowvisor_slicing.sh
 ```
-
+Change 'localhost' to your Flowvisor instance or container/pod IP, in case your Flowvisor is installed on a different Instance.
 ```bash
 # Define the FlowVisor slices
 echo "Definition of FlowVisor slices..."
