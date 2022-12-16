@@ -34,9 +34,11 @@ nano flowvisor_slicing.sh
 ```
 Change 'localhost' to your Flowvisor instance or container/pod IP, in case your Flowvisor is installed on a different Instance.
 ```bash
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Define the FlowVisor slices
 echo "Definition of FlowVisor slices..."
 fvctl -f /etc/flowvisor/flowvisor.passwd add-slice upper tcp:localhost:10001 admin@upperslice
 fvctl -f /etc/flowvisor/flowvisor.passwd add-slice middle tcp:localhost:10002 admin@middleslice
 fvctl -f /etc/flowvisor/flowvisor.passwd add-slice lower tcp:localhost:10003 admin@lowerslice
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 ```
