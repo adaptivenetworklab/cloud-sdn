@@ -2,7 +2,7 @@
 
 ## 1. Mininet
 
-In case your Flowvisor is on a different Instance than you can change above script with the following command. Just change the 'FLOWVISOR IP ADDRESS' part.
+In case your Flowvisor is on a different Instance or inside a container/pod than you can change above script with the following command. Just change the 'FLOWVISOR IP ADDRESS' part.
 
 ```bash
 sed -i '62s/localhost/FLOWVISOR IP ADDRESS/' mininet-topology.py
@@ -29,7 +29,7 @@ ryu run --observe-links --ofp-tcp-listen-port 10003 --wsapi-port 8084 /usr/local
 
 ## 3. Flowvisor
 
-Change 'localhost' to your Flowvisor instance IP, in case your Flowvisor is installed on a different Instance.
+Change 'localhost' to your Flowvisor instance or container/pod IP, in case your Flowvisor is installed on a different Instance.
 ```bash
 nano flowvisor_slicing.sh
 ```

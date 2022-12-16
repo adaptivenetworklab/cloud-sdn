@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: flowvisor
+  name: flowvisor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flowvisor
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: flowvisor
+    spec:
+      containers:
+      - image: adaptivenetlab/flowvisor:03
+        name: flowvisor
+        resources: {}
+status: {}
