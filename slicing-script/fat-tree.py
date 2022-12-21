@@ -11,7 +11,7 @@ class FatTreeTopo(Topo):
     "Fat Tree Topology"
 
     def __init__(self, k=4, **opts):
-        # Initialize topology and default options
+        # Initialize topology and default option
         Topo.__init__(self, **opts)
 
         # Create k-ary tree
