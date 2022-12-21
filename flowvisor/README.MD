@@ -1,4 +1,13 @@
-# How to Install Flowvisor
+# Flowvisor
+
+## What is Flowvisor
+
+Flowvisor is a network virtualization tool that allows administrators to divide a single physical network into multiple logical networks, or "slices." Each slice is isolated from the others and can be configured independently, allowing administrators to test new network configurations or deploy multiple virtual networks on a single physical infrastructure. 
+
+
+Flowvisor uses a centralized controller to manage the traffic flows between slices and can also be used to monitor traffic, collect statistics, and perform other network management tasks. Flowvisor is often used in research and education environments, where it can provide a flexible and cost-effective way to support multiple experimental or instructional networks on a single infrastructure.
+
+## How to Install Flowvisor
 
 There are two architecture we use to run Flowvisor, Monolith Architecture and Microservices Architecture. For monolith we use a Virtual Machine (VM) and for microservice we'll use a Kubernetes environment cluster.
 
