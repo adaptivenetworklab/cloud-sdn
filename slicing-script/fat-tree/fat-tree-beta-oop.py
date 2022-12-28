@@ -53,17 +53,6 @@ class FVTopo(Topo):
         self.addLink("h11", "s8", **host_link_config)
         self.addLink("h12", "s8", **host_link_config)
 
-        # Set the link parameters
-        self.configLinkStatus('s1', 's4', 'down')
-        self.configLinkStatus('s1', 's5', 'down')
-        self.configLinkStatus('s1', 's6', 'down')
-        self.configLinkStatus('s2', 's7', 'down')
-        self.configLinkStatus('s2', 's8', 'down')
-        self.configLinkStatus('s2', 's9', 'down')
-        self.configLinkStatus('s3', 's10', 'down')
-        self.configLinkStatus('s3', 's11', 'down')
-        self.configLinkStatus('s3', 's12', 'down')
-
 
 topos = {"fvtopo": (lambda: FVTopo())}
 
