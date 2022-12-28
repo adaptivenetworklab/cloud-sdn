@@ -59,9 +59,6 @@ net.addLink(h1, s4)
 net.addLink(h2, s4)
 net.addLink(h3, s5)
 net.addLink(h4, s5)
-
-# Connect the hosts to the aggregation switches
-# (continued from previous message)
 net.addLink(h5, s5)
 net.addLink(h6, s6)
 net.addLink(h7, s6)
