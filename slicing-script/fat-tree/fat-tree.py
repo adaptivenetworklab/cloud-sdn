@@ -66,7 +66,7 @@ class FatTreeTopo(Topo):
 #     testFatTree()
 
 if __name__ == "__main__":
-    topo = FatTreeTopo()
+    topo = FatTreeTopo(k=4)
     net = Mininet(
         topo=topo,
         switch=OVSKernelSwitch,
