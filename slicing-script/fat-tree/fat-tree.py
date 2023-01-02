@@ -1,72 +1,88 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 from mininet.topo import Topo
 from mininet.net import Mininet
-from mininet.node import CPULimitedHost
-from mininet.link import TCLink
-from mininet.util import dumpNodeConnections
-from mininet.log import setLogLevel
 from mininet.node import OVSKernelSwitch, RemoteController
 from mininet.cli import CLI
+from mininet.link import TCLink
 
-class FatTreeTopo(Topo):
-    "Fat Tree Topology"
 
-    def __init__(self, k=4, **opts):
-        # Initialize topology and default option
-        Topo.__init__(self, **opts)
+class FVTopo(Topo):
+    def init(self):
+        # Initialize topology
+        Topo.init(self)
 
-        # Create k-ary tree
-        self.createFatTree(k)
+        # Create template host, switch, and link
+        hconfig = {"inNamespace": True}
+        http_link_config = {"bw": 1}
+        voip_link_config = {"bw": 5}
+        video_link_config = {"bw": 10}
+        host_link_config = {}
 
-    def createFatTree(self, k):
-        # Create core layer
-        coreSwitches = []
-        for i in range(int(k**2 / 4)):
-            coreSwitches.append(self.addSwitch('c%d' % (i + 1)))
+        # Create switch nodes
+        for i in range(15):
+            sconfig = {"dpid": "%016x" % (i + 1)}
+            self.addSwitch("s%d" % (i + 1), protocols="OpenFlow10", **sconfig)
 
-        # Create aggregation layer
-        aggSwitches = []
-        for i in range(int(k**2 / 2)):
-            aggSwitches.append(self.addSwitch('a%d' % (i + 1)))
+        # Create host nodes
+        for i in range(12):
+            self.addHost("h%d" % (i + 1), **hconfig)
 
-        # Create edge layer
-        edgeSwitches = []
-        for i in range(int(k**2 / 2)):
-            edgeSwitches.append(self.addSwitch('e%d' % (i + 1)))
+        # Add switch links
+        self.addLink("s4", "s1", **http_link_config)
+        self.addLink("s5", "s1", **http_link_config)
+        self.addLink("s6", "s1", **http_link_config)
+        self.addLink("s7", "s1", **http_link_config)
+        self.addLink("s8", "s1", **http_link_config)
+        self.addLink("s9", "s1", **http_link_config)
+        self.addLink("s7", "s2", **http_link_config)
+        self.addLink("s8", "s2", **http_link_config)
+        self.addLink("s9", "s2", **http_link_config)
+        self.addLink("s4", "s2", **http_link_config)
+        self.addLink("s5", "s2", **http_link_config)
+        self.addLink("s6", "s2", **http_link_config)
+        self.addLink("s4", "s3", **http_link_config)
+        self.addLink("s5", "s3", **http_link_config)
+        self.addLink("s6", "s3", **http_link_config)
+        self.addLink("s7", "s3", **http_link_config)
+        self.addLink("s8", "s3", **http_link_config)
+        self.addLink("s9", "s3", **http_link_config)
+        self.addLink("s10", "s4", **http_link_config)
+        self.addLink("s11", "s4", **http_link_config)
+        self.addLink("s10", "s5", **http_link_config)
+        self.addLink("s11", "s5", **http_link_config)
+        self.addLink("s12", "s5", **http_link_config)
+        self.addLink("s11", "s6", **http_link_config)
+        self.addLink("s12", "s6", **http_link_config)
+        self.addLink("s13", "s6", **http_link_config)
+        self.addLink("s12", "s7", **http_link_config)
+        self.addLink("s13", "s7", **http_link_config)
+        self.addLink("s14", "s7", **http_link_config)
+        self.addLink("s13", "s8", **http_link_config)
+        self.addLink("s14", "s8", **http_link_config)
+        self.addLink("s15", "s8", **http_link_config)
+        self.addLink("s14", "s9", **http_link_config)
+        self.addLink("s15", "s9", **http_link_config)
 
-        # Connect core switches to aggregation switches
-        for i in range(int(k**2 / 4)):
-            for j in range(int(k**2 / 2)):
-                self.addLink(coreSwitches[i], aggSwitches[j])
+        # Add host links
+        self.addLink("h1", "s10", **host_link_config)
+        self.addLink("h2", "s10", **host_link_config)
+        self.addLink("h3", "s11", **host_link_config)
+        self.addLink("h4", "s11", **host_link_config)
+        self.addLink("h5", "s12", **host_link_config)
+        self.addLink("h6", "s12", **host_link_config)
+        self.addLink("h7", "s13", **host_link_config)
+        self.addLink("h8", "s13", **host_link_config)
+        self.addLink("h9", "s14", **host_link_config)
+        self.addLink("h10", "s14", **host_link_config)
+        self.addLink("h11", "s15", **host_link_config)
+        self.addLink("h12", "s15", **host_link_config)
 
-        # Connect aggregation switches to edge switches
-        for i in range(int(k**2 / 2)):
-            for j in range(int(k**2 / 2)):
-                self.addLink(aggSwitches[i], edgeSwitches[j])
 
-        # Create hosts and connect them to edge switches
-        for i in range(int(k**3 / 4)):
-            host = self.addHost('h%d' % (i + 1))
-            self.addLink(edgeSwitches[int(i / (k / 2))], host)
+topos = {"fvtopo": (lambda: FVTopo())}
 
-# def testFatTree():
-#     "Create and test a fat tree topology"
-#     topo = FatTreeTopo(k=4)
-#     net = Mininet(topo=topo, host=CPULimitedHost, link=TCLink)
-#     net.start()
-#     print ("Dumping host connections")
-#     dumpNodeConnections(net.hosts)
-#     print ("Testing network connectivity")
-#     net.pingAll()
-#     net.stop()
-
-# if __name__ == '__main__':
-#     setLogLevel('info')
-#     testFatTree()
-
-if __name__ == "__main__":
-    topo = FatTreeTopo(k=4)
+if name == "main":
+    topo = FVTopo()
     net = Mininet(
         topo=topo,
         switch=OVSKernelSwitch,
