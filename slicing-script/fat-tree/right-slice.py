@@ -10,11 +10,32 @@ from ryu.lib.packet import ethernet
 from ryu.lib.packet import ether_types
 
 
-class Flooder(app_manager.RyuApp):
+class RightSlice(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_0.OFP_VERSION]
 
     def __init__(self, *args, **kwargs):
-        super(Flooder, self).__init__(*args, **kwargs)
+        super(RightSlice, self).__init__(*args, **kwargs)
+
+        # out_port = slice_to_port[dpid][in_port]
+        # self.slice_to_port = {
+        #     1: {3: 1, 2: 3, 1: 0},
+        #     6: {1: 3, 3: 2, 2: 0},
+        #     3: {1: 2, 2: 0},
+        #     4: {3: 1, 1: 0, 2: 0, 4: 0},
+        # }
+
+        self.slice_to_port = {
+            14: {4: 2, 5: 2, 1: 0, 2: 0, 3: 0},
+            15: {3: 1, 4: 1, 1: 0, 2: 0},
+            8: {5: 3, 6: 5, 1: 0, 2: 0, 3: 0, 4: 0},
+            9: {3: 5, 1: 0, 2: 0, 4: 0, 5: 0},
+            3: {5: 6, 6: 0}
+        }
+
+        self.mac_to_port = { # dummy
+            14: {"00:00:00:00:00:01": 4, "00:00:00:00:00:02": 5},
+            15: {"00:00:00:00:00:05": 3, "00:00:00:00:00:06": 4},
+        }
 
     def add_flow(self, datapath, priority, match, actions):
         ofproto = datapath.ofproto
@@ -26,41 +47,70 @@ class Flooder(app_manager.RyuApp):
             match=match,
             cookie=0,
             command=ofproto.OFPFC_ADD,
-            idle_timeout=10,
-            hard_timeout=20,
+            idle_timeout=20,
+            hard_timeout=120,
             priority=priority,
             flags=ofproto.OFPFF_SEND_FLOW_REM,
             actions=actions,
         )
         datapath.send_msg(mod)
 
+    def _send_package(self, msg, datapath, in_port, actions):
+        data = None
+        ofproto = datapath.ofproto
+        if msg.buffer_id == ofproto.OFP_NO_BUFFER:
+            data = msg.data
+
+        out = datapath.ofproto_parser.OFPPacketOut(
+            datapath=datapath,
+            buffer_id=msg.buffer_id,
+            in_port=in_port,
+            actions=actions,
+            data=data,
+        )
+        # self.logger.info("send_msg %s", out)
+        datapath.send_msg(out)
+
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
-    def packet_in_handler(self, ev):
+    def _packet_in_handler(self, ev):
         msg = ev.msg
-        dp = msg.datapath
-        ofp = dp.ofproto
-        ofp_parser = dp.ofproto_parser
+        datapath = msg.datapath
         in_port = msg.in_port
-        dpid = dp.id
+        dpid = datapath.id
 
         pkt = packet.Packet(msg.data)
         eth = pkt.get_protocol(ethernet.ethernet)
+        dst = eth.dst
 
-        if eth.ethertype == ether_types.ETH_TYPE_LLDP:
-            # ignore lldp packet
-            return
+        if dpid in self.mac_to_port: # jika switch 14 atau 15
+            if dst in self.mac_to_port[dpid]: # jika dst mac ada di dictionary mac_to_port[dpid] atau dst mac menuju end device
+                out_port = self.mac_to_port[dpid][dst]
+                self.logger.info(
+                    "INFO sending packet from s%s (out_port=%s) w/ mac-to-port rule",
+                    dpid,
+                    out_port,
+                )
+                actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
+                match = datapath.ofproto_parser.OFPMatch(dl_dst=dst)
+                self.add_flow(datapath, 1, match, actions)
+                self._send_package(msg, datapath, in_port, actions)
+        else:
+            if eth.ethertype == ether_types.ETH_TYPE_LLDP:
+                # ignore lldp packet
+                # self.logger.info("LLDP packet discarded.")
+                return
 
-        self.logger.info("INFO packet arrived in s%s (in_port=%s)", dpid, in_port)
-        out_port = ofp.OFPP_FLOOD
-        actions = [ofp_parser.OFPActionOutput(out_port)]
-        match = ofp_parser.OFPMatch()
-        self.add_flow(dp, 1, match, actions)
-        self.logger.info(
-            "INFO sending packet from s%s (out_port=%s) w/ flooding rule",
-            dpid,
-            out_port,
-        )
-        out = ofp_parser.OFPPacketOut(
-            datapath=dp, buffer_id=msg.buffer_id, in_port=msg.in_port, actions=actions
-        )
-        dp.send_msg(out)
+            self.logger.info("INFO packet arrived in s%s (in_port=%s)", dpid, in_port)
+            out_port = self.slice_to_port[dpid][in_port]
+
+            if out_port == 0:
+                # ignore handshake packet
+                # self.logger.info("packet in s%s in_port=%s discarded.", dpid, in_port)
+                return
+
+            actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
+            match = datapath.ofproto_parser.OFPMatch(in_port=in_port)
+            self.logger.info("INFO sending packet from s%s (out_port=%s)", dpid, out_port)
+
+            self.add_flow(datapath, 2, match, actions)
+            self._send_package(msg, datapath, in_port, actions)
