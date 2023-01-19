@@ -1,0 +1,16 @@
+logika second topology upperslice dari comnets-emu:
+1. Jika s1 atau s6
+    a. jika dst mac nya mengarah ke end device = langsung di-forward
+    b. jika protokol packet-nya udp dengan port 9999 = di forward ke port 1
+    c. jika protokol packet-nya udp tapi bukan port 9999 = di forward ke port 2
+    d. jika protokol packet-nya tcp = di forward ke port 2
+    e. jika protokol packet-nya icmp = di forward ke port 2
+2. Jika bukan s1 atau s6 = flooding
+
+implementasi ke left slice pada fat-tree:
+1. Jika s10 atau s11
+    a. jika dst mac nya mengarah ke end device = langsung di-forward ke end  [port 3, 4, dan 5]
+    b. jika protokol packet-nya udp dengan port 8888 = di forward ke port 1
+    c. jika protokol packet-nya udp tapi bukan port 8888 = di forward ke port 2
+    d. jika protokol packet-nya bukan udp = drop packet-nya
+2. Jika bukan s10 atau s11 = simple forwarding # bikin mapping out_port nya

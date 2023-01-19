@@ -1,14 +1,14 @@
-from ryu.base import app_manager
-from ryu.controller import ofp_event
-from ryu.controller.handler import MAIN_DISPATCHER
-from ryu.controller.handler import set_ev_cls
-from ryu.ofproto import ofproto_v1_0
-from ryu.lib.packet import packet
-from ryu.lib.packet import ethernet
-from ryu.lib.packet import ether_types
-from ryu.lib.packet import udp
-from ryu.lib.packet import tcp
-from ryu.lib.packet import icmp
+from ryu.ryu.base import app_manager
+from ryu.ryu.controller import ofp_event
+from ryu.ryu.controller.handler import MAIN_DISPATCHER
+from ryu.ryu.controller.handler import set_ev_cls
+from ryu.ryu.ofproto import ofproto_v1_0
+from ryu.ryu.lib.packet import packet
+from ryu.ryu.lib.packet import ethernet
+from ryu.ryu.lib.packet import ether_types
+from ryu.ryu.lib.packet import udp
+from ryu.ryu.lib.packet import tcp
+from ryu.ryu.lib.packet import icmp
 
 
 class ServiceSlicing(app_manager.RyuApp):
@@ -19,7 +19,7 @@ class ServiceSlicing(app_manager.RyuApp):
 
         # outport = self.mac_to_port[dpid][mac_address]
         self.mac_to_port = {
-            1: {"00:00:00:00:00:01": 3, "00:00:00:00:00:02": 4},
+            1: {"00:00:00:00:00:01": 3, "00:00:00:00:00:02": 4}, # in s1 [out port 3 if mac 00::01, out port 4 if mac 00:02] 
             6: {"00:00:00:00:00:05": 3, "00:00:00:00:00:06": 4},
         }
         self.slice_TCport = 9999
@@ -81,8 +81,8 @@ class ServiceSlicing(app_manager.RyuApp):
         # self.logger.info("packet in s%s in_port=%s eth_src=%s eth_dst=%s pkt=%s udp=%s", dpid, in_port, src, dst, pkt, pkt.get_protocol(udp.udp))
         self.logger.info("INFO packet arrived in s%s (in_port=%s)", dpid, in_port)
 
-        if dpid in self.mac_to_port:
-            if dst in self.mac_to_port[dpid]:
+        if dpid in self.mac_to_port: # jika switch 1 atau 6
+            if dst in self.mac_to_port[dpid]: # jika dst mac ada di dictionary mac_to_port[dpid] atau dst mac menuju end device  
                 out_port = self.mac_to_port[dpid][dst]
                 self.logger.info(
                     "INFO sending packet from s%s (out_port=%s) w/ mac-to-port rule",
@@ -94,7 +94,7 @@ class ServiceSlicing(app_manager.RyuApp):
                 self.add_flow(datapath, 1, match, actions)
                 self._send_package(msg, datapath, in_port, actions)
 
-            elif (
+            elif ( # jika dst mac bukan mengarah ke end device dan protokol dari paketnya adalah udp dengan port 9999
                 pkt.get_protocol(udp.udp)
                 and pkt.get_protocol(udp.udp).dst_port == self.slice_TCport
             ):
@@ -117,7 +117,7 @@ class ServiceSlicing(app_manager.RyuApp):
                 self.add_flow(datapath, 2, match, actions)
                 self._send_package(msg, datapath, in_port, actions)
 
-            elif (
+            elif ( # jika dst mac bukan mengarah ke end device dan protokol dari paketnya adalah udp dengan port selain 9999
                 pkt.get_protocol(udp.udp)
                 and pkt.get_protocol(udp.udp).dst_port != self.slice_TCport
             ):
@@ -140,7 +140,7 @@ class ServiceSlicing(app_manager.RyuApp):
                 self.add_flow(datapath, 1, match, actions)
                 self._send_package(msg, datapath, in_port, actions)
 
-            elif pkt.get_protocol(tcp.tcp):
+            elif pkt.get_protocol(tcp.tcp): # jika dst mac bukan mengarah ke end device dan protokol dari paketnya adalah tcp
                 slice_number = 2
                 out_port = self.slice_ports[dpid][slice_number]
                 self.logger.info(
@@ -159,7 +159,7 @@ class ServiceSlicing(app_manager.RyuApp):
                 self.add_flow(datapath, 1, match, actions)
                 self._send_package(msg, datapath, in_port, actions)
 
-            elif pkt.get_protocol(icmp.icmp):
+            elif pkt.get_protocol(icmp.icmp): # jika dst mac bukan mengarah ke end device dan protokol dari paketnya adalah icmp
                 slice_number = 2
                 out_port = self.slice_ports[dpid][slice_number]
                 self.logger.info(
@@ -178,7 +178,7 @@ class ServiceSlicing(app_manager.RyuApp):
                 self.add_flow(datapath, 1, match, actions)
                 self._send_package(msg, datapath, in_port, actions)
 
-        elif dpid not in self.end_switches:
+        elif dpid not in self.end_switches: # jika bukan s1 atau s6, maka lakukan flooding
             out_port = ofproto.OFPP_FLOOD
             self.logger.info(
                 "INFO sending packet from s%s (out_port=%s) w/ flooding rule",
