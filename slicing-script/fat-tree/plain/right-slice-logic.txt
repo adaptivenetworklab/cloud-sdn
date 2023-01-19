@@ -1,0 +1,3 @@
+implementasi ke right slice pada fat-tree (based on flow, bottom to up, and vice versa):
+1. Jika flow dari bawah ke atas = melalui s8
+2. Jika flow dari atas ke bawah = melalui s9
