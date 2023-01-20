@@ -19,22 +19,14 @@ class ServiceSlicing(app_manager.RyuApp):
 
         # outport = self.mac_to_port[dpid][mac_address]
         self.mac_to_port = {
-            10: {"00:00:00:00:00:01": 3, "00:00:00:00:00:02": 4}, # in s10 [out port 3 if mac 00::01, out port 4 if mac 00:02] 
-            11: {"00:00:00:00:00:05": 4, "00:00:00:00:00:06": 5},
+            1: {"00:00:00:00:00:01": 3, "00:00:00:00:00:02": 4}, # in s1 [out port 3 if mac 00::01, out port 4 if mac 00:02] 
+            6: {"00:00:00:00:00:05": 3, "00:00:00:00:00:06": 4},
         }
-        self.slice_TCport = 8888
+        self.slice_TCport = 9999
 
         # outport = self.slice_ports[dpid][slicenumber]
-        self.slice_ports = {10: {1: 1, 2: 2}, 11: {1: 1, 2: 2}}
-        self.end_switches = [10, 11]
-
-        # port mapping untuk non-edge switch
-        # outport = self.slice_ports[dpid][in_port]
-        self.non_edge_sw_port = {
-            1: {1: 2, 2: 1},
-            4: {4: 1, 5: 1},
-            5: {4: 1, 5: 1},
-        }
+        self.slice_ports = {1: {1: 1, 2: 2}, 6: {1: 1, 2: 2}}
+        self.end_switches = [1, 6]
 
     def add_flow(self, datapath, priority, match, actions):
         ofproto = datapath.ofproto
@@ -89,7 +81,7 @@ class ServiceSlicing(app_manager.RyuApp):
         # self.logger.info("packet in s%s in_port=%s eth_src=%s eth_dst=%s pkt=%s udp=%s", dpid, in_port, src, dst, pkt, pkt.get_protocol(udp.udp))
         self.logger.info("INFO packet arrived in s%s (in_port=%s)", dpid, in_port)
 
-        if dpid in self.mac_to_port: # jika switch 10 atau 11
+        if dpid in self.mac_to_port: # jika switch 1 atau 6
             if dst in self.mac_to_port[dpid]: # jika dst mac ada di dictionary mac_to_port[dpid] atau dst mac menuju end device  
                 out_port = self.mac_to_port[dpid][dst]
                 self.logger.info(
@@ -102,14 +94,14 @@ class ServiceSlicing(app_manager.RyuApp):
                 self.add_flow(datapath, 1, match, actions)
                 self._send_package(msg, datapath, in_port, actions)
 
-            elif ( # jika dst mac bukan mengarah ke end device dan protokol dari paketnya adalah udp dengan dst atau src port-nya 8888
+            elif ( # jika dst mac bukan mengarah ke end device dan protokol dari paketnya adalah udp dengan port 9999
                 pkt.get_protocol(udp.udp)
-                and (pkt.get_protocol(udp.udp).dst_port == self.slice_TCport or pkt.get_protocol(udp.udp).src_port == self.slice_TCport)
+                and pkt.get_protocol(udp.udp).dst_port == self.slice_TCport
             ):
                 slice_number = 1
                 out_port = self.slice_ports[dpid][slice_number]
                 self.logger.info(
-                    "INFO sending packet from s%s (out_port=%s) w/ UDP 8888 rule",
+                    "INFO sending packet from s%s (out_port=%s) w/ UDP 9999 rule",
                     dpid,
                     out_port,
                 )
@@ -125,9 +117,9 @@ class ServiceSlicing(app_manager.RyuApp):
                 self.add_flow(datapath, 2, match, actions)
                 self._send_package(msg, datapath, in_port, actions)
 
-            elif ( # jika dst mac bukan mengarah ke end device dan protokol dari paketnya adalah udp dengan src atau dst port-nya selain 8888
+            elif ( # jika dst mac bukan mengarah ke end device dan protokol dari paketnya adalah udp dengan port selain 9999
                 pkt.get_protocol(udp.udp)
-                and pkt.get_protocol(udp.udp).dst_port != self.slice_TCport and pkt.get_protocol(udp.udp).src_port != self.slice_TCport
+                and pkt.get_protocol(udp.udp).dst_port != self.slice_TCport
             ):
                 slice_number = 2
                 out_port = self.slice_ports[dpid][slice_number]
@@ -148,27 +140,52 @@ class ServiceSlicing(app_manager.RyuApp):
                 self.add_flow(datapath, 1, match, actions)
                 self._send_package(msg, datapath, in_port, actions)
 
-            elif not pkt.get_protocol(udp.udp): # jika protocolnya bukan udp, discard packet-nya
-                self.logger.info("packet in s%s in_port=%s discarded.", dpid, in_port)
-                return # packet di-drop jika protokolnya bukan udp
+            elif pkt.get_protocol(tcp.tcp): # jika dst mac bukan mengarah ke end device dan protokol dari paketnya adalah tcp
+                slice_number = 2
+                out_port = self.slice_ports[dpid][slice_number]
+                self.logger.info(
+                    "INFO sending packet from s%s (out_port=%s) w/ TCP rule",
+                    dpid,
+                    out_port,
+                )
+                match = datapath.ofproto_parser.OFPMatch(
+                    in_port=in_port,
+                    dl_dst=dst,
+                    dl_src=src,
+                    dl_type=ether_types.ETH_TYPE_IP,
+                    nw_proto=0x06,  # tcp
+                )
+                actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
+                self.add_flow(datapath, 1, match, actions)
+                self._send_package(msg, datapath, in_port, actions)
 
-        elif dpid not in self.end_switches: # jika bukan s10 atau s11, maka lakukan simple forwarding
-            self.logger.info("INFO packet arrived in s%s (in_port=%s)", dpid, in_port)
-            if (dpid == 4 or dpid == 5) and in_port == 1: # special case
-                # arahkan flow dengan in_port 1 pada s4 atau s5 ke edge switch sesuai dst mac
-                if dst in self.mac_to_port[10]:
-                    out_port = 4
-                elif dst in self.mac_to_port[11]:
-                    out_port = 5
-                else:
-                    self.logger.info("packet in s%s in_port=%s discarded.", dpid, in_port)
-                    return # packet di-drop jika dst mac tidak ada di dalam self.mac_to_port
-            else:
-                out_port = self.non_edge_sw_port[dpid][in_port]
-            
+            elif pkt.get_protocol(icmp.icmp): # jika dst mac bukan mengarah ke end device dan protokol dari paketnya adalah icmp
+                slice_number = 2
+                out_port = self.slice_ports[dpid][slice_number]
+                self.logger.info(
+                    "INFO sending packet from s%s (out_port=%s) w/ ICMP rule",
+                    dpid,
+                    out_port,
+                )
+                match = datapath.ofproto_parser.OFPMatch(
+                    in_port=in_port,
+                    dl_dst=dst,
+                    dl_src=src,
+                    dl_type=ether_types.ETH_TYPE_IP,
+                    nw_proto=0x01,  # icmp
+                )
+                actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
+                self.add_flow(datapath, 1, match, actions)
+                self._send_package(msg, datapath, in_port, actions)
+
+        elif dpid not in self.end_switches: # jika bukan s1 atau s6, maka lakukan flooding
+            out_port = ofproto.OFPP_FLOOD
+            self.logger.info(
+                "INFO sending packet from s%s (out_port=%s) w/ flooding rule",
+                dpid,
+                out_port,
+            )
             actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
             match = datapath.ofproto_parser.OFPMatch(in_port=in_port)
-            self.logger.info("INFO sending packet from s%s (out_port=%s)", dpid, out_port)
-
             self.add_flow(datapath, 1, match, actions)
             self._send_package(msg, datapath, in_port, actions)
