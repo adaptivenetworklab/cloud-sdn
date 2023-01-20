@@ -11,16 +11,16 @@ from ryu.lib.packet import tcp
 from ryu.lib.packet import icmp
 
 
-class ServiceSlicing(app_manager.RyuApp):
+class LeftSlice(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_0.OFP_VERSION]
 
     def __init__(self, *args, **kwargs):
-        super(ServiceSlicing, self).__init__(*args, **kwargs)
+        super(LeftSlice, self).__init__(*args, **kwargs)
 
         # outport = self.mac_to_port[dpid][mac_address]
         self.mac_to_port = {
             10: {"00:00:00:00:00:01": 3, "00:00:00:00:00:02": 4}, # in s10 [out port 3 if mac 00::01, out port 4 if mac 00:02] 
-            11: {"00:00:00:00:00:05": 4, "00:00:00:00:00:06": 5},
+            11: {"00:00:00:00:00:03": 4, "00:00:00:00:00:04": 5},
         }
         self.slice_TCport = 8888
 
