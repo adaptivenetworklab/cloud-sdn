@@ -1,6 +1,7 @@
 # Testing Multi-Tenant Slicing Script
 
 ## 1. Mininet
+Jalankan command nya di Instance Master
 
 In case your Flowvisor is on a different Instance or inside a container/pod than you can change above script with the following command. Just change the 'FLOWVISOR IP ADDRESS' part.
 
@@ -13,6 +14,7 @@ sudo python3 first-topology.py
 ```
 
 ## 2. Flowvisor
+Jalankan command nya di Instance Flowvisor
 
 ```bash
 nano flowvisor_slicing.sh
@@ -32,6 +34,7 @@ fvctl -f /etc/flowvisor/flowvisor.passwd add-slice lower tcp:localhost:10003 adm
 ```
 
 ## 3. Ryu
+Jalankan command nya di Instance Worker 1
 
 Make sure these port is free on your instance.
 ```bash
