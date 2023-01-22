@@ -4,24 +4,48 @@ from ryu.controller.handler import MAIN_DISPATCHER
 from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_0
 
-from ryu.lib.mac import haddr_to_bin
 from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
 from ryu.lib.packet import ether_types
+from ryu.lib.packet import tcp
 
 
-class DirectionSlicing(app_manager.RyuApp):
+class CenterSlice(app_manager.RyuApp):
     OFP_VERSIONS = [ofproto_v1_0.OFP_VERSION]
 
     def __init__(self, *args, **kwargs):
-        super(DirectionSlicing, self).__init__(*args, **kwargs)
+        super(CenterSlice, self).__init__(*args, **kwargs)
 
-        # out_port = slice_to_port[dpid][in_port]
-        self.slice_to_port = {
-            1: {3: 1, 2: 3, 1: 0},
-            6: {1: 3, 3: 2, 2: 0},
-            3: {1: 2, 2: 0},
-            4: {3: 1, 1: 0, 2: 0, 4: 0},
+        # out_port = non_edge_switch_short[dpid][in_port]
+        self.non_edge_switch_short = {
+            2: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0},
+            6: {1: 0, 2: 0, 3: 0, 4: 0, 5: 6, 6: 5},
+            7: {1: 0, 2: 0, 3: 0, 4: 5, 5: 4, 6: 0}
+        }
+
+        # out_port = non_edge_switch_long[dpid][in_port]
+        self.non_edge_switch_long = {
+            2: {1: 6, 2: 0, 3: 0, 4: 0, 5: 0, 6: 1},
+            6: {1: 0, 2: 5, 3: 0, 4: 0, 5: 2, 6: 0},
+            7: {1: 0, 2: 5, 3: 0, 4: 0, 5: 2, 6: 0}
+        }
+
+        # out_port = edge_switch_short[dpid][in_port]
+        self.edge_switch_short = {
+            13: {1: 0, 2: 0, 3: 0, 4: 3, 5: 3, 6: 3},
+            14: {1: 0, 2: 0, 3: 0, 4: 1, 5: 1, 6: 1}
+        }
+
+        # out_port = edge_switch_long[dpid][in_port]
+        self.edge_switch_long = {
+            13: {1: 0, 2: 0, 3: 0, 4: 2, 5: 2, 6: 2},
+            14: {1: 0, 2: 0, 3: 0, 4: 2, 5: 2, 6: 2}
+        }
+
+        # out_port = edge_switch_to_end[dpid][dst-mac]
+        self.edge_switch_to_end = {
+            13: {"00:00:00:00:00:05": 4, "00:00:00:00:00:06": 5},
+            14: {"00:00:00:00:00:07": 4, "00:00:00:00:00:08": 5}
         }
 
     def add_flow(self, datapath, priority, match, actions):
@@ -68,22 +92,128 @@ class DirectionSlicing(app_manager.RyuApp):
         pkt = packet.Packet(msg.data)
         eth = pkt.get_protocol(ethernet.ethernet)
 
+        dst = eth.dst
+
         if eth.ethertype == ether_types.ETH_TYPE_LLDP:
             # ignore lldp packet
-            # self.logger.info("LLDP packet discarded.")
+            self.logger.info("LLDP packet discarded.")
             return
 
-        self.logger.info("INFO packet arrived in s%s (in_port=%s)", dpid, in_port)
-        out_port = self.slice_to_port[dpid][in_port]
+        if dpid in self.edge_switch_to_end:
+            if dst in self.edge_switch_to_end[dpid]:
+                out_port = self.edge_switch_to_end[dpid][dst]
+                self.logger.info(
+                    "INFO sending packet from s%s (out_port=%s) w/ mac-to-port rule",
+                    dpid,
+                    out_port,
+                )
+                actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
+                match = datapath.ofproto_parser.OFPMatch(dl_dst=dst)
+                self.add_flow(datapath, 10, match, actions)
+                self._send_package(msg, datapath, in_port, actions)
 
-        if out_port == 0:
-            # ignore handshake packet
-            # self.logger.info("packet in s%s in_port=%s discarded.", dpid, in_port)
-            return
+            elif (
+                pkt.get_protocol(tcp.tcp) and 
+                (pkt.get_protocol(tcp.tcp).dst_port == 80 or pkt.get_protocol(tcp.tcp).src_port == 80)
+            ):
+                # implement short direction with higher priority
+                out_port = self.edge_switch_short[dpid][in_port]
+                self.logger.info(
+                    "INFO sending packet from s%s (out_port=%s) w/ TCP 80 rule (short path)",
+                    dpid,
+                    out_port,
+                )
+                match = datapath.ofproto_parser.OFPMatch(
+                    in_port=in_port,
+                    dl_dst=dst,
+                    dl_type=ether_types.ETH_TYPE_IP,
+                    tp_src=pkt.get_protocol(tcp.tcp).src_port,
+                    tp_dst=pkt.get_protocol(tcp.tcp).dst_port,
+                )
 
-        actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
-        match = datapath.ofproto_parser.OFPMatch(in_port=in_port)
-        self.logger.info("INFO sending packet from s%s (out_port=%s)", dpid, out_port)
+                actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
+                self.add_flow(datapath, 2, match, actions)
+                self._send_package(msg, datapath, in_port, actions)
 
-        self.add_flow(datapath, 2, match, actions)
-        self._send_package(msg, datapath, in_port, actions)
+            elif (
+                pkt.get_protocol(tcp.tcp) and 
+                pkt.get_protocol(tcp.tcp).dst_port != 80 and
+                pkt.get_protocol(tcp.tcp).src_port != 80
+            ):
+                # implement long direction with normal priority
+                out_port = self.edge_switch_long[dpid][in_port]
+                self.logger.info(
+                    "INFO sending packet from s%s (out_port=%s) w/ TCP not 80 rule (long path)",
+                    dpid,
+                    out_port,
+                )
+                match = datapath.ofproto_parser.OFPMatch(
+                    in_port=in_port,
+                    dl_dst=dst,
+                    dl_type=ether_types.ETH_TYPE_IP,
+                    tp_src=pkt.get_protocol(tcp.tcp).src_port,
+                    tp_dst=pkt.get_protocol(tcp.tcp).dst_port,
+                )
+
+                actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
+                self.add_flow(datapath, 1, match, actions)
+                self._send_package(msg, datapath, in_port, actions)
+
+            elif not pkt.get_protocol(tcp.tcp): # jika protocolnya bukan tcp, discard packet-nya
+                self.logger.info("packet in s%s in_port=%s discarded, because it's not tcp and not going to end device.", dpid, in_port)
+                return # packet di-drop jika protokolnya bukan tcp
+
+        elif dpid in self.non_edge_switch_short:
+            if (
+                pkt.get_protocol(tcp.tcp) and 
+                (pkt.get_protocol(tcp.tcp).dst_port == 80 or pkt.get_protocol(tcp.tcp).src_port == 80)
+            ):
+                # implement short direction with higher priority
+                out_port = self.non_edge_switch_short[dpid][in_port]
+                self.logger.info(
+                    "INFO sending packet from s%s (out_port=%s) w/ TCP 80 rule (short path)",
+                    dpid,
+                    out_port,
+                )
+                match = datapath.ofproto_parser.OFPMatch(
+                    in_port=in_port,
+                    dl_dst=dst,
+                    dl_type=ether_types.ETH_TYPE_IP,
+                    tp_src=pkt.get_protocol(tcp.tcp).src_port,
+                    tp_dst=pkt.get_protocol(tcp.tcp).dst_port,
+                )
+
+                actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
+                self.add_flow(datapath, 2, match, actions)
+                self._send_package(msg, datapath, in_port, actions)
+
+            elif (
+                pkt.get_protocol(tcp.tcp) and 
+                pkt.get_protocol(tcp.tcp).dst_port != 80 and
+                pkt.get_protocol(tcp.tcp).src_port != 80
+            ):
+                # implement long direction with normal priority
+                out_port = self.non_edge_switch_long[dpid][in_port]
+                self.logger.info(
+                    "INFO sending packet from s%s (out_port=%s) w/ TCP not 80 rule (long path)",
+                    dpid,
+                    out_port,
+                )
+                match = datapath.ofproto_parser.OFPMatch(
+                    in_port=in_port,
+                    dl_dst=dst,
+                    dl_type=ether_types.ETH_TYPE_IP,
+                    tp_src=pkt.get_protocol(tcp.tcp).src_port,
+                    tp_dst=pkt.get_protocol(tcp.tcp).dst_port,
+                )
+
+                actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
+                self.add_flow(datapath, 1, match, actions)
+                self._send_package(msg, datapath, in_port, actions)
+
+            elif not pkt.get_protocol(tcp.tcp): # jika protocolnya bukan tcp, discard packet-nya
+                self.logger.info("packet in s%s in_port=%s discarded, because it's not tcp and not going to end device.", dpid, in_port)
+                return # packet di-drop jika protokolnya bukan tcp
+        else:
+            self.logger.info("packet in s%s in_port=%s discarded, switch is not available in this slice.", dpid, in_port)
+            return # packet di-drop jika switch tidak terdaftar di slice ini

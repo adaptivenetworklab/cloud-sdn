@@ -7,8 +7,6 @@ from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
 from ryu.lib.packet import ether_types
 from ryu.lib.packet import udp
-from ryu.lib.packet import tcp
-from ryu.lib.packet import icmp
 
 
 class LeftSlice(app_manager.RyuApp):
@@ -73,7 +71,6 @@ class LeftSlice(app_manager.RyuApp):
     def _packet_in_handler(self, ev):
         msg = ev.msg
         datapath = msg.datapath
-        ofproto = datapath.ofproto
         in_port = msg.in_port
         dpid = datapath.id
 
@@ -82,6 +79,7 @@ class LeftSlice(app_manager.RyuApp):
 
         if eth.ethertype == ether_types.ETH_TYPE_LLDP:
             # ignore lldp packet
+            self.logger.info("LLDP packet discarded.")
             return
         dst = eth.dst
         src = eth.src
@@ -99,7 +97,7 @@ class LeftSlice(app_manager.RyuApp):
                 )
                 actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
                 match = datapath.ofproto_parser.OFPMatch(dl_dst=dst)
-                self.add_flow(datapath, 1, match, actions)
+                self.add_flow(datapath, 10, match, actions)
                 self._send_package(msg, datapath, in_port, actions)
 
             elif ( # jika dst mac bukan mengarah ke end device dan protokol dari paketnya adalah udp dengan dst atau src port-nya 8888
@@ -118,7 +116,8 @@ class LeftSlice(app_manager.RyuApp):
                     dl_dst=dst,
                     dl_type=ether_types.ETH_TYPE_IP,
                     nw_proto=0x11,  # udp
-                    tp_dst=self.slice_TCport,
+                    tp_src=pkt.get_protocol(udp.udp).src_port,
+                    tp_dst=pkt.get_protocol(udp.udp).dst_port,
                 )
 
                 actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
@@ -142,6 +141,7 @@ class LeftSlice(app_manager.RyuApp):
                     dl_src=src,
                     dl_type=ether_types.ETH_TYPE_IP,
                     nw_proto=0x11,  # udp
+                    tp_src=pkt.get_protocol(udp.udp).src_port,
                     tp_dst=pkt.get_protocol(udp.udp).dst_port,
                 )
                 actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
@@ -149,7 +149,7 @@ class LeftSlice(app_manager.RyuApp):
                 self._send_package(msg, datapath, in_port, actions)
 
             elif not pkt.get_protocol(udp.udp): # jika protocolnya bukan udp, discard packet-nya
-                self.logger.info("packet in s%s in_port=%s discarded.", dpid, in_port)
+                self.logger.info("packet in s%s in_port=%s discarded, because it's not udp and not going to end device.", dpid, in_port)
                 return # packet di-drop jika protokolnya bukan udp
 
         elif dpid not in self.end_switches: # jika bukan s10 atau s11, maka lakukan simple forwarding

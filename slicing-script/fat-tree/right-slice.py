@@ -82,6 +82,13 @@ class RightSlice(app_manager.RyuApp):
         eth = pkt.get_protocol(ethernet.ethernet)
         dst = eth.dst
 
+        if eth.ethertype == ether_types.ETH_TYPE_LLDP:
+            # ignore lldp packet
+            self.logger.info("LLDP packet discarded.")
+            return
+
+        self.logger.info("INFO packet arrived in s%s (in_port=%s)", dpid, in_port)
+
         if dpid in self.mac_to_port: # jika switch 14 atau 15
             if dst in self.mac_to_port[dpid]: # jika dst mac ada di dictionary mac_to_port[dpid] atau dst mac menuju end device
                 out_port = self.mac_to_port[dpid][dst]
@@ -92,15 +99,9 @@ class RightSlice(app_manager.RyuApp):
                 )
                 actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
                 match = datapath.ofproto_parser.OFPMatch(dl_dst=dst)
-                self.add_flow(datapath, 1, match, actions)
+                self.add_flow(datapath, 10, match, actions)
                 self._send_package(msg, datapath, in_port, actions)
         else:
-            if eth.ethertype == ether_types.ETH_TYPE_LLDP:
-                # ignore lldp packet
-                # self.logger.info("LLDP packet discarded.")
-                return
-
-            self.logger.info("INFO packet arrived in s%s (in_port=%s)", dpid, in_port)
             out_port = self.slice_to_port[dpid][in_port]
 
             if out_port == 0:

@@ -8,7 +8,12 @@ logika second topology upperslice dari comnets-emu:
 2. Jika bukan s1 atau s6 = flooding
 
 implementasi ke center slice pada fat-tree (TCP and long-short direction):
-1. Jika dst mac nya mengarah ke end device = langsung di-forward ke end device [port 4 dan 5] (di-mapping oleh mac_to_port)
-2. jika protokol packet-nya tcp dengan dst atau src port 80 = implement short direction (di-mapping oleh short_path)
-3. jika protokol packet-nya tcp tapi dst atau src-nya bukan port 80 = implement long direction (di-mapping oleh long_path)
-4. jika protokol packet-nya bukan tcp = drop packet-nya
+1. Jika edge switch
+    a. jika dst mac nya mengarah ke end device = langsung di-forward ke end device [port 4 dan 5] (di-mapping oleh mac_to_port)
+    b. jika protokol packet-nya tcp dengan dst atau src port 80 = implement short direction (di-mapping oleh short_path)
+    c. jika protokol packet-nya tcp tapi dst dan src-nya bukan port 80 = implement long direction (di-mapping oleh long_path)
+    d. jika protokol packet-nya bukan tcp = drop packet-nya
+2. Jika bukan edge switch
+    b. jika protokol packet-nya tcp dengan dst atau src port 80 = implement short direction (di-mapping oleh short_path)
+    c. jika protokol packet-nya tcp tapi dst dan src-nya bukan port 80 = implement long direction (di-mapping oleh long_path)
+    d. jika protokol packet-nya bukan tcp = drop packet-nya
