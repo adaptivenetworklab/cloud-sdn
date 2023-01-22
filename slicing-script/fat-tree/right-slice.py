@@ -71,6 +71,7 @@ class RightSlice(app_manager.RyuApp):
         datapath = msg.datapath
         in_port = msg.in_port
         dpid = datapath.id
+        out_port = 0
 
         pkt = packet.Packet(msg.data)
         eth = pkt.get_protocol(ethernet.ethernet)
@@ -103,10 +104,11 @@ class RightSlice(app_manager.RyuApp):
                     out_port = 5
             else:
                 out_port = self.slice_to_port[dpid][in_port]
-                if out_port == 0:
-                    # ignore handshake packet
-                    # self.logger.info("packet in s%s in_port=%s discarded.", dpid, in_port)
-                    return
+                
+            if out_port == 0:
+                # ignore handshake packet
+                # self.logger.info("packet in s%s in_port=%s discarded.", dpid, in_port)
+                return
 
             actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
             match = datapath.ofproto_parser.OFPMatch(in_port=in_port)

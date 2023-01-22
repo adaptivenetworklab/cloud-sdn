@@ -88,6 +88,7 @@ class CenterSlice(app_manager.RyuApp):
         datapath = msg.datapath
         in_port = msg.in_port
         dpid = datapath.id
+        out_port = 0
 
         pkt = packet.Packet(msg.data)
         eth = pkt.get_protocol(ethernet.ethernet)
