@@ -96,7 +96,7 @@ class CenterSlice(app_manager.RyuApp):
 
         if eth.ethertype == ether_types.ETH_TYPE_LLDP:
             # ignore lldp packet
-            self.logger.info("LLDP packet discarded.")
+            # self.logger.info("LLDP packet discarded.")
             return
 
         if dpid in self.edge_switch_to_end:

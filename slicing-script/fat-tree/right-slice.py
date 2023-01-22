@@ -78,7 +78,7 @@ class RightSlice(app_manager.RyuApp):
 
         if eth.ethertype == ether_types.ETH_TYPE_LLDP:
             # ignore lldp packet
-            self.logger.info("LLDP packet discarded.")
+            # self.logger.info("LLDP packet discarded.")
             return
 
         self.logger.info("INFO packet arrived in s%s (in_port=%s)", dpid, in_port)
@@ -103,11 +103,10 @@ class RightSlice(app_manager.RyuApp):
                     out_port = 5
             else:
                 out_port = self.slice_to_port[dpid][in_port]
-
-            if out_port == 0:
-                # ignore handshake packet
-                # self.logger.info("packet in s%s in_port=%s discarded.", dpid, in_port)
-                return
+                if out_port == 0:
+                    # ignore handshake packet
+                    # self.logger.info("packet in s%s in_port=%s discarded.", dpid, in_port)
+                    return
 
             actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
             match = datapath.ofproto_parser.OFPMatch(in_port=in_port)

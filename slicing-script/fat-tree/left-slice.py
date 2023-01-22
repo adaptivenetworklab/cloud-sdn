@@ -79,7 +79,7 @@ class LeftSlice(app_manager.RyuApp):
 
         if eth.ethertype == ether_types.ETH_TYPE_LLDP:
             # ignore lldp packet
-            self.logger.info("LLDP packet discarded.")
+            # self.logger.info("LLDP packet discarded.")
             return
         dst = eth.dst
         src = eth.src
