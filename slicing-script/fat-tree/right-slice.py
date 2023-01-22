@@ -17,22 +17,16 @@ class RightSlice(app_manager.RyuApp):
         super(RightSlice, self).__init__(*args, **kwargs)
 
         # out_port = slice_to_port[dpid][in_port]
-        # self.slice_to_port = {
-        #     1: {3: 1, 2: 3, 1: 0},
-        #     6: {1: 3, 3: 2, 2: 0},
-        #     3: {1: 2, 2: 0},
-        #     4: {3: 1, 1: 0, 2: 0, 4: 0},
-        # }
-
         self.slice_to_port = {
             14: {4: 2, 5: 2, 1: 0, 2: 0, 3: 0},
             15: {3: 1, 4: 1, 1: 0, 2: 0},
-            8: {5: 3, 6: 5, 1: 0, 2: 0, 3: 0, 4: 0},
-            9: {3: 5, 1: 0, 2: 0, 4: 0, 5: 0},
+            8: {5: 3, 6: 3, 1: 0, 2: 0, 3: 0, 4: 0},
+            9: {3: 0, 1: 0, 2: 0, 4: 0, 5: 0},
             3: {5: 6, 6: 0}
         }
 
-        self.mac_to_port = { # dummy
+        # out_port = mac_to_port[dpid][dst_mac]
+        self.mac_to_port = {
             14: {"00:00:00:00:00:09": 4, "00:00:00:00:00:10": 5},
             15: {"00:00:00:00:00:11": 3, "00:00:00:00:00:12": 4},
         }
@@ -89,7 +83,7 @@ class RightSlice(app_manager.RyuApp):
 
         self.logger.info("INFO packet arrived in s%s (in_port=%s)", dpid, in_port)
 
-        if dpid in self.mac_to_port: # jika switch 14 atau 15
+        if dpid in self.mac_to_port: # pengecekan dst mac jika switch 14 atau 15
             if dst in self.mac_to_port[dpid]: # jika dst mac ada di dictionary mac_to_port[dpid] atau dst mac menuju end device
                 out_port = self.mac_to_port[dpid][dst]
                 self.logger.info(
@@ -101,8 +95,14 @@ class RightSlice(app_manager.RyuApp):
                 match = datapath.ofproto_parser.OFPMatch(dl_dst=dst)
                 self.add_flow(datapath, 10, match, actions)
                 self._send_package(msg, datapath, in_port, actions)
-        else:
-            out_port = self.slice_to_port[dpid][in_port]
+        else: # jika dst mac bukan mengarah ke end device
+            if dpid == 9 and in_port == 3: # special case
+                if dst in self.mac_to_port[14]: # jika mengarah ke s14
+                    out_port = 4
+                if dst in self.mac_to_port[15]: # jika mengarah ke s15
+                    out_port = 5
+            else:
+                out_port = self.slice_to_port[dpid][in_port]
 
             if out_port == 0:
                 # ignore handshake packet
@@ -113,5 +113,5 @@ class RightSlice(app_manager.RyuApp):
             match = datapath.ofproto_parser.OFPMatch(in_port=in_port)
             self.logger.info("INFO sending packet from s%s (out_port=%s)", dpid, out_port)
 
-            self.add_flow(datapath, 2, match, actions)
+            self.add_flow(datapath, 1, match, actions)
             self._send_package(msg, datapath, in_port, actions)
