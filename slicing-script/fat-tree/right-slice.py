@@ -96,6 +96,19 @@ class RightSlice(app_manager.RyuApp):
                 match = datapath.ofproto_parser.OFPMatch(dl_dst=dst)
                 self.add_flow(datapath, 10, match, actions)
                 self._send_package(msg, datapath, in_port, actions)
+            else:
+                out_port = self.slice_to_port[dpid][in_port]
+                if out_port == 0:
+                    # ignore handshake packet
+                    # self.logger.info("packet in s%s in_port=%s discarded.", dpid, in_port)
+                    return
+
+                actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
+                match = datapath.ofproto_parser.OFPMatch(in_port=in_port)
+                self.logger.info("INFO sending packet from s%s (out_port=%s)", dpid, out_port)
+
+                self.add_flow(datapath, 1, match, actions)
+                self._send_package(msg, datapath, in_port, actions)
         else: # jika dst mac bukan mengarah ke end device
             if dpid == 9 and in_port == 3: # special case
                 if dst in self.mac_to_port[14]: # jika mengarah ke s14

@@ -117,7 +117,6 @@ class LeftSlice(app_manager.RyuApp):
                     dl_dst=dst,
                     dl_type=ether_types.ETH_TYPE_IP,
                     nw_proto=0x11,  # udp
-                    tp_src=pkt.get_protocol(udp.udp).src_port,
                     tp_dst=pkt.get_protocol(udp.udp).dst_port,
                 )
 
@@ -142,7 +141,6 @@ class LeftSlice(app_manager.RyuApp):
                     dl_src=src,
                     dl_type=ether_types.ETH_TYPE_IP,
                     nw_proto=0x11,  # udp
-                    tp_src=pkt.get_protocol(udp.udp).src_port,
                     tp_dst=pkt.get_protocol(udp.udp).dst_port,
                 )
                 actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
