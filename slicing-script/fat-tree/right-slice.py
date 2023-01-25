@@ -7,6 +7,7 @@ from ryu.ofproto import ofproto_v1_0
 from ryu.lib.mac import haddr_to_bin
 from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
+from ryu.lib.packet import ipv4
 from ryu.lib.packet import ether_types
 
 
@@ -29,6 +30,12 @@ class RightSlice(app_manager.RyuApp):
         self.mac_to_port = {
             14: {"00:00:00:00:00:09": 4, "00:00:00:00:00:10": 5},
             15: {"00:00:00:00:00:11": 3, "00:00:00:00:00:12": 4},
+        }
+
+        # out_port = ip_to_port[dpid][dst_ip]
+        self.ip_to_port = {
+            14: ["10.0.0.9", "10.0.0.10"],
+            15: ["10.0.0.11", "10.0.0.12"],
         }
 
     def add_flow(self, datapath, priority, match, actions):
@@ -75,7 +82,9 @@ class RightSlice(app_manager.RyuApp):
 
         pkt = packet.Packet(msg.data)
         eth = pkt.get_protocol(ethernet.ethernet)
-        dst = eth.dst
+        dst_mac = eth.dst
+        ip = pkt.get_protocol(ipv4.ipv4)
+        dst_ip = ip.dst
 
         if eth.ethertype == ether_types.ETH_TYPE_LLDP:
             # ignore lldp packet
@@ -85,15 +94,15 @@ class RightSlice(app_manager.RyuApp):
         self.logger.info("INFO packet arrived in s%s (in_port=%s)", dpid, in_port)
 
         if dpid in self.mac_to_port: # pengecekan dst mac jika switch 14 atau 15
-            if dst in self.mac_to_port[dpid]: # jika dst mac ada di dictionary mac_to_port[dpid] atau dst mac menuju end device
-                out_port = self.mac_to_port[dpid][dst]
+            if dst_mac in self.mac_to_port[dpid]: # jika dst mac ada di dictionary mac_to_port[dpid] atau dst mac menuju end device
+                out_port = self.mac_to_port[dpid][dst_mac]
                 self.logger.info(
                     "INFO sending packet from s%s (out_port=%s) w/ mac-to-port rule",
                     dpid,
                     out_port,
                 )
                 actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
-                match = datapath.ofproto_parser.OFPMatch(dl_dst=dst)
+                match = datapath.ofproto_parser.OFPMatch(dl_dst=dst_mac)
                 self.add_flow(datapath, 10, match, actions)
                 self._send_package(msg, datapath, in_port, actions)
             else:
@@ -109,11 +118,11 @@ class RightSlice(app_manager.RyuApp):
 
                 self.add_flow(datapath, 1, match, actions)
                 self._send_package(msg, datapath, in_port, actions)
-        else: # jika dst mac bukan mengarah ke end device
+        else: # jika bukan edge switch
             if dpid == 9 and in_port == 3: # special case
-                if dst in self.mac_to_port[14]: # jika mengarah ke s14
+                if dst_ip in self.ip_to_port[14]: # jika mengarah ke s14
                     out_port = 4
-                if dst in self.mac_to_port[15]: # jika mengarah ke s15
+                if dst_ip in self.ip_to_port[15]: # jika mengarah ke s15
                     out_port = 5
             else:
                 out_port = self.slice_to_port[dpid][in_port]
