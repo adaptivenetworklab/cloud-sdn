@@ -94,7 +94,7 @@ if __name__ == "__main__":
         autoStaticArp=True,
         link=TCLink,
     )
-    controller = RemoteController("c1", ip="10.0.2.207", port=6633)
+    controller = RemoteController("c1", ip="10.0.1.242", port=6633)
     net.addController(controller)
     net.build()
     net.start()
