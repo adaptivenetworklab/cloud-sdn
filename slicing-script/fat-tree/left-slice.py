@@ -152,7 +152,7 @@ class LeftSlice(app_manager.RyuApp):
                 slice_number = 2
                 out_port = self.slice_ports[dpid][slice_number]
                 self.logger.info(
-                    "INFO sending packet from s%s (out_port=%s) Type: ICMP",
+                    "INFO sending packet from s%s (out_port=%s) w/ ICMP rule",
                     dpid,
                     out_port,
                 )
@@ -161,6 +161,7 @@ class LeftSlice(app_manager.RyuApp):
                     dl_dst=dst,
                     dl_src=src,
                     dl_type=ether_types.ETH_TYPE_IP,
+                    nw_proto=0x01,  # icmp
                 )
                 actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
                 self.add_flow(datapath, 1, match, actions)

@@ -129,9 +129,9 @@ class CenterSlice(app_manager.RyuApp):
                 match = datapath.ofproto_parser.OFPMatch(
                     in_port=in_port,
                     dl_dst=dst,
+                    dl_src=src,
                     dl_type=ether_types.ETH_TYPE_IP,
-                    tp_src=pkt.get_protocol(tcp.tcp).src_port,
-                    tp_dst=pkt.get_protocol(tcp.tcp).dst_port,
+                    nw_proto=0x06,  # tcp
                 )
 
                 actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
@@ -153,9 +153,9 @@ class CenterSlice(app_manager.RyuApp):
                 match = datapath.ofproto_parser.OFPMatch(
                     in_port=in_port,
                     dl_dst=dst,
+                    dl_src=src,
                     dl_type=ether_types.ETH_TYPE_IP,
-                    tp_src=pkt.get_protocol(tcp.tcp).src_port,
-                    tp_dst=pkt.get_protocol(tcp.tcp).dst_port,
+                    nw_proto=0x06,  # tcp
                 )
 
                 actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
@@ -175,6 +175,7 @@ class CenterSlice(app_manager.RyuApp):
                     dl_dst=dst,
                     dl_src=src,
                     dl_type=ether_types.ETH_TYPE_IP,
+                    nw_proto=0x01,  # icmp
                 )
                 actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
                 self.add_flow(datapath, 1, match, actions)
@@ -199,9 +200,9 @@ class CenterSlice(app_manager.RyuApp):
                 match = datapath.ofproto_parser.OFPMatch(
                     in_port=in_port,
                     dl_dst=dst,
+                    dl_src=src,
                     dl_type=ether_types.ETH_TYPE_IP,
-                    tp_src=pkt.get_protocol(tcp.tcp).src_port,
-                    tp_dst=pkt.get_protocol(tcp.tcp).dst_port,
+                    nw_proto=0x06,  # tcp
                 )
 
                 actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
@@ -223,9 +224,9 @@ class CenterSlice(app_manager.RyuApp):
                 match = datapath.ofproto_parser.OFPMatch(
                     in_port=in_port,
                     dl_dst=dst,
+                    dl_src=src,
                     dl_type=ether_types.ETH_TYPE_IP,
-                    tp_src=pkt.get_protocol(tcp.tcp).src_port,
-                    tp_dst=pkt.get_protocol(tcp.tcp).dst_port,
+                    nw_proto=0x06,  # tcp
                 )
 
                 actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
@@ -243,7 +244,9 @@ class CenterSlice(app_manager.RyuApp):
                 match = datapath.ofproto_parser.OFPMatch(
                     in_port=in_port,
                     dl_dst=dst,
+                    dl_src=src,
                     dl_type=ether_types.ETH_TYPE_IP,
+                    nw_proto=0x01,  # icmp
                 )
 
                 actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
