@@ -7,6 +7,7 @@ from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
 from ryu.lib.packet import ether_types
 from ryu.lib.packet import udp
+from ryu.lib.packet import icmp
 
 
 class LeftSlice(app_manager.RyuApp):
@@ -147,9 +148,27 @@ class LeftSlice(app_manager.RyuApp):
                 self.add_flow(datapath, 1, match, actions)
                 self._send_package(msg, datapath, in_port, actions)
 
-            elif not pkt.get_protocol(udp.udp): # jika protocolnya bukan udp, discard packet-nya
-                self.logger.info("packet in s%s in_port=%s discarded, because it's not udp and not going to end device.", dpid, in_port)
-                return # packet di-drop jika protokolnya bukan udp
+            elif pkt.get_protocol(icmp.icmp):
+                slice_number = 2
+                out_port = self.slice_ports[dpid][slice_number]
+                self.logger.info(
+                    "INFO sending packet from s%s (out_port=%s) Type: ICMP",
+                    dpid,
+                    out_port,
+                )
+                match = datapath.ofproto_parser.OFPMatch(
+                    in_port=in_port,
+                    dl_dst=dst,
+                    dl_src=src,
+                    dl_type=ether_types.ETH_TYPE_IP,
+                )
+                actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
+                self.add_flow(datapath, 1, match, actions)
+                self._send_package(msg, datapath, in_port, actions)
+
+            # elif not pkt.get_protocol(udp.udp): # jika protocolnya bukan udp, discard packet-nya
+            #     self.logger.info("packet in s%s in_port=%s discarded, because it's not udp and not going to end device.", dpid, in_port)
+            #     return # packet di-drop jika protokolnya bukan udp
 
         elif dpid not in self.end_switches: # jika bukan s10 atau s11, maka lakukan simple forwarding
             self.logger.info("INFO packet arrived in s%s (in_port=%s)", dpid, in_port)
