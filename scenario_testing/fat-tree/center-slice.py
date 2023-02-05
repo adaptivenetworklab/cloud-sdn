@@ -8,7 +8,6 @@ from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
 from ryu.lib.packet import ether_types
 from ryu.lib.packet import tcp
-from ryu.lib.packet import icmp
 
 
 class CenterSlice(app_manager.RyuApp):
@@ -89,17 +88,15 @@ class CenterSlice(app_manager.RyuApp):
         datapath = msg.datapath
         in_port = msg.in_port
         dpid = datapath.id
-        out_port = 0
 
         pkt = packet.Packet(msg.data)
         eth = pkt.get_protocol(ethernet.ethernet)
 
         dst = eth.dst
-        src = eth.src
 
         if eth.ethertype == ether_types.ETH_TYPE_LLDP:
             # ignore lldp packet
-            # self.logger.info("LLDP packet discarded.")
+            self.logger.info("LLDP packet discarded.")
             return
 
         if dpid in self.edge_switch_to_end:
@@ -129,9 +126,9 @@ class CenterSlice(app_manager.RyuApp):
                 match = datapath.ofproto_parser.OFPMatch(
                     in_port=in_port,
                     dl_dst=dst,
-                    dl_src=src,
                     dl_type=ether_types.ETH_TYPE_IP,
-                    nw_proto=0x06,  # tcp
+                    tp_src=pkt.get_protocol(tcp.tcp).src_port,
+                    tp_dst=pkt.get_protocol(tcp.tcp).dst_port,
                 )
 
                 actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
@@ -153,37 +150,18 @@ class CenterSlice(app_manager.RyuApp):
                 match = datapath.ofproto_parser.OFPMatch(
                     in_port=in_port,
                     dl_dst=dst,
-                    dl_src=src,
                     dl_type=ether_types.ETH_TYPE_IP,
-                    nw_proto=0x06,  # tcp
+                    tp_src=pkt.get_protocol(tcp.tcp).src_port,
+                    tp_dst=pkt.get_protocol(tcp.tcp).dst_port,
                 )
 
                 actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
                 self.add_flow(datapath, 1, match, actions)
                 self._send_package(msg, datapath, in_port, actions)
 
-            elif pkt.get_protocol(icmp.icmp):
-                slice_number = 2
-                out_port = self.slice_ports[dpid][slice_number]
-                self.logger.info(
-                    "INFO sending packet from s%s (out_port=%s) Type: ICMP",
-                    dpid,
-                    out_port,
-                )
-                match = datapath.ofproto_parser.OFPMatch(
-                    in_port=in_port,
-                    dl_dst=dst,
-                    dl_src=src,
-                    dl_type=ether_types.ETH_TYPE_IP,
-                    nw_proto=0x01,  # icmp
-                )
-                actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
-                self.add_flow(datapath, 1, match, actions)
-                self._send_package(msg, datapath, in_port, actions)
-
-            # elif not pkt.get_protocol(tcp.tcp): # jika protocolnya bukan tcp, discard packet-nya
-            #     self.logger.info("packet in s%s in_port=%s discarded, because it's not tcp and not going to end device.", dpid, in_port)
-            #     return # packet di-drop jika protokolnya bukan tcp
+            elif not pkt.get_protocol(tcp.tcp): # jika protocolnya bukan tcp, discard packet-nya
+                self.logger.info("packet in s%s in_port=%s discarded, because it's not tcp and not going to end device.", dpid, in_port)
+                return # packet di-drop jika protokolnya bukan tcp
 
         elif dpid in self.non_edge_switch_short:
             if (
@@ -200,9 +178,9 @@ class CenterSlice(app_manager.RyuApp):
                 match = datapath.ofproto_parser.OFPMatch(
                     in_port=in_port,
                     dl_dst=dst,
-                    dl_src=src,
                     dl_type=ether_types.ETH_TYPE_IP,
-                    nw_proto=0x06,  # tcp
+                    tp_src=pkt.get_protocol(tcp.tcp).src_port,
+                    tp_dst=pkt.get_protocol(tcp.tcp).dst_port,
                 )
 
                 actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
@@ -224,38 +202,18 @@ class CenterSlice(app_manager.RyuApp):
                 match = datapath.ofproto_parser.OFPMatch(
                     in_port=in_port,
                     dl_dst=dst,
-                    dl_src=src,
                     dl_type=ether_types.ETH_TYPE_IP,
-                    nw_proto=0x06,  # tcp
-                )
-
-                actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
-                self.add_flow(datapath, 1, match, actions)
-                self._send_package(msg, datapath, in_port, actions)
-            
-            elif pkt.get_protocol(icmp.icmp):
-                # implement long direction with normal priority
-                out_port = self.non_edge_switch_long[dpid][in_port]
-                self.logger.info(
-                    "INFO sending packet from s%s (out_port=%s) Type: ICMP",
-                    dpid,
-                    out_port,
-                )
-                match = datapath.ofproto_parser.OFPMatch(
-                    in_port=in_port,
-                    dl_dst=dst,
-                    dl_src=src,
-                    dl_type=ether_types.ETH_TYPE_IP,
-                    nw_proto=0x01,  # icmp
+                    tp_src=pkt.get_protocol(tcp.tcp).src_port,
+                    tp_dst=pkt.get_protocol(tcp.tcp).dst_port,
                 )
 
                 actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
                 self.add_flow(datapath, 1, match, actions)
                 self._send_package(msg, datapath, in_port, actions)
 
-            # elif not pkt.get_protocol(tcp.tcp): # jika protocolnya bukan tcp, discard packet-nya
-            #     self.logger.info("packet in s%s in_port=%s discarded, because it's not tcp and not going to end device.", dpid, in_port)
-            #     return # packet di-drop jika protokolnya bukan tcp
+            elif not pkt.get_protocol(tcp.tcp): # jika protocolnya bukan tcp, discard packet-nya
+                self.logger.info("packet in s%s in_port=%s discarded, because it's not tcp and not going to end device.", dpid, in_port)
+                return # packet di-drop jika protokolnya bukan tcp
         else:
             self.logger.info("packet in s%s in_port=%s discarded, switch is not available in this slice.", dpid, in_port)
             return # packet di-drop jika switch tidak terdaftar di slice ini

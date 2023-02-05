@@ -26,7 +26,10 @@ class FVTopo(Topo):
 
         # Create host nodes
         for i in range(12):
-            self.addHost("h%d" % (i + 1), **hconfig)
+            if (i + 1) < 10:
+                self.addHost("h%d" % (i + 1), mac="00:00:00:00:00:0%d" % (i + 1), **hconfig)
+            else:
+                self.addHost("h%d" % (i + 1), mac="00:00:00:00:00:%d" % (i + 1), **hconfig)
 
         # Add switch links
         self.addLink("s4", "s1", **http_link_config)
