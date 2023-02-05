@@ -8,9 +8,9 @@ from mininet.link import TCLink
 
 
 class FVTopo(Topo):
-    def init(self):
+    def __init__(self):
         # Initialize topology
-        Topo.init(self)
+        Topo.__init__(self)
 
         # Create template host, switch, and link
         hconfig = {"inNamespace": True}
@@ -21,7 +21,7 @@ class FVTopo(Topo):
 
         # Create switch nodes
         for i in range(15):
-            sconfig = {"dpid": "%016x" % (i + 1)}
+            sconfig = {"dpid": "%010x" % (i + 1)}
             self.addSwitch("s%d" % (i + 1), protocols="OpenFlow10", **sconfig)
 
         # Create host nodes
@@ -81,7 +81,7 @@ class FVTopo(Topo):
 
 topos = {"fvtopo": (lambda: FVTopo())}
 
-if name == "main":
+if __name__ == "__main__":
     topo = FVTopo()
     net = Mininet(
         topo=topo,
@@ -91,7 +91,7 @@ if name == "main":
         autoStaticArp=True,
         link=TCLink,
     )
-    controller = RemoteController("c1", ip="localhost", port=6633)
+    controller = RemoteController("c1", ip="10.0.2.207", port=6633)
     net.addController(controller)
     net.build()
     net.start()

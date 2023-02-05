@@ -8,9 +8,9 @@ from mininet.link import TCLink
 
 
 class FVTopo(Topo):
-    def init(self):
+    def __init__(self):
         # Initialize topology
-        Topo.init(self)
+        Topo.__init__(self)
 
         # Create template host, switch, and link
         hconfig = {"inNamespace": True}
@@ -32,21 +32,12 @@ class FVTopo(Topo):
         self.addLink("s4", "s1", **http_link_config)
         self.addLink("s5", "s1", **http_link_config)
         self.addLink("s6", "s1", **http_link_config)
-        self.addLink("s7", "s1", **http_link_config)
-        self.addLink("s8", "s1", **http_link_config)
-        self.addLink("s9", "s1", **http_link_config)
         self.addLink("s7", "s2", **http_link_config)
         self.addLink("s8", "s2", **http_link_config)
         self.addLink("s9", "s2", **http_link_config)
-        self.addLink("s4", "s2", **http_link_config)
-        self.addLink("s5", "s2", **http_link_config)
-        self.addLink("s6", "s2", **http_link_config)
-        self.addLink("s4", "s3", **http_link_config)
-        self.addLink("s5", "s3", **http_link_config)
-        self.addLink("s6", "s3", **http_link_config)
-        self.addLink("s7", "s3", **http_link_config)
-        self.addLink("s8", "s3", **http_link_config)
-        self.addLink("s9", "s3", **http_link_config)
+        self.addLink("s10", "s3", **http_link_config)
+        self.addLink("s11", "s3", **http_link_config)
+        self.addLink("s12", "s3", **http_link_config)
         self.addLink("s10", "s4", **http_link_config)
         self.addLink("s11", "s4", **http_link_config)
         self.addLink("s10", "s5", **http_link_config)
@@ -81,7 +72,7 @@ class FVTopo(Topo):
 
 topos = {"fvtopo": (lambda: FVTopo())}
 
-if name == "main":
+if __name__ == "__main__":
     topo = FVTopo()
     net = Mininet(
         topo=topo,

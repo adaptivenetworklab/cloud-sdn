@@ -1,0 +1,6 @@
+implementasi ke right slice pada fat-tree (based on flow, left to right, and vice versa):
+1. Jika s14 atau s15:
+    a. Jika dst mac nya mengarah ke end device = langsung di-forward ke end device (di-mapping oleh mac_to_port).
+2. Jika tidak:
+    a. Jika flow dari kiri ke kanan = melalui s8 --> s3 --> s9
+    b. Jika flow dari kanan ke kiri = melalui s8
