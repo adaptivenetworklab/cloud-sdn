@@ -131,7 +131,11 @@ class LeftSlice(app_manager.RyuApp):
                 return
             
             actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
-            match = datapath.ofproto_parser.OFPMatch(in_port=in_port)
+            match = datapath.ofproto_parser.OFPMatch(
+                in_port=in_port,
+                dl_dst=dst,
+                dl_type=ether_types.ETH_TYPE_IP,
+            )
             self.logger.info("INFO sending packet from s%s (out_port=%s)", dpid, out_port)
 
             self.add_flow(datapath, 1, match, actions)
