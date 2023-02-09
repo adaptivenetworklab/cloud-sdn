@@ -25,9 +25,9 @@ class CenterSlice(app_manager.RyuApp):
         # port mapping untuk non-edge switch
         # outport = self.non_edge_sw_port[dpid][in_port]
         self.non_edge_sw_port = {
-            2: {1: 6, 6: 1},
-            6: {5: 2, 2: 5},
-            7: {5: 2, 2: 5},
+            2: {1: 6, 2: 0, 3: 0, 4: 0, 5: 0, 6: 1},
+            6: {1: 0, 2: 5, 3: 0, 4: 0, 5: 2, 6: 0},
+            7: {1: 0, 2: 5, 3: 0, 4: 0, 5: 2, 6: 0},
         }
 
     def add_flow(self, datapath, priority, match, actions):

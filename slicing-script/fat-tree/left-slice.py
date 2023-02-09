@@ -25,9 +25,9 @@ class LeftSlice(app_manager.RyuApp):
         # port mapping untuk non-edge switch
         # outport = self.non_edge_sw_port[dpid][in_port]
         self.non_edge_sw_port = {
-            1: {1: 0, 2: 0},
-            4: {4: 5, 5: 4},
-            5: {4: 5, 5: 4},
+            1: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0},
+            4: {1: 0, 2: 0, 3: 0, 4: 5, 5: 4},
+            5: {1: 0, 2: 0, 3: 0, 4: 5, 5: 4},
         }
 
         # outport = self.edge_sw_port[dpid]
