@@ -105,6 +105,10 @@ class LeftSlice(app_manager.RyuApp):
 
             else:
                 out_port = self.edge_sw_port[dpid]
+
+                if out_port == 0:
+                    return
+
                 self.logger.info(
                     "INFO sending packet from s%s (out_port=%s)",
                     dpid,
@@ -121,8 +125,10 @@ class LeftSlice(app_manager.RyuApp):
                 self._send_package(msg, datapath, in_port, actions)
 
         else: # jika bukan s10 atau s11, maka lakukan simple forwarding
-            self.logger.info("INFO packet arrived in s%s (in_port=%s)", dpid, in_port)
             out_port = self.non_edge_sw_port[dpid][in_port]
+
+            if out_port == 0:
+                return
             
             actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
             match = datapath.ofproto_parser.OFPMatch(in_port=in_port)
