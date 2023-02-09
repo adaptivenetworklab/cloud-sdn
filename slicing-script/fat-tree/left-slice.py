@@ -21,18 +21,19 @@ class LeftSlice(app_manager.RyuApp):
             10: {"00:00:00:00:00:01": 3, "00:00:00:00:00:02": 4}, # in s10 [out port 3 if mac 00::01, out port 4 if mac 00:02] 
             11: {"00:00:00:00:00:03": 4, "00:00:00:00:00:04": 5},
         }
-        self.slice_TCport = 8888
-
-        # outport = self.slice_ports[dpid][slicenumber]
-        self.slice_ports = {10: {1: 1, 2: 2}, 11: {1: 1, 2: 2}}
-        self.end_switches = [10, 11]
 
         # port mapping untuk non-edge switch
-        # outport = self.slice_ports[dpid][in_port]
+        # outport = self.non_edge_sw_port[dpid][in_port]
         self.non_edge_sw_port = {
-            1: {1: 2, 2: 1},
-            4: {4: 1, 5: 1},
-            5: {4: 1, 5: 1},
+            1: {1: 0, 2: 0},
+            4: {4: 5, 5: 4},
+            5: {4: 5, 5: 4},
+        }
+
+        # outport = self.edge_sw_port[dpid]
+        self.edge_sw_port = {
+            10: 2,
+            11: 1,
         }
 
     def add_flow(self, datapath, priority, match, actions):
@@ -93,97 +94,36 @@ class LeftSlice(app_manager.RyuApp):
             if dst in self.mac_to_port[dpid]: # jika dst mac ada di dictionary mac_to_port[dpid] atau dst mac menuju end device  
                 out_port = self.mac_to_port[dpid][dst]
                 self.logger.info(
-                    "INFO sending packet from s%s (out_port=%s) w/ mac-to-port rule",
+                    "INFO sending packet from s%s (out_port=%s)",
                     dpid,
                     out_port,
                 )
                 actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
                 match = datapath.ofproto_parser.OFPMatch(dl_dst=dst)
-                self.add_flow(datapath, 10, match, actions)
-                self._send_package(msg, datapath, in_port, actions)
-
-            elif ( # jika dst mac bukan mengarah ke end device dan protokol dari paketnya adalah udp dengan dst atau src port-nya 8888
-                pkt.get_protocol(udp.udp)
-                and (pkt.get_protocol(udp.udp).dst_port == self.slice_TCport or pkt.get_protocol(udp.udp).src_port == self.slice_TCport)
-            ):
-                slice_number = 1
-                out_port = self.slice_ports[dpid][slice_number]
-                self.logger.info(
-                    "INFO sending packet from s%s (out_port=%s) w/ UDP 8888 rule",
-                    dpid,
-                    out_port,
-                )
-                match = datapath.ofproto_parser.OFPMatch(
-                    in_port=in_port,
-                    dl_dst=dst,
-                    dl_type=ether_types.ETH_TYPE_IP,
-                    nw_proto=0x11,  # udp
-                    tp_dst=pkt.get_protocol(udp.udp).dst_port,
-                )
-
-                actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
-                self.add_flow(datapath, 2, match, actions)
-                self._send_package(msg, datapath, in_port, actions)
-
-            elif ( # jika dst mac bukan mengarah ke end device dan protokol dari paketnya adalah udp dengan src atau dst port-nya selain 8888
-                pkt.get_protocol(udp.udp)
-                and pkt.get_protocol(udp.udp).dst_port != self.slice_TCport and pkt.get_protocol(udp.udp).src_port != self.slice_TCport
-            ):
-                slice_number = 2
-                out_port = self.slice_ports[dpid][slice_number]
-                self.logger.info(
-                    "INFO sending packet from s%s (out_port=%s) w/ UDP general rule",
-                    dpid,
-                    out_port,
-                )
-                match = datapath.ofproto_parser.OFPMatch(
-                    in_port=in_port,
-                    dl_dst=dst,
-                    dl_src=src,
-                    dl_type=ether_types.ETH_TYPE_IP,
-                    nw_proto=0x11,  # udp
-                    tp_dst=pkt.get_protocol(udp.udp).dst_port,
-                )
-                actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
                 self.add_flow(datapath, 1, match, actions)
                 self._send_package(msg, datapath, in_port, actions)
 
-            elif pkt.get_protocol(icmp.icmp):
-                slice_number = 2
-                out_port = self.slice_ports[dpid][slice_number]
-                self.logger.info(
-                    "INFO sending packet from s%s (out_port=%s) w/ ICMP rule",
-                    dpid,
-                    out_port,
-                )
-                match = datapath.ofproto_parser.OFPMatch(
-                    in_port=in_port,
-                    dl_dst=dst,
-                    dl_src=src,
-                    dl_type=ether_types.ETH_TYPE_IP,
-                    nw_proto=0x01,  # icmp
-                )
-                actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
-                self.add_flow(datapath, 1, match, actions)
-                self._send_package(msg, datapath, in_port, actions)
-
-            # elif not pkt.get_protocol(udp.udp): # jika protocolnya bukan udp, discard packet-nya
-            #     self.logger.info("packet in s%s in_port=%s discarded, because it's not udp and not going to end device.", dpid, in_port)
-            #     return # packet di-drop jika protokolnya bukan udp
-
-        elif dpid not in self.end_switches: # jika bukan s10 atau s11, maka lakukan simple forwarding
-            self.logger.info("INFO packet arrived in s%s (in_port=%s)", dpid, in_port)
-            if (dpid == 4 or dpid == 5) and in_port == 1: # special case
-                # arahkan flow dengan in_port 1 pada s4 atau s5 ke edge switch sesuai dst mac
-                if dst in self.mac_to_port[10]:
-                    out_port = 4
-                elif dst in self.mac_to_port[11]:
-                    out_port = 5
-                else:
-                    self.logger.info("packet in s%s in_port=%s discarded.", dpid, in_port)
-                    return # packet di-drop jika dst mac tidak ada di dalam self.mac_to_port
             else:
-                out_port = self.non_edge_sw_port[dpid][in_port]
+                out_port = self.edge_sw_port[dpid]
+                self.logger.info(
+                    "INFO sending packet from s%s (out_port=%s)",
+                    dpid,
+                    out_port,
+                )
+                match = datapath.ofproto_parser.OFPMatch(
+                    in_port=in_port,
+                    dl_dst=dst,
+                    dl_type=ether_types.ETH_TYPE_IP,
+                    tp_dst=pkt.get_protocol(udp.udp).dst_port,
+                )
+
+                actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
+                self.add_flow(datapath, 1, match, actions)
+                self._send_package(msg, datapath, in_port, actions)
+
+        else: # jika bukan s10 atau s11, maka lakukan simple forwarding
+            self.logger.info("INFO packet arrived in s%s (in_port=%s)", dpid, in_port)
+            out_port = self.non_edge_sw_port[dpid][in_port]
             
             actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
             match = datapath.ofproto_parser.OFPMatch(in_port=in_port)
