@@ -7,6 +7,7 @@ from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
 from ryu.lib.packet import ether_types
 from ryu.lib.packet import udp
+from ryu.lib.packet import tcp
 from ryu.lib.packet import icmp
 
 
@@ -103,6 +104,72 @@ class LeftSlice(app_manager.RyuApp):
                 self.add_flow(datapath, 1, match, actions)
                 self._send_package(msg, datapath, in_port, actions)
 
+            elif (pkt.get_protocol(udp.udp)):
+                out_port = self.edge_sw_port[dpid]
+
+                if out_port == 0:
+                    return
+
+                self.logger.info(
+                    "INFO sending packet from s%s (out_port=%s)",
+                    dpid,
+                    out_port,
+                )
+                match = datapath.ofproto_parser.OFPMatch(
+                    in_port=in_port,
+                    dl_dst=dst,
+                    dl_type=ether_types.ETH_TYPE_IP,
+                    nw_proto=0x11,
+                )
+
+                actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
+                self.add_flow(datapath, 1, match, actions)
+                self._send_package(msg, datapath, in_port, actions)
+
+            elif pkt.get_protocol(tcp.tcp):
+                out_port = self.edge_sw_port[dpid]
+
+                if out_port == 0:
+                    return
+
+                self.logger.info(
+                    "INFO sending packet from s%s (out_port=%s)",
+                    dpid,
+                    out_port,
+                )
+                match = datapath.ofproto_parser.OFPMatch(
+                    in_port=in_port,
+                    dl_dst=dst,
+                    dl_type=ether_types.ETH_TYPE_IP,
+                    nw_proto=0x06,  # tcp
+                )
+
+                actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
+                self.add_flow(datapath, 1, match, actions)
+                self._send_package(msg, datapath, in_port, actions)
+
+            elif pkt.get_protocol(icmp.icmp):
+                out_port = self.edge_sw_port[dpid]
+
+                if out_port == 0:
+                    return
+
+                self.logger.info(
+                    "INFO sending packet from s%s (out_port=%s)",
+                    dpid,
+                    out_port,
+                )
+                match = datapath.ofproto_parser.OFPMatch(
+                    in_port=in_port,
+                    dl_dst=dst,
+                    dl_type=ether_types.ETH_TYPE_IP,
+                    nw_proto=0x01,  # icmp
+                )
+
+                actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
+                self.add_flow(datapath, 1, match, actions)
+                self._send_package(msg, datapath, in_port, actions)
+            
             else:
                 out_port = self.edge_sw_port[dpid]
 
@@ -125,18 +192,30 @@ class LeftSlice(app_manager.RyuApp):
                 self._send_package(msg, datapath, in_port, actions)
 
         else: # jika bukan s10 atau s11, maka lakukan simple forwarding
-            out_port = self.non_edge_sw_port[dpid][in_port]
+            # out_port = self.non_edge_sw_port[dpid][in_port]
 
-            if out_port == 0:
-                return
+            # if out_port == 0:
+            #     return
             
-            actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
-            match = datapath.ofproto_parser.OFPMatch(
-                in_port=in_port,
-                dl_dst=dst,
-                dl_type=ether_types.ETH_TYPE_IP,
-            )
-            self.logger.info("INFO sending packet from s%s (out_port=%s)", dpid, out_port)
+            # actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
+            # match = datapath.ofproto_parser.OFPMatch(
+            #     in_port=in_port,
+            #     dl_dst=dst,
+            #     dl_type=ether_types.ETH_TYPE_IP,
+            # )
+            # self.logger.info("INFO sending packet from s%s (out_port=%s)", dpid, out_port)
 
+            # self.add_flow(datapath, 1, match, actions)
+            # self._send_package(msg, datapath, in_port, actions)
+
+            out_port = ofproto.OFPP_FLOOD
+            self.logger.info(
+                "INFO sending packet from s%s (out_port=%s) w/ flooding rule",
+                dpid,
+                out_port,
+            )
+            actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
+            match = datapath.ofproto_parser.OFPMatch(in_port=in_port)
             self.add_flow(datapath, 1, match, actions)
             self._send_package(msg, datapath, in_port, actions)
+
