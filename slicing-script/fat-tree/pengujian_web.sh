@@ -2,7 +2,7 @@
 
 duration=10
 interval=2
-dst_host=google.com
+dst_host=10.0.0.2
 
 end=$((SECONDS+$duration))
 
