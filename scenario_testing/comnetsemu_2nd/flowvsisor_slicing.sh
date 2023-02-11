@@ -30,8 +30,8 @@ fvctl -f /etc/flowvisor/flowvisor.passwd list-links
 
 # Define the FlowVisor slices
 echo "Definition of FlowVisor slices..."
-fvctl -f /etc/flowvisor/flowvisor.passwd add-slice upper tcp:10.244.2.25:10001 admin@upperslice
-fvctl -f /etc/flowvisor/flowvisor.passwd add-slice lower tcp:10.244.2.25:10002 admin@lowerslice
+fvctl -f /etc/flowvisor/flowvisor.passwd add-slice upper tcp:10.244.2.31:10001 admin@upperslice
+fvctl -f /etc/flowvisor/flowvisor.passwd add-slice lower tcp:10.244.2.31:10002 admin@lowerslice
 
 # Check defined slices
 echo "Check slices just defined:"

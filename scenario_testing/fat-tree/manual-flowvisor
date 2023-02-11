@@ -1,0 +1,221 @@
+FVCTL(1)                                        FlowVisor Control program                                       FVCTL(1)
+
+
+
+NAME
+       fvctl - commandline tool to administer FlowVisor
+
+
+AUTHOR
+       Ali Al-Shabibi <ali.al-shabibi@onlab.us>
+
+
+SYNOPSIS
+       fvctl [options] command [command_args]
+
+OPTIONS
+       -h HOST, --hostname=HOST
+              Specify the FlowVisor host; default='localhost'
+
+       -p PORT, --port=PORT
+              Specify the FlowVisor web port; default=8080
+
+       -u FV_USER, --user=FV_USER
+              FlowVisor admin user; default='fvadmin'
+
+       -f FV_PASSWDFILE, --passwd-file=FV_PASSWDFILE
+              Password file; default=none
+
+       -v, --version
+
+       --help
+
+
+DESCRIPTION
+       The  fvctl  program  is  a  command  line  tool for configuring, debugging, monitoring, and administering running
+       FlowVisor instances.  It is able to show the current state of a FlowVisor, including features, configuration, and
+       flowspace entries.
+
+       Every  FlowVisor instance runs an JSONRPC server and accepts API calls as listed below.  The tool fvctl is just a
+       command-line client that invokes these calls.  The expectation is  that  more  user  friendly  (read:  graphical)
+       interfaces will evolve and eventually replace fvctl.
+
+
+
+COMMANDS
+       add-flowspace
+              Creates a flowspace rule
+
+       add-slice
+              Creates a new slice
+
+       get-config
+              Displays the general purpose FlowVisor config params
+
+       list-datapath-info
+              Displays information for a connected device
+
+       list-datapath-stats
+              Display statistics for a connected device
+
+       list-datapaths
+              Displays the devices
+
+       list-flowspace
+              Displays the flowspace
+
+       list-fv-health
+              Reports overall FlowVisor health
+
+       list-links
+              Display overall topology
+
+       list-slice-health
+              Reports overall slice health
+
+       list-slice-info
+              Displays slice information
+
+       list-slice-stats
+              Displays statistics about a slice
+
+       list-slices
+              Displays the configured slices
+
+       list-version
+              Displays FlowVisor version
+
+       remove-flowspace
+              Remove a flowspace rule
+
+       remove-slice
+              Deletes a slice
+
+       save-config
+              Saves Flowvisor's configuration
+
+       set-config
+              Sets general purpose FlowVisor config parameters
+
+       update-admin-password
+              Update admin password
+
+       update-flowspace
+              Changes flowspace rule parameters
+
+       update-slice
+              Changes slice parameters
+
+       update-slice-password
+              Updates slice password
+
+       list-datapath-flowdb
+              Displays the contents of the flow db if flow tracking is enabled
+
+       list-datapath-flowrewritedb
+              Displays the rewrites (or expansions) FlowVisor has applied
+
+              See 'fvctl help <command>' for more info on a specific command.
+
+
+
+MATCH SYNTAX
+       Some  fvctl commands accept an argument that describes a flow or flows.  Such flow descriptions comprise a series
+       field=value assignments, separated by commas.
+
+       The following field assignments describe how a flow matches a packet.  If any of  these  assignments  is  omitted
+       from  the  flow  syntax, the field is treated as a wildcard; thus, if all of them are omitted, the resulting flow
+       matches all packets.  The string all or any is used to specify a flow that matches all packets.
+
+
+       in_port=port_no
+              Matches physical port port_no.  Switch ports are numbered as displayed by fvctl getDeviceInfo DPID.
+
+
+       dl_vlan=vlan
+              Matches IEEE 802.1q virtual LAN tag vlan.  Specify 0xffff as vlan to match packets  that  are  not  tagged
+              with  a  virtual  LAN; otherwise, specify a number between 0 and 4095, inclusive, as the 12-bit VLAN ID to
+              match.
+
+
+       dl_src=mac
+              Matches Ethernet source address mac, which should be specified as 6 pairs of hexadecimal digits  delimited
+              by colons, e.g. 00:0A:E4:25:6B:B0.
+
+
+       dl_dst=mac
+              Matches Ethernet destination address mac.
+
+
+       dl_type=ethertype
+              Matches  Ethernet  protocol  type  ethertype,  which should be specified as a integer between 0 and 65535,
+              inclusive, either in decimal or as a hexadecimal number prefixed by 0x, e.g. 0x0806 to match ARP packets.
+
+
+       nw_src=ip[/netmask]
+              Matches IPv4 source address ip, which should be  specified  as  an  IP  address,  e.g.  192.168.1.1.   The
+              optional  netmask allows matching only on an IPv4 address prefix.  The netmask is specificed "CIDR-style",
+              i.e., 192.168.1.0/24.
+
+
+       nw_dst=ip[/netmask]
+              Matches IPv4 destination address ip.
+
+
+       nw_proto=proto
+              Matches IP protocol type proto, which should be specified as a decimal number between 0  and  255,  inclu-
+              sive, e.g. 6 to match TCP packets.
+
+
+       nw_tos=tos/dscp
+              Matches  ToS/DSCP  (only 6-bits, not modify reserved 2-bits for future use) field of IPv4 header tos/dscp,
+              which should be specified as a decimal number between 0 and 255, inclusive.
+
+
+       tp_src=port
+              Matches transport-layer (e.g., TCP, UDP, ICMP) source port port, which should be specified  as  a  decimal
+              number  between 0 and 65535 (in the case of TCP or UDP) or between 0 and 255 (in the case of ICMP), inclu-
+              sive, e.g. 80 to match packets originating from a HTTP server.
+
+
+       tp_dst=port
+              Matches transport-layer destination port port.
+
+
+DPID
+       The datapath identifier (DPID) is a unique ID to name and identify OpenFlow devices.  With  fvctl,  DPIDs  are  8
+       bytes  and  can  be  specified  as  a decimal number or as 8 hex octets, e.g., 00:00:00:23:10:35:ce:a5.  The DPID
+       ff:ff:ff:ff:ff:ff:ff is a "wildcard" DPID that matches all DPIDs.  It can be specified using any of the following
+       short cuts: all, any, or ALL_DPIDS.
+
+
+SLICE-PERM
+       Slice actions is a comma separated list of slices that have control over a specific FlowSpace.  Slice actions are
+       of the form "slicename1=perm[slicename2=perm[...]]".  Each slice can have  three  types  of  permissions  over  a
+       flowspace:  DELEGATE,  READ,  and WRITE.  Permissions are currently a bitmask specified as an integer, with DELE-
+       GATE=1, READ=2, WRITE=4.  So, "alice=5,bob=2" would give Alice's slice DELEGATE and  WRITE  permissions  (1+4=5),
+       but Bob only READ permissions.  Improving this interface is on the TODO list.  For example,
+
+        fvctl add-flowspace myflowspace all 2 any slice1=4,slice2=2
+
+
+       DELEGATE
+              A  slice  can  delegate  control  of this flowspace to another slice.  It also has permissions to un-dele-
+              gate/reclaim the flowspace.
+
+
+       READ   A slice receives packet_in's matching this flow entry, can send LLDP messages and  stats  to  switches  in
+              this flow entry, but cannot write to or change the switch's flow table.  This is useful for implementing a
+              monitoring slice.
+
+
+       WRITE  A slice has all of the permissions of READ but can also write to the flow table if  the  flow_mod  matches
+              this flow entry.  FlowVisor will try to rewrite a flow_mod (if necessary) as the logical intersection of a
+              slice's flow_mod and the union of its FlowSpace.
+
+              flowvisor(8), fvconfig(1),
+
+
+
+
+FlowVisor                                             January 2013                                              FVCTL(1)

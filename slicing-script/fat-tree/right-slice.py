@@ -3,12 +3,11 @@ from ryu.controller import ofp_event
 from ryu.controller.handler import MAIN_DISPATCHER
 from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_0
-
-from ryu.lib.mac import haddr_to_bin
 from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
-from ryu.lib.packet import ipv4
 from ryu.lib.packet import ether_types
+from ryu.lib.packet import udp
+from ryu.lib.packet import icmp
 
 
 class RightSlice(app_manager.RyuApp):
@@ -17,25 +16,24 @@ class RightSlice(app_manager.RyuApp):
     def __init__(self, *args, **kwargs):
         super(RightSlice, self).__init__(*args, **kwargs)
 
-        # out_port = slice_to_port[dpid][in_port]
-        self.slice_to_port = {
-            14: {4: 2, 5: 2, 1: 0, 2: 0, 3: 0},
-            15: {3: 1, 4: 1, 1: 0, 2: 0},
-            8: {5: 3, 6: 3, 1: 0, 2: 0, 3: 0, 4: 0},
-            9: {3: 0, 1: 0, 2: 0, 4: 0, 5: 0},
-            3: {5: 6, 6: 0}
-        }
-
-        # out_port = mac_to_port[dpid][dst_mac]
+        # outport = self.mac_to_port[dpid][mac_address]
         self.mac_to_port = {
             14: {"00:00:00:00:00:09": 4, "00:00:00:00:00:10": 5},
             15: {"00:00:00:00:00:11": 3, "00:00:00:00:00:12": 4},
         }
 
-        # out_port = ip_to_port[dpid][dst_ip]
-        self.ip_to_port = {
-            14: ["10.0.0.9", "10.0.0.10"],
-            15: ["10.0.0.11", "10.0.0.12"],
+        # port mapping untuk non-edge switch
+        # outport = self.non_edge_sw_port[dpid][in_port]
+        self.non_edge_sw_port = {
+            3: {1: 0, 2: 0, 3: 0, 4: 0, 5: 6, 6: 0},
+            8: {1: 0, 2: 0, 3: 0, 4: 0, 5: 3, 6: 5},
+            9: {1: 0, 2: 0, 3: 5, 4: 0, 5: 0, 6: 0},
+        }
+
+        # outport = self.edge_sw_port[dpid]
+        self.edge_sw_port = {
+            14: 2,
+            15: 1,
         }
 
     def add_flow(self, datapath, priority, match, actions):
@@ -69,7 +67,6 @@ class RightSlice(app_manager.RyuApp):
             actions=actions,
             data=data,
         )
-        # self.logger.info("send_msg %s", out)
         datapath.send_msg(out)
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
@@ -82,58 +79,63 @@ class RightSlice(app_manager.RyuApp):
 
         pkt = packet.Packet(msg.data)
         eth = pkt.get_protocol(ethernet.ethernet)
-        dst_mac = eth.dst
-        ip = pkt.get_protocol(ipv4.ipv4)
-        dst_ip = ip.dst
 
         if eth.ethertype == ether_types.ETH_TYPE_LLDP:
             # ignore lldp packet
             # self.logger.info("LLDP packet discarded.")
             return
+        dst = eth.dst
+        src = eth.src
 
+        # self.logger.info("packet in s%s in_port=%s eth_src=%s eth_dst=%s pkt=%s udp=%s", dpid, in_port, src, dst, pkt, pkt.get_protocol(udp.udp))
         self.logger.info("INFO packet arrived in s%s (in_port=%s)", dpid, in_port)
 
-        if dpid in self.mac_to_port: # pengecekan dst mac jika switch 14 atau 15
-            if dst_mac in self.mac_to_port[dpid]: # jika dst mac ada di dictionary mac_to_port[dpid] atau dst mac menuju end device
-                out_port = self.mac_to_port[dpid][dst_mac]
+        if dpid in self.mac_to_port: # jika switch 10 atau 11
+            if dst in self.mac_to_port[dpid]: # jika dst mac ada di dictionary mac_to_port[dpid] atau dst mac menuju end device  
+                out_port = self.mac_to_port[dpid][dst]
                 self.logger.info(
-                    "INFO sending packet from s%s (out_port=%s) w/ mac-to-port rule",
+                    "INFO sending packet from s%s (out_port=%s)",
                     dpid,
                     out_port,
                 )
                 actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
-                match = datapath.ofproto_parser.OFPMatch(dl_dst=dst_mac)
-                self.add_flow(datapath, 10, match, actions)
-                self._send_package(msg, datapath, in_port, actions)
-            else:
-                out_port = self.slice_to_port[dpid][in_port]
-                if out_port == 0:
-                    # ignore handshake packet
-                    # self.logger.info("packet in s%s in_port=%s discarded.", dpid, in_port)
-                    return
-
-                actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
-                match = datapath.ofproto_parser.OFPMatch(in_port=in_port)
-                self.logger.info("INFO sending packet from s%s (out_port=%s)", dpid, out_port)
-
+                match = datapath.ofproto_parser.OFPMatch(dl_dst=dst)
                 self.add_flow(datapath, 1, match, actions)
                 self._send_package(msg, datapath, in_port, actions)
-        else: # jika bukan edge switch
-            if dpid == 9 and in_port == 3: # special case
-                if dst_ip in self.ip_to_port[14]: # jika mengarah ke s14
-                    out_port = 4
-                if dst_ip in self.ip_to_port[15]: # jika mengarah ke s15
-                    out_port = 5
+
             else:
-                out_port = self.slice_to_port[dpid][in_port]
-                
+                out_port = self.edge_sw_port[dpid]
+
+                if out_port == 0:
+                    return
+
+                self.logger.info(
+                    "INFO sending packet from s%s (out_port=%s)",
+                    dpid,
+                    out_port,
+                )
+                match = datapath.ofproto_parser.OFPMatch(
+                    in_port=in_port,
+                    dl_dst=dst,
+                    dl_type=ether_types.ETH_TYPE_IP,
+                )
+
+                actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
+                self.add_flow(datapath, 1, match, actions)
+                self._send_package(msg, datapath, in_port, actions)
+
+        else: # jika bukan s10 atau s11, maka lakukan simple forwarding
+            out_port = self.non_edge_sw_port[dpid][in_port]
+    
             if out_port == 0:
-                # ignore handshake packet
-                # self.logger.info("packet in s%s in_port=%s discarded.", dpid, in_port)
                 return
 
             actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
-            match = datapath.ofproto_parser.OFPMatch(in_port=in_port)
+            match = datapath.ofproto_parser.OFPMatch(
+                in_port=in_port,
+                dl_dst=dst,
+                dl_type=ether_types.ETH_TYPE_IP,
+            )
             self.logger.info("INFO sending packet from s%s (out_port=%s)", dpid, out_port)
 
             self.add_flow(datapath, 1, match, actions)
