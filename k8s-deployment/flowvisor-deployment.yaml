@@ -6,7 +6,7 @@ metadata:
     app: flowvisor
   name: flowvisor
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: flowvisor
@@ -21,4 +21,13 @@ spec:
       - image: adaptivenetlab/flowvisor:03
         name: flowvisor
         resources: {}
+        volumeMounts:
+        - mountPath: /home/flowvisor/mount
+          name: flowvisor   
+      volumes:
+      - name: flowvisor
+        persistentVolumeClaim: 
+          claimName: pv-volume-claim
+      nodeSelector:
+        kubernetes.io/hostname : worker1-sdn
 status: {}
