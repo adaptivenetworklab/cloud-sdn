@@ -21,23 +21,35 @@ class FVTopo(Topo):
 
         # Create switch nodes
         for i in range(15):
-            sconfig = {"dpid": "%016x" % (i + 1)}
+            sconfig = {"dpid": "%010x" % (i + 1)}
             self.addSwitch("s%d" % (i + 1), protocols="OpenFlow10", **sconfig)
 
         # Create host nodes
         for i in range(12):
-            self.addHost("h%d" % (i + 1), **hconfig)
+            if (i + 1) < 10:
+                self.addHost("h%d" % (i + 1), mac="00:00:00:00:00:0%d" % (i + 1), **hconfig)
+            else:
+                self.addHost("h%d" % (i + 1), mac="00:00:00:00:00:%d" % (i + 1), **hconfig)
 
         # Add switch links
         self.addLink("s4", "s1", **http_link_config)
         self.addLink("s5", "s1", **http_link_config)
         self.addLink("s6", "s1", **http_link_config)
+        self.addLink("s7", "s1", **http_link_config)
+        self.addLink("s8", "s1", **http_link_config)
+        self.addLink("s9", "s1", **http_link_config)
         self.addLink("s7", "s2", **http_link_config)
         self.addLink("s8", "s2", **http_link_config)
         self.addLink("s9", "s2", **http_link_config)
-        self.addLink("s10", "s3", **http_link_config)
-        self.addLink("s11", "s3", **http_link_config)
-        self.addLink("s12", "s3", **http_link_config)
+        self.addLink("s4", "s2", **http_link_config)
+        self.addLink("s5", "s2", **http_link_config)
+        self.addLink("s6", "s2", **http_link_config)
+        self.addLink("s4", "s3", **http_link_config)
+        self.addLink("s5", "s3", **http_link_config)
+        self.addLink("s6", "s3", **http_link_config)
+        self.addLink("s7", "s3", **http_link_config)
+        self.addLink("s8", "s3", **http_link_config)
+        self.addLink("s9", "s3", **http_link_config)
         self.addLink("s10", "s4", **http_link_config)
         self.addLink("s11", "s4", **http_link_config)
         self.addLink("s10", "s5", **http_link_config)
@@ -82,7 +94,7 @@ if __name__ == "__main__":
         autoStaticArp=True,
         link=TCLink,
     )
-    controller = RemoteController("c1", ip="localhost", port=6633)
+    controller = RemoteController("c1", ip="10.244.1.25", port=6633)
     net.addController(controller)
     net.build()
     net.start()
