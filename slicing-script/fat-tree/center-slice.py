@@ -3,11 +3,11 @@ from ryu.controller import ofp_event
 from ryu.controller.handler import MAIN_DISPATCHER
 from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_0
+
 from ryu.lib.packet import packet
 from ryu.lib.packet import ethernet
 from ryu.lib.packet import ether_types
-from ryu.lib.packet import udp
-from ryu.lib.packet import icmp
+from ryu.lib.packet import tcp
 
 
 class CenterSlice(app_manager.RyuApp):
@@ -22,13 +22,29 @@ class CenterSlice(app_manager.RyuApp):
             13: {"00:00:00:00:00:07": 4, "00:00:00:00:00:08": 5},
         }
 
-        # port mapping untuk non-edge switch
-        # outport = self.non_edge_sw_port[dpid][in_port]
-        self.non_edge_sw_port = {
+        # port mapping untuk non-edge switch (long & short)
+
+        # outport = self.short_path[dpid][in_port]
+        self.short_path = {
+            2: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0},
+            6: {1: 0, 2: 0, 3: 0, 4: 0, 5: 6, 6: 5},
+            7: {1: 0, 2: 0, 3: 0, 4: 5, 5: 4, 6: 0},
+        }
+
+        # outport = self.long_path[dpid][in_port]
+        self.long_path = {
             2: {1: 6, 2: 0, 3: 0, 4: 0, 5: 0, 6: 1},
             6: {1: 0, 2: 5, 3: 0, 4: 0, 5: 2, 6: 0},
             7: {1: 0, 2: 5, 3: 0, 4: 0, 5: 2, 6: 0},
         }
+
+        # outport = self.edge_sw_port[dpid][short(1)/long(2)]
+        self.edge_sw_port = {
+            12: {1: 3, 2: 2},
+            13: {1: 1, 2: 2},
+        }
+
+        self.web_dst_port = [80, 443] # http and https port
 
     def add_flow(self, datapath, priority, match, actions):
         ofproto = datapath.ofproto
@@ -81,11 +97,18 @@ class CenterSlice(app_manager.RyuApp):
         dst = eth.dst
         src = eth.src
 
+        is_src_match_port = False
+        is_dst_match_port = False
+
+        if pkt.get_protocol(tcp.tcp):
+            is_src_match_port = pkt.get_protocol(tcp.tcp).src_port in self.web_dst_port
+            is_dst_match_port = pkt.get_protocol(tcp.tcp).dst_port in self.web_dst_port
+
         # self.logger.info("packet in s%s in_port=%s eth_src=%s eth_dst=%s pkt=%s udp=%s", dpid, in_port, src, dst, pkt, pkt.get_protocol(udp.udp))
         self.logger.info("INFO packet arrived in s%s (in_port=%s)", dpid, in_port)
 
-        if dpid in self.mac_to_port: # jika switch 10 atau 11
-            if dst in self.mac_to_port[dpid]: # jika dst mac ada di dictionary mac_to_port[dpid] atau dst mac menuju end device  
+        if dpid in self.mac_to_port: # if the datapath is edge switch
+            if dst in self.mac_to_port[dpid]: # traffic to end device
                 out_port = self.mac_to_port[dpid][dst]
                 self.logger.info(
                     "INFO sending packet from s%s (out_port=%s)",
@@ -94,43 +117,129 @@ class CenterSlice(app_manager.RyuApp):
                 )
                 actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
                 match = datapath.ofproto_parser.OFPMatch(dl_dst=dst)
-                self.add_flow(datapath, 1, match, actions)
+                self.add_flow(datapath, 2, match, actions)
                 self._send_package(msg, datapath, in_port, actions)
-
-            else:
-                out_port = 2
+            
+            elif ( # web traffic is using short path (considered by src_port)
+                pkt.get_protocol(tcp.tcp) and is_src_match_port
+            ):
+                out_port = self.edge_sw_port[dpid][1]
 
                 if out_port == 0:
                     return
-
-                self.logger.info(
-                    "INFO sending packet from s%s (out_port=%s)",
-                    dpid,
-                    out_port,
+                
+                actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
+                match = datapath.ofproto_parser.OFPMatch(
+                    in_port=in_port,
+                    dl_src=src,
+                    dl_dst=dst,
+                    dl_type=ether_types.ETH_TYPE_IP,
+                    nw_proto=0x06,  # tcp
+                    tp_src=pkt.get_protocol(tcp.tcp).src_port
                 )
+                self.logger.info("INFO sending packet from s%s (out_port=%s)", dpid, out_port)
+
+                self.add_flow(datapath, 3, match, actions)
+                self._send_package(msg, datapath, in_port, actions)
+
+            elif ( # rtp traffic is using short path (considered by dst_port)
+                pkt.get_protocol(tcp.tcp) and is_dst_match_port
+            ):
+                out_port = self.edge_sw_port[dpid][1]
+
+                if out_port == 0:
+                    return
+                
+                actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
+                match = datapath.ofproto_parser.OFPMatch(
+                    in_port=in_port,
+                    dl_src=src,
+                    dl_dst=dst,
+                    dl_type=ether_types.ETH_TYPE_IP,
+                    nw_proto=0x06,  # tcp
+                    tp_dst=pkt.get_protocol(tcp.tcp).dst_port
+                )
+                self.logger.info("INFO sending packet from s%s (out_port=%s)", dpid, out_port)
+
+                self.add_flow(datapath, 3, match, actions)
+                self._send_package(msg, datapath, in_port, actions)
+
+            else: # non-rtp traffic is using long path
+                out_port = self.edge_sw_port[dpid][2]
+
+                if out_port == 0:
+                    return
+                
+                actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
                 match = datapath.ofproto_parser.OFPMatch(
                     in_port=in_port,
                     dl_dst=dst,
                     dl_type=ether_types.ETH_TYPE_IP,
                 )
+                self.logger.info("INFO sending packet from s%s (out_port=%s)", dpid, out_port)
 
-                actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
                 self.add_flow(datapath, 1, match, actions)
                 self._send_package(msg, datapath, in_port, actions)
 
-        else: # jika bukan s10 atau s11, maka lakukan simple forwarding
-            out_port = self.non_edge_sw_port[dpid][in_port]
+        else: # if the datapath is non-edge switch
+            if ( # rtp traffic is using short path (considered by src_port)
+                pkt.get_protocol(tcp.tcp) and is_src_match_port
+            ):
+                out_port = self.short_path[dpid][in_port]
 
-            if out_port == 0:
-                return
+                if out_port == 0:
+                    return
+                
+                actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
+                match = datapath.ofproto_parser.OFPMatch(
+                    in_port=in_port,
+                    dl_src=src,
+                    dl_dst=dst,
+                    dl_type=ether_types.ETH_TYPE_IP,
+                    nw_proto=0x06,  # tcp
+                    tp_src=pkt.get_protocol(tcp.tcp).src_port
+                )
+                self.logger.info("INFO sending packet from s%s (out_port=%s)", dpid, out_port)
+
+                self.add_flow(datapath, 3, match, actions)
+                self._send_package(msg, datapath, in_port, actions)
+
+            elif ( # rtp traffic is using short path (considered by dst_port)
+                pkt.get_protocol(tcp.tcp) and is_dst_match_port
+            ):
+                out_port = self.short_path[dpid][in_port]
+
+                if out_port == 0:
+                    return
+                
+                actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
+                match = datapath.ofproto_parser.OFPMatch(
+                    in_port=in_port,
+                    dl_src=src,
+                    dl_dst=dst,
+                    dl_type=ether_types.ETH_TYPE_IP,
+                    nw_proto=0x06,  # tcp
+                    tp_dst=pkt.get_protocol(tcp.tcp).dst_port
+                )
+                self.logger.info("INFO sending packet from s%s (out_port=%s)", dpid, out_port)
+
+                self.add_flow(datapath, 3, match, actions)
+                self._send_package(msg, datapath, in_port, actions)
             
-            actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
-            match = datapath.ofproto_parser.OFPMatch(
-                in_port=in_port,
-                dl_dst=dst,
-                dl_type=ether_types.ETH_TYPE_IP,
-            )
-            self.logger.info("INFO sending packet from s%s (out_port=%s)", dpid, out_port)
+            else: # non-rtp traffic is using long path
+                out_port = self.long_path[dpid][in_port]
 
-            self.add_flow(datapath, 1, match, actions)
-            self._send_package(msg, datapath, in_port, actions)
+                if out_port == 0:
+                    return
+                
+                actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
+                match = datapath.ofproto_parser.OFPMatch(
+                    in_port=in_port,
+                    dl_dst=dst,
+                    dl_type=ether_types.ETH_TYPE_IP,
+                )
+                self.logger.info("INFO sending packet from s%s (out_port=%s)", dpid, out_port)
+
+                self.add_flow(datapath, 1, match, actions)
+                self._send_package(msg, datapath, in_port, actions)
+                
