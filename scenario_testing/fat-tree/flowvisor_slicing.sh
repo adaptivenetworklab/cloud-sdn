@@ -30,9 +30,9 @@ fvctl -f /etc/flowvisor/flowvisor.passwd list-links
 
 # Define the FlowVisor slices
 echo "Definition of FlowVisor slices..."
-fvctl -f /etc/flowvisor/flowvisor.passwd add-slice left tcp:10.244.2.34:10004 admin@leftslice
-fvctl -f /etc/flowvisor/flowvisor.passwd add-slice center tcp:10.244.2.34:10005 admin@centerslice
-fvctl -f /etc/flowvisor/flowvisor.passwd add-slice right tcp:10.244.2.34:10006 admin@rightslice
+fvctl -f /etc/flowvisor/flowvisor.passwd add-slice left tcp:10.244.2.36:10004 admin@leftslice
+fvctl -f /etc/flowvisor/flowvisor.passwd add-slice center tcp:10.244.2.36:10005 admin@centerslice
+fvctl -f /etc/flowvisor/flowvisor.passwd add-slice right tcp:10.244.2.36:10006 admin@rightslice
 
 # Check defined slices
 echo "Check slices just defined:"
