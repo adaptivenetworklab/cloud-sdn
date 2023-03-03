@@ -44,13 +44,15 @@ fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid10 a 1 any left=7
 
 fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid11-port1 b 1 in_port=1 left=7
 fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid11-port2 b 1 in_port=2 left=7
-fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid11-port4 b 1 in_port=4 left=7
-fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid11-port5 b 1 in_port=5 left=7
+#fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid11-port4 b 1 in_port=4 left=7
+#fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid11-port5 b 1 in_port=5 left=7
 
+#fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid4-port1 4 1 in_port=1 left=7
 fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid4-port1 4 1 in_port=1 left=7
 fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid4-port4 4 1 in_port=4 left=7
 fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid4-port5 4 1 in_port=5 left=7
 
+#fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid5-port1 5 1 in_port=1 left=7
 fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid5-port1 5 1 in_port=1 left=7
 fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid5-port4 5 1 in_port=4 left=7
 fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid5-port5 5 1 in_port=5 left=7
@@ -60,28 +62,38 @@ fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid1-port2 1 1 in_port=2
 
 # Center Slice
 
-fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid12 c 1 any center=7
+#fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid12 c 1 any center=7
+fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid12-port2 c 1 in_port=2 center=7
+fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid12-port3 c 1 in_port=3 center=7
 
-fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid13 d 1 any center=7
+#fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid13 d 1 any center=7
+fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid13-port1 d 1 in_port=1 center=7
+fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid13-port2 d 1 in_port=2 center=7
 
-fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid6 6 1 any center=7
+#fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid6 6 1 any center=7
+fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid6-port2 6 1 in_port=2 center=7
+fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid6-port5 6 1 in_port=5 center=7
+fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid6-port6 6 1 in_port=6 center=7
 
-fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid7 7 1 any center=7
+#fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid7 7 1 any center=7
+fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid7-port2 7 1 in_port=2 center=7
+fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid7-port4 7 1 in_port=4 center=7
+fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid7-port5 7 1 in_port=5 center=7
 
-fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid2 2 1 any center=7
+#fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid2 2 1 any center=7
+fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid2-port6 2 1 in_port=6 center=7
+fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid2-port6 2 1 in_port=1 center=7
 
 # Right Slice
 
 fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid14-port2 e 1 in_port=2 right=7
 fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid14-port3 e 1 in_port=3 right=7
-fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid14-port4 e 1 in_port=4 right=7
-fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid14-port5 e 1 in_port=5 right=7
 
 fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid15 f 1 any right=7
 
-fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid8-port3 8 1 in_port=3 right=7
-fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid8-port5 8 1 in_port=5 right=7
 fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid8-port6 8 1 in_port=6 right=7
+fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid8-port5 8 1 in_port=5 right=7
+fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid8-port3 8 1 in_port=3 right=7
 
 fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid9-port3 9 1 in_port=3 right=7
 fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid9-port4 9 1 in_port=4 right=7
