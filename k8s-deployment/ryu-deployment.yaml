@@ -22,7 +22,7 @@ spec:
         name: ryu-app
         resources: {}
         volumeMounts:
-        - mountPath: /mnt/mounting
+        - mountPath: /usr/src/app/mount
           name: ryu-volume
       volumes:
       - name: ryu-volume
