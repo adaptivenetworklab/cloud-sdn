@@ -142,7 +142,7 @@ class CenterSlice(app_manager.RyuApp):
                 self.add_flow(datapath, 3, match, actions)
                 self._send_package(msg, datapath, in_port, actions)
 
-            elif ( # rtp traffic is using short path (considered by dst_port)
+            elif ( # web traffic is using short path (considered by dst_port)
                 pkt.get_protocol(tcp.tcp) and is_dst_match_port
             ):
                 out_port = self.edge_sw_port[dpid][1]
@@ -164,7 +164,7 @@ class CenterSlice(app_manager.RyuApp):
                 self.add_flow(datapath, 3, match, actions)
                 self._send_package(msg, datapath, in_port, actions)
 
-            else: # non-rtp traffic is using long path
+            else: # non-web traffic is using long path
                 out_port = self.edge_sw_port[dpid][2]
 
                 if out_port == 0:
@@ -182,7 +182,7 @@ class CenterSlice(app_manager.RyuApp):
                 self._send_package(msg, datapath, in_port, actions)
 
         else: # if the datapath is non-edge switch
-            if ( # rtp traffic is using short path (considered by src_port)
+            if ( # web traffic is using short path (considered by src_port)
                 pkt.get_protocol(tcp.tcp) and is_src_match_port
             ):
                 out_port = self.short_path[dpid][in_port]
@@ -204,7 +204,7 @@ class CenterSlice(app_manager.RyuApp):
                 self.add_flow(datapath, 3, match, actions)
                 self._send_package(msg, datapath, in_port, actions)
 
-            elif ( # rtp traffic is using short path (considered by dst_port)
+            elif ( # web traffic is using short path (considered by dst_port)
                 pkt.get_protocol(tcp.tcp) and is_dst_match_port
             ):
                 out_port = self.short_path[dpid][in_port]
@@ -226,7 +226,7 @@ class CenterSlice(app_manager.RyuApp):
                 self.add_flow(datapath, 3, match, actions)
                 self._send_package(msg, datapath, in_port, actions)
             
-            else: # non-rtp traffic is using long path
+            else: # non-web traffic is using long path
                 out_port = self.long_path[dpid][in_port]
 
                 if out_port == 0:
