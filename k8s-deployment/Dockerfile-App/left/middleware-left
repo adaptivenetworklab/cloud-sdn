@@ -1,14 +1,14 @@
 FROM python:3.8-alpine
 WORKDIR /usr/src/app
 
-COPY ../../scenario_testing/fat-tree/ryu-app/left-slice/ofp_emitter.py .
-COPY ../../scenario_testing/fat-tree/ryu-app/left-slice/ofctl_rest.py .
-COPY ../requirements-middleware.txt .
+COPY ./ofp_emitter.py .
+COPY ./ofctl_rest.py .
+COPY ./requirements-middleware.txt .
 
 #RUN pip install ryu 
 RUN pip install --upgrade pip
 RUN pip install --root-user-action=ignore requests
-RUN pip install -r requirements.txt
+RUN pip install -r requirements-middleware.txt
 
 EXPOSE 8080
 EXPOSE 6633
