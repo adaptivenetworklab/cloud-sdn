@@ -1,8 +1,8 @@
 #! /bin/bash
 
-duration=10
-interval=2
-dst_host=10.0.0.2
+duration=30
+interval=0.000001
+dst_host=10.0.0.7
 
 end=$((SECONDS+$duration))
 
