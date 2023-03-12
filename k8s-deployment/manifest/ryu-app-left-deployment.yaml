@@ -3,13 +3,13 @@ kind: Deployment
 metadata:
   creationTimestamp: null
   labels:
-    app: middeware
-  name: middleware
+    app: ryu-app
+  name: ryu-app
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: middleware
+      app: ryu-app
   strategy: {}
   template:
     metadata:
@@ -18,8 +18,8 @@ spec:
         app: ryu-app
     spec:
       containers:
-      - image: adaptivenetlab/ryu-app:02
-        name: middleware
+      - image: adaptivenetlab/ryu-app-left:01
+        name: ryu-app
         resources: {}
         volumeMounts:
         - mountPath: /usr/src/app/mount

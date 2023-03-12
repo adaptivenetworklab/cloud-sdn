@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: middeware
+  name: middleware
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: middleware
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: middleware
+    spec:
+      containers:
+      - image: adaptivenetlab/middleware-left:1.0
+        name: middleware
+        resources: {}
+        volumeMounts:
+        - mountPath: /usr/src/app/mount
+          name: ryu-volume
+      volumes:
+      - name: ryu-volume
+        persistentVolumeClaim:
+          claimName: pv-volume-claim
+      nodeSelector:
+        kubernetes.io/hostname : worker2-sdn
+status: {}
