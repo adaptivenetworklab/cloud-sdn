@@ -21,7 +21,7 @@ from ryu.controller.handler import MAIN_DISPATCHER
 from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_0
 
-left_ryu_app = "http://192.168.1.2:8090/packetin"
+left_ryu_app = "http://172.17.0.3:8090/packetin"
 
 class OfpEmitter(app_manager.RyuApp):
     """Propagate events to interested microservices.
