@@ -17,7 +17,7 @@ from flask import Flask, request, abort
 from lib.packet import packet
 from lib.packet import ethernet
 from lib.packet import ether_types
-from lib.packet import tcp
+from lib.packet import udp
 import requests
 import base64
 import datetime
@@ -29,43 +29,44 @@ OFPP_FLOOD = 0xfffb
 OFPFF_SEND_FLOW_REM = 1 << 0
 OFP_NO_BUFFER = 0xffffffff
 
-RYU_BASE_URL = "http://192.168.2.1:8080"
+RYU_BASE_URL = "http://192.168.3.1:8080"
 
 # outport = mac_to_port[dpid][mac_address]
 mac_to_port = {
-    12: {"00:00:00:00:00:05": 4, "00:00:00:00:00:06": 5},
-    13: {"00:00:00:00:00:07": 4, "00:00:00:00:00:08": 5},
+    14: {"00:00:00:00:00:09": 4, "00:00:00:00:00:10": 5},
+    15: {"00:00:00:00:00:11": 3, "00:00:00:00:00:12": 4},
 }
 
 # port mapping untuk non-edge switch (long & short)
 
 # outport = short_path[dpid][in_port]
 short_path = {
-    2: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0},
-    6: {1: 0, 2: 0, 3: 0, 4: 0, 5: 6, 6: 5},
-    7: {1: 0, 2: 0, 3: 0, 4: 5, 5: 4, 6: 0},
+    3: {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0},
+    8: {1: 0, 2: 0, 3: 0, 4: 0, 5: 6, 6: 5},
+    9: {1: 0, 2: 0, 3: 0, 4: 5, 5: 4, 6: 0},
 }
 
 # outport = long_path[dpid][in_port]
 long_path = {
-    2: {1: 6, 2: 0, 3: 0, 4: 0, 5: 0, 6: 1},
-    6: {1: 0, 2: 5, 3: 0, 4: 0, 5: 2, 6: 0},
-    7: {1: 0, 2: 5, 3: 0, 4: 0, 5: 2, 6: 0},
+    3: {1: 0, 2: 0, 3: 0, 4: 0, 5: 6, 6: 5},
+    8: {1: 0, 2: 0, 3: 5, 4: 0, 5: 3, 6: 0},
+    9: {1: 0, 2: 0, 3: 5, 4: 0, 5: 3, 6: 0},
 }
 
 # outport = edge_sw_port[dpid][short(1)/long(2)]
 edge_sw_port = {
-    12: {1: 3, 2: 2},
-    13: {1: 1, 2: 2},
+    14: {1: 3, 2: 2},
+    15: {1: 1, 2: 2},
 }
 
-web_dst_port = [80, 443] # http and https port
+rtp_dst_port = range(10000, 20001) # range of rtp port for VoIP
+sip_dst_port = 5060 # default sip port for VoIP
 
-def build_flow(datapath, priority, match, actions):
+def build_flow(dpid, priority, match, actions):
     "Build and return a flow entry based on https://ryu.readthedocs.io/en/latest/app/ofctl_rest.html#add-a-flow-entry"
 
     flow = {
-        'datapath' : datapath,
+        'dpid' : dpid,
         'match' : match,
         'cookie' : 0,
         'idle_timeout' : 20,
@@ -91,10 +92,10 @@ def add_flow(flow):
     else:
         return False
 
-def build_packet(data, datapath, in_port, actions, buffer_id):
+def build_packet(data, dpid, in_port, actions, buffer_id):
     "Build and return a packet"
     pkt = {
-        'datapath' : datapath,
+        'dpid' : dpid,
         'buffer_id': buffer_id,
         'in_port' : in_port,
         'actions': actions,
@@ -139,7 +140,7 @@ def extract_data(msg, event_name):
 
 @api.route('/')
 def index():
-    return 'Center Slice Rest Server'
+    return 'Right Slice Rest Server'
 
 @api.route('/packetin', methods=['POST'])
 def post_packetin():
@@ -161,7 +162,6 @@ def post_packetin():
         #TODO maybe server side
         return
 
-    datapath = data['datapath']
     dpid = data['dpid']
     src = data['src']
     dst = data['dst']
@@ -177,9 +177,16 @@ def post_packetin():
     is_src_match_port = False
     is_dst_match_port = False
 
-    if pkt.get_protocol(tcp.tcp):
-        is_src_match_port = pkt.get_protocol(tcp.tcp).src_port in web_dst_port
-        is_dst_match_port = pkt.get_protocol(tcp.tcp).dst_port in web_dst_port
+    if pkt.get_protocol(udp.udp):
+        is_src_match_port = (
+            pkt.get_protocol(udp.udp).src_port == sip_dst_port or
+            pkt.get_protocol(udp.udp).src_port in rtp_dst_port
+        ) 
+        is_dst_match_port = (
+            pkt.get_protocol(udp.udp).dst_port == sip_dst_port or
+            pkt.get_protocol(udp.udp).dst_port in rtp_dst_port
+        )
+    
 
     if dpid in mac_to_port: # if the datapath is edge switch
         if dst in mac_to_port[dpid]: # traffic to end device
@@ -189,7 +196,7 @@ def post_packetin():
             actions = [{"type":"OUTPUT", "port": out_port}]
 
             start3 = datetime.datetime.now()
-            flow = build_flow(datapath, 2, match, actions)
+            flow = build_flow(dpid, 2, match, actions)
             add_flow(flow) # add flow
             stop3 = datetime.datetime.now()
             time_diff = (stop3 - start3)
@@ -201,7 +208,7 @@ def post_packetin():
                 msg = encoded_data
 
             start4 = datetime.datetime.now()
-            pkt = build_packet(msg, datapath, in_port, actions, buffer_id) # build packet
+            pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
             stop4 = datetime.datetime.now()
             time_diff = (stop4 - start4)
             ex_time = time_diff.total_seconds() * 1000
@@ -214,8 +221,8 @@ def post_packetin():
             ex_time = time_diff.total_seconds() * 1000
             print('send_packet: ', ex_time)
         
-        elif ( # web traffic is using short path (considered by src_port)
-            pkt.get_protocol(tcp.tcp) and is_src_match_port
+        elif ( # voip traffic is using short path (considered by src_port)
+            pkt.get_protocol(udp.udp) and is_src_match_port
         ):
             out_port = edge_sw_port[dpid][1]
 
@@ -227,13 +234,13 @@ def post_packetin():
                 'dl_src': src_mac,
                 'dl_dst': dst_mac,
                 'dl_type': ether_types.ETH_TYPE_IP,
-                'nw_proto': 0x06, # tcp
-                'tp_src': pkt.get_protocol(tcp.tcp).src_port
+                'nw_proto': 0x11, #udp
+                'tp_src': pkt.get_protocol(udp.udp).src_port
             }
             actions = [{"type":"OUTPUT", "port": out_port}]
 
             start3 = datetime.datetime.now()
-            flow = build_flow(datapath, 3, match, actions)
+            flow = build_flow(dpid, 3, match, actions)
             add_flow(flow) # add flow
             stop3 = datetime.datetime.now()
             time_diff = (stop3 - start3)
@@ -245,7 +252,7 @@ def post_packetin():
                 msg = encoded_data
 
             start4 = datetime.datetime.now()
-            pkt = build_packet(msg, datapath, in_port, actions, buffer_id) # build packet
+            pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
             stop4 = datetime.datetime.now()
             time_diff = (stop4 - start4)
             ex_time = time_diff.total_seconds() * 1000
@@ -258,8 +265,8 @@ def post_packetin():
             ex_time = time_diff.total_seconds() * 1000
             print('send_packet: ', ex_time)
             
-        elif ( # web traffic is using short path (considered by dst_port)
-            pkt.get_protocol(tcp.tcp) and is_dst_match_port
+        elif ( # voip traffic is using short path (considered by dst_port)
+            pkt.get_protocol(udp.udp) and is_dst_match_port
         ):
             out_port = edge_sw_port[dpid][1]
 
@@ -271,13 +278,13 @@ def post_packetin():
                 'dl_src': src_mac,
                 'dl_dst': dst_mac,
                 'dl_type': ether_types.ETH_TYPE_IP,
-                'nw_proto': 0x06, # tcp
-                'tp_dst': pkt.get_protocol(tcp.tcp).dst_port
+                'nw_proto': 0x11, #udp
+                'tp_dst': pkt.get_protocol(udp.udp).dst_port
             }
             actions = [{"type":"OUTPUT", "port": out_port}]
 
             start3 = datetime.datetime.now()
-            flow = build_flow(datapath, 3, match, actions)
+            flow = build_flow(dpid, 3, match, actions)
             add_flow(flow) # add flow
             stop3 = datetime.datetime.now()
             time_diff = (stop3 - start3)
@@ -289,7 +296,7 @@ def post_packetin():
                 msg = encoded_data
 
             start4 = datetime.datetime.now()
-            pkt = build_packet(msg, datapath, in_port, actions, buffer_id) # build packet
+            pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
             stop4 = datetime.datetime.now()
             time_diff = (stop4 - start4)
             ex_time = time_diff.total_seconds() * 1000
@@ -302,7 +309,7 @@ def post_packetin():
             ex_time = time_diff.total_seconds() * 1000
             print('send_packet: ', ex_time)
             
-        else: # non-web traffic is using long path
+        else: # non-voip traffic is using long path
             out_port = edge_sw_port[dpid][2]
 
             if out_port == 0:
@@ -316,7 +323,7 @@ def post_packetin():
             actions = [{"type":"OUTPUT", "port": out_port}]
 
             start3 = datetime.datetime.now()
-            flow = build_flow(datapath, 1, match, actions)
+            flow = build_flow(dpid, 1, match, actions)
             add_flow(flow) # add flow
             stop3 = datetime.datetime.now()
             time_diff = (stop3 - start3)
@@ -328,7 +335,7 @@ def post_packetin():
                 msg = encoded_data
 
             start4 = datetime.datetime.now()
-            pkt = build_packet(msg, datapath, in_port, actions, buffer_id) # build packet
+            pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
             stop4 = datetime.datetime.now()
             time_diff = (stop4 - start4)
             ex_time = time_diff.total_seconds() * 1000
@@ -342,8 +349,8 @@ def post_packetin():
             print('send_packet: ', ex_time)
 
     else: # if the datapath is non-edge switch
-        if ( # web traffic is using short path (considered by src_port)
-            pkt.get_protocol(tcp.tcp) and is_src_match_port
+        if ( # voip traffic is using short path (considered by src_port)
+            pkt.get_protocol(udp.udp) and is_src_match_port
         ):
             out_port = short_path[dpid][in_port]
 
@@ -355,13 +362,13 @@ def post_packetin():
                 'dl_src': src_mac,
                 'dl_dst': dst_mac,
                 'dl_type': ether_types.ETH_TYPE_IP,
-                'nw_proto': 0x06, # tcp
-                'tp_src': pkt.get_protocol(tcp.tcp).src_port
+                'nw_proto': 0x11, # udp
+                'tp_src': pkt.get_protocol(udp.udp).src_port
             }
             actions = [{"type":"OUTPUT", "port": out_port}]
 
             start3 = datetime.datetime.now()
-            flow = build_flow(datapath, 3, match, actions)
+            flow = build_flow(dpid, 3, match, actions)
             add_flow(flow) # add flow
             stop3 = datetime.datetime.now()
             time_diff = (stop3 - start3)
@@ -373,7 +380,7 @@ def post_packetin():
                 msg = encoded_data
 
             start4 = datetime.datetime.now()
-            pkt = build_packet(msg, datapath, in_port, actions, buffer_id) # build packet
+            pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
             stop4 = datetime.datetime.now()
             time_diff = (stop4 - start4)
             ex_time = time_diff.total_seconds() * 1000
@@ -386,8 +393,8 @@ def post_packetin():
             ex_time = time_diff.total_seconds() * 1000
             print('send_packet: ', ex_time)
 
-        elif ( # web traffic is using short path (considered by dst_port)
-            pkt.get_protocol(tcp.tcp) and is_dst_match_port
+        elif ( # voip traffic is using short path (considered by dst_port)
+            pkt.get_protocol(udp.udp) and is_dst_match_port
         ):
             out_port = short_path[dpid][in_port]
 
@@ -399,13 +406,13 @@ def post_packetin():
                 'dl_src': src_mac,
                 'dl_dst': dst_mac,
                 'dl_type': ether_types.ETH_TYPE_IP,
-                'nw_proto': 0x06, # tcp
-                'tp_src': pkt.get_protocol(tcp.tcp).dst_port
+                'nw_proto': 0x11, # udp
+                'tp_src': pkt.get_protocol(udp.udp).dst_port
             }
             actions = [{"type":"OUTPUT", "port": out_port}]
 
             start3 = datetime.datetime.now()
-            flow = build_flow(datapath, 3, match, actions)
+            flow = build_flow(dpid, 3, match, actions)
             add_flow(flow) # add flow
             stop3 = datetime.datetime.now()
             time_diff = (stop3 - start3)
@@ -417,7 +424,7 @@ def post_packetin():
                 msg = encoded_data
 
             start4 = datetime.datetime.now()
-            pkt = build_packet(msg, datapath, in_port, actions, buffer_id) # build packet
+            pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
             stop4 = datetime.datetime.now()
             time_diff = (stop4 - start4)
             ex_time = time_diff.total_seconds() * 1000
@@ -430,7 +437,7 @@ def post_packetin():
             ex_time = time_diff.total_seconds() * 1000
             print('send_packet: ', ex_time)
             
-        else: # non-web traffic is using long path
+        else: # non-voip traffic is using long path
             out_port = long_path[dpid][in_port]
 
             if out_port == 0:
@@ -444,7 +451,7 @@ def post_packetin():
             actions = [{"type":"OUTPUT", "port": out_port}]
 
             start3 = datetime.datetime.now()
-            flow = build_flow(datapath, 1, match, actions)
+            flow = build_flow(dpid, 1, match, actions)
             add_flow(flow) # add flow
             stop3 = datetime.datetime.now()
             time_diff = (stop3 - start3)
@@ -456,7 +463,7 @@ def post_packetin():
                 msg = encoded_data
 
             start4 = datetime.datetime.now()
-            pkt = build_packet(msg, datapath, in_port, actions, buffer_id) # build packet
+            pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
             stop4 = datetime.datetime.now()
             time_diff = (stop4 - start4)
             ex_time = time_diff.total_seconds() * 1000
@@ -479,4 +486,4 @@ def post_packetin():
     return "ACK"
 
 if __name__ == "__main__":
-    api.run(host='192.168.2.2', port=8090)
+    api.run(host='192.168.3.2', port=8090)
