@@ -62,11 +62,11 @@ edge_sw_port = {
 rtp_dst_port = range(10000, 20001) # range of rtp port for VoIP
 sip_dst_port = 5060 # default sip port for VoIP
 
-def build_flow(datapath, priority, match, actions):
+def build_flow(dpid, priority, match, actions):
     "Build and return a flow entry based on https://ryu.readthedocs.io/en/latest/app/ofctl_rest.html#add-a-flow-entry"
 
     flow = {
-        'datapath' : datapath,
+        'dpid' : dpid,
         'match' : match,
         'cookie' : 0,
         'idle_timeout' : 20,
@@ -92,10 +92,10 @@ def add_flow(flow):
     else:
         return False
 
-def build_packet(data, datapath, in_port, actions, buffer_id):
+def build_packet(data, dpid, in_port, actions, buffer_id):
     "Build and return a packet"
     pkt = {
-        'datapath' : datapath,
+        'dpid' : dpid,
         'buffer_id': buffer_id,
         'in_port' : in_port,
         'actions': actions,
@@ -162,7 +162,6 @@ def post_packetin():
         #TODO maybe server side
         return
 
-    datapath = data['datapath']
     dpid = data['dpid']
     src = data['src']
     dst = data['dst']
@@ -197,7 +196,7 @@ def post_packetin():
             actions = [{"type":"OUTPUT", "port": out_port}]
 
             start3 = datetime.datetime.now()
-            flow = build_flow(datapath, 2, match, actions)
+            flow = build_flow(dpid, 2, match, actions)
             add_flow(flow) # add flow
             stop3 = datetime.datetime.now()
             time_diff = (stop3 - start3)
@@ -209,7 +208,7 @@ def post_packetin():
                 msg = encoded_data
 
             start4 = datetime.datetime.now()
-            pkt = build_packet(msg, datapath, in_port, actions, buffer_id) # build packet
+            pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
             stop4 = datetime.datetime.now()
             time_diff = (stop4 - start4)
             ex_time = time_diff.total_seconds() * 1000
@@ -241,7 +240,7 @@ def post_packetin():
             actions = [{"type":"OUTPUT", "port": out_port}]
 
             start3 = datetime.datetime.now()
-            flow = build_flow(datapath, 3, match, actions)
+            flow = build_flow(dpid, 3, match, actions)
             add_flow(flow) # add flow
             stop3 = datetime.datetime.now()
             time_diff = (stop3 - start3)
@@ -253,7 +252,7 @@ def post_packetin():
                 msg = encoded_data
 
             start4 = datetime.datetime.now()
-            pkt = build_packet(msg, datapath, in_port, actions, buffer_id) # build packet
+            pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
             stop4 = datetime.datetime.now()
             time_diff = (stop4 - start4)
             ex_time = time_diff.total_seconds() * 1000
@@ -285,7 +284,7 @@ def post_packetin():
             actions = [{"type":"OUTPUT", "port": out_port}]
 
             start3 = datetime.datetime.now()
-            flow = build_flow(datapath, 3, match, actions)
+            flow = build_flow(dpid, 3, match, actions)
             add_flow(flow) # add flow
             stop3 = datetime.datetime.now()
             time_diff = (stop3 - start3)
@@ -297,7 +296,7 @@ def post_packetin():
                 msg = encoded_data
 
             start4 = datetime.datetime.now()
-            pkt = build_packet(msg, datapath, in_port, actions, buffer_id) # build packet
+            pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
             stop4 = datetime.datetime.now()
             time_diff = (stop4 - start4)
             ex_time = time_diff.total_seconds() * 1000
@@ -324,7 +323,7 @@ def post_packetin():
             actions = [{"type":"OUTPUT", "port": out_port}]
 
             start3 = datetime.datetime.now()
-            flow = build_flow(datapath, 1, match, actions)
+            flow = build_flow(dpid, 1, match, actions)
             add_flow(flow) # add flow
             stop3 = datetime.datetime.now()
             time_diff = (stop3 - start3)
@@ -336,7 +335,7 @@ def post_packetin():
                 msg = encoded_data
 
             start4 = datetime.datetime.now()
-            pkt = build_packet(msg, datapath, in_port, actions, buffer_id) # build packet
+            pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
             stop4 = datetime.datetime.now()
             time_diff = (stop4 - start4)
             ex_time = time_diff.total_seconds() * 1000
@@ -369,7 +368,7 @@ def post_packetin():
             actions = [{"type":"OUTPUT", "port": out_port}]
 
             start3 = datetime.datetime.now()
-            flow = build_flow(datapath, 3, match, actions)
+            flow = build_flow(dpid, 3, match, actions)
             add_flow(flow) # add flow
             stop3 = datetime.datetime.now()
             time_diff = (stop3 - start3)
@@ -381,7 +380,7 @@ def post_packetin():
                 msg = encoded_data
 
             start4 = datetime.datetime.now()
-            pkt = build_packet(msg, datapath, in_port, actions, buffer_id) # build packet
+            pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
             stop4 = datetime.datetime.now()
             time_diff = (stop4 - start4)
             ex_time = time_diff.total_seconds() * 1000
@@ -413,7 +412,7 @@ def post_packetin():
             actions = [{"type":"OUTPUT", "port": out_port}]
 
             start3 = datetime.datetime.now()
-            flow = build_flow(datapath, 3, match, actions)
+            flow = build_flow(dpid, 3, match, actions)
             add_flow(flow) # add flow
             stop3 = datetime.datetime.now()
             time_diff = (stop3 - start3)
@@ -425,7 +424,7 @@ def post_packetin():
                 msg = encoded_data
 
             start4 = datetime.datetime.now()
-            pkt = build_packet(msg, datapath, in_port, actions, buffer_id) # build packet
+            pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
             stop4 = datetime.datetime.now()
             time_diff = (stop4 - start4)
             ex_time = time_diff.total_seconds() * 1000
@@ -452,7 +451,7 @@ def post_packetin():
             actions = [{"type":"OUTPUT", "port": out_port}]
 
             start3 = datetime.datetime.now()
-            flow = build_flow(datapath, 1, match, actions)
+            flow = build_flow(dpid, 1, match, actions)
             add_flow(flow) # add flow
             stop3 = datetime.datetime.now()
             time_diff = (stop3 - start3)
@@ -464,7 +463,7 @@ def post_packetin():
                 msg = encoded_data
 
             start4 = datetime.datetime.now()
-            pkt = build_packet(msg, datapath, in_port, actions, buffer_id) # build packet
+            pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
             stop4 = datetime.datetime.now()
             time_diff = (stop4 - start4)
             ex_time = time_diff.total_seconds() * 1000

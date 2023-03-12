@@ -55,7 +55,6 @@ class OfpEmitter(app_manager.RyuApp):
 
         packet = msg.to_jsondict()
         packet['dpid'] = dpid
-        packet['datapath'] = datapath
         print('Packet ', packet)
 
         stop = datetime.datetime.now()
