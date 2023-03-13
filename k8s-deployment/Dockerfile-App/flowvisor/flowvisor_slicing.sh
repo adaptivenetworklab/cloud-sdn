@@ -34,9 +34,9 @@ fvctl -f /etc/flowvisor/flowvisor.passwd list-links
 
 # Define the FlowVisor slices
 echo "Definition of FlowVisor slices..."
-fvctl -f /etc/flowvisor/flowvisor.passwd add-slice -p 123 left tcp:$MIDDLEWARE_LEFT:10001 admin@leftslice
-fvctl -f /etc/flowvisor/flowvisor.passwd add-slice -p 123 center tcp:$MIDDLEWARE_CENTER:10002 admin@centerslice
-fvctl -f /etc/flowvisor/flowvisor.passwd add-slice -p 123 right tcp:$MIDDLEWARE_LEFT:10003 admin@rightslice
+fvctl -f /etc/flowvisor/flowvisor.passwd add-slice -p 123 left tcp:$LEFT_MIDDLEWARE:10001 admin@leftslice
+fvctl -f /etc/flowvisor/flowvisor.passwd add-slice -p 123 center tcp:$CENTER_MIDDLEWARE:10002 admin@centerslice
+fvctl -f /etc/flowvisor/flowvisor.passwd add-slice -p 123 right tcp:$RIGHT_MIDDLEWARE:10003 admin@rightslice
 
 # Check defined slices
 echo "Check slices just defined:"
@@ -112,3 +112,9 @@ fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid9-port5 9 1 in_port=5
 
 fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid3-port5 3 1 in_port=5 right=7
 fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid3-port6 3 1 in_port=6 right=7
+
+#Stop Flowvisor
+sudo /etc/init.d/flowvisor stop
+
+#Run it again
+flowvisor

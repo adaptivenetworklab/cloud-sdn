@@ -25,4 +25,6 @@ EXPOSE 8081
 EXPOSE 8080
 EXPOSE 6633
 
+COPY ./flowvisor_slicing.sh .
+
 CMD ["bash", "./flowvisor_slicing.sh"]

@@ -18,7 +18,7 @@ spec:
         app: middleware-left
     spec:
       containers:
-      - image: adaptivenetlab/middleware-left:1.0
+      - image: adaptivenetlab/middleware-left:1.3
         name: middleware-left
         resources: {}
         env:
