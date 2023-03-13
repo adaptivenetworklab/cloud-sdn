@@ -21,13 +21,6 @@ spec:
       - image: adaptivenetlab/ryu-app-left:1.1
         name: ryu-app-left
         resources: {}
-        env:
-        - name: LEFT_RYU_APP
-          valueFrom:
-            fieldRef:
-              fieldPath: status.podIP
-          name: LEFT_MIDDLEWARE
-          value: middleware.default.svc.cluster.local
         volumeMounts:
         - mountPath: /usr/src/app/mount
           name: ryu-volume

@@ -3,31 +3,25 @@ kind: Deployment
 metadata:
   creationTimestamp: null
   labels:
-    app: ryu-app-left
-  name: ryu-app-left
+    app: middeware
+  name: middleware
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ryu-app-left
+      app: middleware
   strategy: {}
   template:
     metadata:
       creationTimestamp: null
       labels:
-        app: ryu-app-left
+        app: middleware
     spec:
       containers:
-      - image: adaptivenetlab/ryu-app-left:1.1
-        name: ryu-app-left
+      - image: adaptivenetlab/middleware-left:1.1
+        name: middleware
         resources: {}
-        env:
-        - name: LEFT_RYU_APP
-          valueFrom:
-            fieldRef:
-              fieldPath: status.podIP
-          name: LEFT_MIDDLEWARE
-          value: middleware.default.svc.cluster.local
+        
         volumeMounts:
         - mountPath: /usr/src/app/mount
           name: ryu-volume

@@ -29,7 +29,6 @@ class OfpEmitter(app_manager.RyuApp):
     """Propagate events to interested microservices.
 
         packet format:
-
         {
             'OFPXXX' : {    //XXX = event name  (ex. OFPPacketIn)
                 'buffer_id'     :   int
