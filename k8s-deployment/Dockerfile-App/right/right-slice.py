@@ -21,6 +21,7 @@ from lib.packet import udp
 import requests
 import base64
 import datetime
+import os
 
 api = Flask(__name__)
 
@@ -29,7 +30,9 @@ OFPP_FLOOD = 0xfffb
 OFPFF_SEND_FLOW_REM = 1 << 0
 OFP_NO_BUFFER = 0xffffffff
 
-RYU_BASE_URL = "http://172.17.0.2:8080"
+#RYU_BASE_URL = "http://172.17.0.2:8080"
+RYU_BASE_URL = print('"http://' + os.environ['RIGHT_MIDDLEWARE'] + ':8080"')
+right_ryu_app = print(os.environ['RIGHT_RYU_APP'])
 
 # outport = mac_to_port[dpid][mac_address]
 mac_to_port = {
@@ -486,4 +489,4 @@ def post_packetin():
     return "ACK"
 
 if __name__ == "__main__":
-    api.run(host='172.17.0.3', port=8090)
+    api.run(host=right_ryu_app, port=8090)
