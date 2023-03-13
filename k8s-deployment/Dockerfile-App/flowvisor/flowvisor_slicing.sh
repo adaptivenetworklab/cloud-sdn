@@ -8,6 +8,10 @@ echo "Waiting for service to start..."
 sleep 10
 echo "Done."
 
+# Set Config
+echo "FlowVisor topo controller config:"
+fvctl -f /etc/flowvisor/flowvisor.passwd set-config --enable-topo-ctrl
+
 # Get FlowVisor current config
 echo "FlowVisor initial config:"
 fvctl -f /etc/flowvisor/flowvisor.passwd get-config
@@ -30,9 +34,9 @@ fvctl -f /etc/flowvisor/flowvisor.passwd list-links
 
 # Define the FlowVisor slices
 echo "Definition of FlowVisor slices..."
-fvctl -f /etc/flowvisor/flowvisor.passwd add-slice -p 123 left tcp:10.0.2.207:10001 admin@leftslice
-fvctl -f /etc/flowvisor/flowvisor.passwd add-slice -p 123 center tcp:10.0.2.207:10002 admin@centerslice
-fvctl -f /etc/flowvisor/flowvisor.passwd add-slice -p 123 right tcp:10.0.2.207:10003 admin@rightslice
+fvctl -f /etc/flowvisor/flowvisor.passwd add-slice -p 123 left tcp:$MIDDLEWARE_LEFT:10001 admin@leftslice
+fvctl -f /etc/flowvisor/flowvisor.passwd add-slice -p 123 center tcp:$MIDDLEWARE_CENTER:10002 admin@centerslice
+fvctl -f /etc/flowvisor/flowvisor.passwd add-slice -p 123 right tcp:$MIDDLEWARE_LEFT:10003 admin@rightslice
 
 # Check defined slices
 echo "Check slices just defined:"

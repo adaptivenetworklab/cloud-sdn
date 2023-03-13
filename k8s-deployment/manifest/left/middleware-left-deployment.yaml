@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: middeware-left
+  name: middleware-left
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: middleware-left
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: middleware-left
+    spec:
+      containers:
+      - image: adaptivenetlab/middleware-left:1.0
+        name: middleware-left
+        resources: {}
+        env:
+        - name: LEFT_RYU_APP
+          value: ryu-app-left.default.svc.cluster.local
+      nodeSelector:
+        kubernetes.io/hostname : worker2-sdn
+status: {}

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ryu-app-center
+spec:
+  selector:
+    app: ryu-app-center
+  ports:
+  - protocol: TCP
+    port: 8090
+    targetPort: 8090
