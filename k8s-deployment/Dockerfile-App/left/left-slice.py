@@ -30,9 +30,9 @@ OFPP_FLOOD = 0xfffb
 OFPFF_SEND_FLOW_REM = 1 << 0
 OFP_NO_BUFFER = 0xffffffff
 
-#RYU_BASE_URL = "http://172.17.0.2:8080"
-RYU_BASE_URL = print('"http://' + os.environ['LEFT_MIDDLEWARE'] + ':8080"')
-left_ryu_app = print(os.environ['LEFT_RYU_APP'])
+#RYU_BASE_URL = http://172.17.0.2:8080
+RYU_BASE_URL = "http://"  + os.environ['LEFT_MIDDLEWARE'] + ":8080"
+left_ryu_app = os.environ['LEFT_RYU_APP']
 
 # outport = mac_to_port[dpid][mac_address]
 mac_to_port = {
