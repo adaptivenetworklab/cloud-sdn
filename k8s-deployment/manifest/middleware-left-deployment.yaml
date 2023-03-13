@@ -18,12 +18,12 @@ spec:
         app: middleware-left
     spec:
       containers:
-      - image: adaptivenetlab/middleware-left:1.1
+      - image: adaptivenetlab/middleware-left:1.2
         name: middleware-left
         resources: {}
         env:
         - name: LEFT_RYU_APP
-          value: ryu-app.default.svc.cluster.local
+          value: ryu-app-left.default.svc.cluster.local
         volumeMounts:
         - mountPath: /usr/src/app/mount
           name: ryu-volume

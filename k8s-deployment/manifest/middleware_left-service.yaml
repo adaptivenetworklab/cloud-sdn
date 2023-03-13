@@ -5,12 +5,14 @@ metadata:
 spec:
   selector:
     app: middleware-left
+  type: NodePort
   ports:
   - name: to-flowvisor
     protocol: TCP
     port: 10001
     targetPort: 10001
-  - name : port-to-ryu_app
+    nodePort: 30021 
+  - name : port-to-ryu-app
     protocol: TCP
     port: 8080
     targetPort: 8080
