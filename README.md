@@ -11,7 +11,7 @@ In this research, Ryu SDN Controller based on microservices, will be used as a m
 In this research the research was conducted using 2 Virtual machines (VM) which will be built on top of Openstack. The operating system used is Ubuntu 20.04. The first VM will be installed by Minikube as a container orchestrator, and the second VM will be installed by Mininet as a network topology scenario simulation.
 
 VM | Image | Spec | IP
---- | --- | --- |
+--- | --- | --- | ---
 Master |  Ubuntu 20.04 | 4 vCPU, 4GB RAM, Storage 30GB  | 10.0.0.241, 172.20.3.237
 Worker 1 | Ubuntu 20.04 | 8 vCPU, 4GB RAM, Storage 50GB  | 10.0.2.207, 172.20.3.178
 Worker 2 | Ubuntu 20.04 | 4 vCPU, 4GB RAM, Storage 30GB  | 10.0.0.128, 172.20.3.242
