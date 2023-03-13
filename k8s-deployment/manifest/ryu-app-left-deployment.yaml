@@ -26,7 +26,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: status.podIP
-          name: LEFT_MIDDLEWARE
+        - name: LEFT_MIDDLEWARE
           value: middleware.default.svc.cluster.local
         volumeMounts:
         - mountPath: /usr/src/app/mount
