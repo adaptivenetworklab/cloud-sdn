@@ -13,7 +13,7 @@ In this research, Ryu SDN Controller based on microservices used as a multi-tena
 
 ### Network Slicing Spesification
 
-Pada topologi fattree menggunakan skenario slicing untuk beberapa host yang terdiri dari layanan yang biasa digunakan end-user dan memiliki alokasi konsumsi bandwidth yang tidak terlalu besar, berikut diantaranya yaitu:
+The fattree topology uses a slicing scenario for several hosts consisting of services commonly used by end-users and has a bandwidth consumption allocation that is not too large, including the following:
 
 Service Type | Slice Name | Bandwidth | Slicing Path
 --- | --- | --- | ---
