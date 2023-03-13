@@ -3,23 +3,23 @@ kind: Deployment
 metadata:
   creationTimestamp: null
   labels:
-    app: middeware
-  name: middleware
+    app: middeware-left
+  name: middleware-left
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: middleware
+      app: middleware-left
   strategy: {}
   template:
     metadata:
       creationTimestamp: null
       labels:
-        app: middleware
+        app: middleware-left
     spec:
       containers:
       - image: adaptivenetlab/middleware-left:1.1
-        name: middleware
+        name: middleware-left
         resources: {}
         env:
         - name: LEFT_RYU_APP
