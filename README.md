@@ -11,6 +11,16 @@ The objectives and benefits to be achieved in this research are:
 
 In this research, Ryu SDN Controller based on microservices used as a multi-tenant control of the system. Every sub-function in the Ryu SDN Controller that is still monolithic will be broken down and each of these subsystems will be run using a Docker container and managed using Kubernetes. Then as a controller and slice maker on the data plane, the Flow Space feature from the Flowvisor Controller container-based will be used to enable some isolation from each tenant. 
 
+### Network Slicing Spesification
+
+Pada topologi fattree menggunakan skenario slicing untuk beberapa host yang terdiri dari layanan yang biasa digunakan end-user dan memiliki alokasi konsumsi bandwidth yang tidak terlalu besar, berikut diantaranya yaitu:
+
+Service Type | Slice Name | Bandwidth | Slicing Path
+--- | --- | --- | ---
+Video Streaming |  Left Slice | 3 Mbps  | H1-H4
+Web Browsing | Center Slice| 1 Mbps  | H5-H8
+VoIP | Right Slice| 500 Kbps  | H9-H12
+
 ## Testbed Spec
 In this research the research was conducted using 4 Virtual machines (VM) which it is built on top of Openstack.
 
