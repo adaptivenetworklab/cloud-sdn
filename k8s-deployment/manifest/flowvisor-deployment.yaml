@@ -18,7 +18,7 @@ spec:
         app: flowvisor
     spec:
       containers:
-      - image: adaptivenetlab/flowvisor:1.5
+      - image: adaptivenetlab/flowvisor:1.6
         name: flowvisor
         resources: {}
         env:
