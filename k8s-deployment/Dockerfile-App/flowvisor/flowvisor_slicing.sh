@@ -113,6 +113,10 @@ fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid9-port5 9 1 in_port=5
 fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid3-port5 3 1 in_port=5 right=7
 fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid3-port6 3 1 in_port=6 right=7
 
+echo "Waiting for service to be configurated..."
+sleep 10
+echo "Done."
+
 #Stop Flowvisor
 sudo /etc/init.d/flowvisor stop
 
