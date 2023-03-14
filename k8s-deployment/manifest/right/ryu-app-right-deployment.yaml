@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ryu-app-right
+  name: ryu-app-right
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ryu-app-right
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ryu-app-right
+    spec:
+      containers:
+      - image: adaptivenetlab/ryu-app-right:1.5
+        name: ryu-app-right
+        resources: {}
+        env:
+        - name: RIGHT_RYU_APP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: RIGHT_MIDDLEWARE
+          value: middleware-right.default.svc.cluster.local
+      nodeSelector:
+        kubernetes.io/hostname : worker2-sdn
+status: {}
