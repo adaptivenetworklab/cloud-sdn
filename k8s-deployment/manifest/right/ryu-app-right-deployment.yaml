@@ -18,7 +18,7 @@ spec:
         app: ryu-app-right
     spec:
       containers:
-      - image: adaptivenetlab/ryu-app-right:1.0
+      - image: adaptivenetlab/ryu-app-right:1.5
         name: ryu-app-right
         resources: {}
         env:
