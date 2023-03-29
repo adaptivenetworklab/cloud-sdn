@@ -12,7 +12,7 @@ spec:
     protocol: TCP
     port: 6633
     targetPort: 6633
-    nodePort: 30000
+    nodePort: 30001
   - name: expose-8080
     protocol: TCP
     port: 8080
