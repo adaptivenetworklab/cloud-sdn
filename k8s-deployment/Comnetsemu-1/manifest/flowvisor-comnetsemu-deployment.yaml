@@ -19,7 +19,7 @@ spec:
         app: flowvisor-comnetsemu
     spec:
       containers:
-      - image: adaptivenetlab/flowvisor-comnetsemu:1.2
+      - image: adaptivenetlab/flowvisor-comnetsemu:1.3
         name: flowvisor-comnetsemu
         resources: {}
         env:
