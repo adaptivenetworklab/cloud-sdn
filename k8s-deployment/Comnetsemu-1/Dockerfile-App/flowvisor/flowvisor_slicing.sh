@@ -38,6 +38,10 @@ fvctl -f /etc/flowvisor/flowvisor.passwd add-slice -p 123 upper tcp:$UPPER_MIDDL
 fvctl -f /etc/flowvisor/flowvisor.passwd add-slice -p 123 middle tcp:$MIDDLE_MIDDLEWARE:10002 admin@middleslice
 fvctl -f /etc/flowvisor/flowvisor.passwd add-slice -p 123 lower tcp:$LOWER_MIDDLEWARE:10003 admin@lowerslice
 
+echo "Waiting for slices to be defined..."
+sleep 10
+echo "Done."
+
 # Check defined slices
 echo "Check slices just defined:"
 fvctl -f /etc/flowvisor/flowvisor.passwd list-slices
@@ -74,8 +78,20 @@ fvctl -f /etc/flowvisor/flowvisor.passwd add-flowspace dpid7-port4 7 1 in_port=4
 echo "Check all flowspaces just defined:"
 fvctl -f /etc/flowvisor/flowvisor.passwd list-flowspace
 
+echo "Waiting for service to be configurated..."
+sleep 10
+echo "Done."
+
 #Stop Flowvisor
 sudo /etc/init.d/flowvisor stop
 
 #Run it again
 flowvisor
+
+
+
+
+
+
+
+
