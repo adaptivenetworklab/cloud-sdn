@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: middeware-upper
+  name: middleware-upper
+  namespace: comnetsemu
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: middleware-upper
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: middleware-upper
+    spec:
+      containers:
+      - image: adaptivenetlab/middleware-upper:1.0
+        name: middleware-upper
+        resources: {}
+        env:
+        - name: UPPER_RYU_APP
+          value: ryu-app-upper.comnetsemu.svc.cluster.local
+      nodeSelector:
+        kubernetes.io/hostname : worker2-sdn
+status: {}

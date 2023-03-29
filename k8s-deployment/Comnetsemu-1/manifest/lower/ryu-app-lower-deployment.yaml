@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ryu-app-lower
+  name: ryu-app-lower
+  namespace: comnetsemu
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ryu-app-lower
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ryu-app-lower
+    spec:
+      containers:
+      - image: adaptivenetlab/ryu-app-lower:1.0
+        name: ryu-app-lower
+        resources: {}
+        env:
+        - name: LOWER_RYU_APP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: LOWER_MIDDLEWARE
+          value: middleware-lower.comnetsemu.svc.cluster.local
+      nodeSelector:
+        kubernetes.io/hostname : worker2-sdn
+status: {}

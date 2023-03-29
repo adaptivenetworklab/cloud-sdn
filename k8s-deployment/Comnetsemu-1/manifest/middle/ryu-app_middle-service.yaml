@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ryu-app-middle
+  namespace: comnetsemu
+spec:
+  selector:
+    app: ryu-app-middle
+  ports:
+  - protocol: TCP
+    port: 8090
+    targetPort: 8090

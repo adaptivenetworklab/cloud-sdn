@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: flowvisor-comnetsemu
+  name: flowvisor-comnetsemu
+  namespace: comnetsemu
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: flowvisor-comnetsemu
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: flowvisor-comnetsemu
+    spec:
+      containers:
+      - image: adaptivenetlab/flowvisor-comnetsemu:1.0
+        name: flowvisor-comnetsemu
+        resources: {}
+        env:
+        - name: UPPER_MIDDLEWARE
+          value: middleware-upper.comnetsemu.svc.cluster.local
+        - name: MIDDLE_MIDDLEWARE
+          value: middleware-middle.comnetsemu.svc.cluster.local
+        - name: LOWER_MIDDLEWARE
+          value: middleware-lower.comnetsemu.svc.cluster.local                
+status: {}
