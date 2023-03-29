@@ -8,6 +8,10 @@ echo "Waiting for service to start..."
 sleep 10
 echo "Done."
 
+# Set Config
+echo "FlowVisor topo controller config:"
+fvctl -f /etc/flowvisor/flowvisor.passwd set-config --enable-topo-ctrl
+
 # Get FlowVisor current config
 echo "FlowVisor initial config:"
 fvctl -f /etc/flowvisor/flowvisor.passwd get-config
