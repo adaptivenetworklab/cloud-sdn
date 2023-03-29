@@ -19,7 +19,7 @@ spec:
         app: middleware-upper
     spec:
       containers:
-      - image: adaptivenetlab/middleware-upper:1.0
+      - image: adaptivenetlab/middleware-upper:1.1
         name: middleware-upper
         resources: {}
         env:
