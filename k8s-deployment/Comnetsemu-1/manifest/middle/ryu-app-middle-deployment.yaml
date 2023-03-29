@@ -28,7 +28,7 @@ spec:
             fieldRef:
               fieldPath: status.podIP
         - name: MIDDLE_MIDDLEWARE
-          value: middleware-middle.comnetsemu.svc.cluster.local
+          value: middleware-mid.comnetsemu.svc.cluster.local
       nodeSelector:
         kubernetes.io/hostname : worker2-sdn
 status: {}
