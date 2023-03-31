@@ -1,5 +1,5 @@
-kubectl delete -f ./flowvisor-deployment.yaml
-kubectl delete -f ./flowvisor-service.yaml
-kubectl delete -f ./center/
-kubectl delete -f ./left/
-kubectl delete -f ./right/
+kubectl delete -f ~/cloud-sdn/k8s-deployment/"Fat Tree"/manifest/flowvisor-deployment.yaml
+kubectl delete -f ~/cloud-sdn/k8s-deployment/"Fat Tree"/manifest/flowvisor-service.yaml
+kubectl delete -f ~/cloud-sdn/k8s-deployment/"Fat Tree"/manifest/center/
+kubectl delete -f ~/cloud-sdn/k8s-deployment/"Fat Tree"/manifest/left/
+kubectl delete -f ~/cloud-sdn/k8s-deployment/"Fat Tree"/manifest/right/
