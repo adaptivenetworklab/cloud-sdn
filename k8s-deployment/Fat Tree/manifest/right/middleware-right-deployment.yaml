@@ -44,5 +44,5 @@ spec:
         - name: RIGHT_RYU_APP
           value: ryu-app-right.default.svc.cluster.local
       nodeSelector:
-        kubernetes.io/hostname : worker2-sdn
+        kubernetes.io/hostname : worker1-sdn
 status: {}

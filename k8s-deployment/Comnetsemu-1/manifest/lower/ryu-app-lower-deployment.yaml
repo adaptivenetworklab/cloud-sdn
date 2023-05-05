@@ -43,5 +43,5 @@ spec:
         - name: LOWER_MIDDLEWARE
           value: middleware-lower.comnetsemu.svc.cluster.local
       nodeSelector:
-        kubernetes.io/hostname : worker1-sdn
+        kubernetes.io/hostname : worker2-sdn
 status: {}
