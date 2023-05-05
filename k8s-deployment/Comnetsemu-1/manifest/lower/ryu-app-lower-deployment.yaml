@@ -1,3 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ryu-app-lower
+  namespace: comnetsemu
+spec:
+  selector:
+    app: ryu-app-lower
+  ports:
+  - protocol: TCP
+    port: 8090
+    targetPort: 8090
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -30,5 +43,5 @@ spec:
         - name: LOWER_MIDDLEWARE
           value: middleware-lower.comnetsemu.svc.cluster.local
       nodeSelector:
-        kubernetes.io/hostname : worker2-sdn
+        kubernetes.io/hostname : worker1-sdn
 status: {}

@@ -1,3 +1,23 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: middleware-lower
+  namespace: comnetsemu
+spec:
+  selector:
+    app: middleware-lower
+  type: NodePort
+  ports:
+  - name: to-flowvisor
+    protocol: TCP
+    port: 10003
+    targetPort: 10003
+    nodePort: 30003
+  - name : port-to-ryu-app
+    protocol: TCP
+    port: 8080
+    targetPort: 8080
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -26,5 +46,5 @@ spec:
         - name: LOWER_RYU_APP
           value: ryu-app-lower.comnetsemu.svc.cluster.local
       nodeSelector:
-        kubernetes.io/hostname : worker2-sdn
+        kubernetes.io/hostname : worker1-sdn
 status: {}

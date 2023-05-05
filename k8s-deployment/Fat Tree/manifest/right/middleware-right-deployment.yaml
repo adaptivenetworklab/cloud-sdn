@@ -1,3 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: middleware-right
+spec:
+  selector:
+    app: middleware-right
+  type: NodePort
+  ports:
+  - name: to-flowvisor
+    protocol: TCP
+    port: 10003
+    targetPort: 10003
+    nodePort: 31003
+  - name : port-to-ryu-app
+    protocol: TCP
+    port: 8080
+    targetPort: 8080
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
