@@ -34,7 +34,13 @@ spec:
       containers:
       - image: adaptivenetlab/ryu-app-upper:1.0
         name: ryu-app-upper
-        resources: {}
+        resources: 
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "400m"
         env:
         - name: UPPER_RYU_APP
           valueFrom:

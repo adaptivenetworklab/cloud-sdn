@@ -41,7 +41,13 @@ spec:
       containers:
       - image: adaptivenetlab/middleware-middle:1.0
         name: middleware-middle
-        resources: {}
+        resources: 
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "400m"
         env:
         - name: MIDDLE_RYU_APP
           value: ryu-app-middle.comnetsemu.svc.cluster.local
