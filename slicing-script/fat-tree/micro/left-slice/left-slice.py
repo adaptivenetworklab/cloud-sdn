@@ -13,7 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from flask import Flask, request, abort
+from flask import Flask, request, abort, render_template
+from flask_socketio import SocketIO, join_room
 from lib.packet import packet
 from lib.packet import ethernet
 from lib.packet import ether_types
@@ -21,8 +22,10 @@ from lib.packet import udp
 import requests
 import base64
 import datetime
+import json
 
-api = Flask(__name__)
+app = Flask(__name__)
+socketio = SocketIO(app)
 
 #TODO import from ofp
 OFPP_FLOOD = 0xfffb
@@ -137,20 +140,19 @@ def extract_data(msg, event_name):
 
     return data
 
-@api.route('/')
+@socketio.on('connect')
 def index():
-    return 'Left Slice Rest Server'
+    join_room(request.remote_addr)
 
-@api.route('/packetin', methods=['POST'])
-def post_packetin():
+@socketio.on('receive_packetin')
+def handle_packetin(payload):
     start1 = datetime.datetime.now()
     print('post_packetin start timestamp', start1)
     
-    if not request.json:
-        abort(400)
+    json_data = json.loads(payload)
 
     start2 = datetime.datetime.now()
-    data = extract_data(request.json, "OFPPacketIn")
+    data = extract_data(json_data, "OFPPacketIn")
     stop2 = datetime.datetime.now()
     time_diff = (stop2 - start2)
     ex_time = time_diff.total_seconds() * 1000
@@ -478,4 +480,4 @@ def post_packetin():
     return "ACK"
 
 if __name__ == "__main__":
-    api.run(host='192.168.1.2', port=8090)
+    socketio.run(app)

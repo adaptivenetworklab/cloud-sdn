@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from flask import Flask, request, abort, render_template
+from flask_socketio import SocketIO, emit
 import requests
 import datetime
 from ryu.base import app_manager
@@ -20,8 +22,12 @@ from ryu.controller import ofp_event
 from ryu.controller.handler import MAIN_DISPATCHER
 from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_0
+import json
 
-left_ryu_app = "http://192.168.1.2:8090/packetin"
+app = Flask(__name__)
+socketio = SocketIO(app)
+
+left_ryu_app = "192.168.1.2:8090"
 
 class OfpEmitter(app_manager.RyuApp):
     """Propagate events to interested microservices.
@@ -45,6 +51,11 @@ class OfpEmitter(app_manager.RyuApp):
     def __init__(self, *args, **kwargs):
         super(OfpEmitter, self).__init__(*args, **kwargs)
 
+    @socketio.on('send_packetin')
+    def send_packetin(packetin_event):
+        payload = json.dumps(packetin_event)
+        socketio.emit('receive_packetin', payload, room=left_ryu_app)
+
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def _packet_in_handler(self, ev):
         start = datetime.datetime.now()
@@ -63,6 +74,9 @@ class OfpEmitter(app_manager.RyuApp):
         print('_packet_in_handler time ', ex_time)
         timestp = datetime.datetime.now()
         print('_packet_in_handler start requests.post ', timestp)
-        x = requests.post(left_ryu_app,json=packet)
+        self.send_packetin(packet)
         timestp = datetime.datetime.now()
         print('_packet_in_handler end timestamp ', timestp)
+
+if __name__ == "__main__":
+    socketio.run(app)

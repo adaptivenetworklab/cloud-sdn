@@ -1,3 +1,4 @@
 Flask==2.0.3
+flask-socketio
 ryu==4.34
 six==1.15.0
