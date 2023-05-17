@@ -73,8 +73,8 @@ class AddFlowEntry(app_manager.RyuApp):
         self.logger.info("INFO packet arrived in s%s (in_port=%s)", dpid, in_port)
         out_port = self.slice_to_port[dpid][in_port]
         actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
-        match = datapath.ofproto_parser.OFPMatch(in_port=in_port)
+        # match = datapath.ofproto_parser.OFPMatch(in_port=in_port)
         self.logger.info("INFO sending packet from s%s (out_port=%s)", dpid, out_port)
 
-        self.add_flow(datapath, 2, match, actions)
-        # self._send_package(msg, datapath, in_port, actions)
+        # self.add_flow(datapath, 2, match, actions)
+        self._send_package(msg, datapath, in_port, actions)

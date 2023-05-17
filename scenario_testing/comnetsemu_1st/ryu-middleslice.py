@@ -23,27 +23,27 @@ class InitFlowEntry(app_manager.RyuApp):
             7: {1: 3, 3: 1},
         }
 
-    @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
-    def switch_features_handler(self, ev):
-        datapath = ev.msg.datapath
-        ofproto = datapath.ofproto
-        parser = datapath.ofproto_parser
-        dpid = datapath.id
+    # @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
+    # def switch_features_handler(self, ev):
+    #     datapath = ev.msg.datapath
+    #     ofproto = datapath.ofproto
+    #     parser = datapath.ofproto_parser
+    #     dpid = datapath.id
 
-        # install the table-miss flow entry.
-        self.logger.info("INFO New entry to switch")
-        for key in self.slice_to_port[dpid]:
-            in_port = key
-            out_port = self.slice_to_port[dpid][key]
-            match = datapath.ofproto_parser.OFPMatch(in_port=in_port)
-            actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
-            self.logger.info(
-                "INFO adding entry (in_port=%s out_port=%s) to s%s",
-                in_port,
-                out_port,
-                dpid,
-            )
-            self.add_flow(datapath, 2, match, actions)
+    #     # install the table-miss flow entry.
+    #     self.logger.info("INFO New entry to switch")
+    #     for key in self.slice_to_port[dpid]:
+    #         in_port = key
+    #         out_port = self.slice_to_port[dpid][key]
+    #         match = datapath.ofproto_parser.OFPMatch(in_port=in_port)
+    #         actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
+    #         self.logger.info(
+    #             "INFO adding entry (in_port=%s out_port=%s) to s%s",
+    #             in_port,
+    #             out_port,
+    #             dpid,
+    #         )
+    #         self.add_flow(datapath, 2, match, actions)
 
     def add_flow(self, datapath, priority, match, actions):
         ofproto = datapath.ofproto
@@ -96,7 +96,7 @@ class InitFlowEntry(app_manager.RyuApp):
         self.logger.info("INFO packet arrived in s%s (in_port=%s)", dpid, in_port)
         out_port = self.slice_to_port[dpid][in_port]
         actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
-        match = datapath.ofproto_parser.OFPMatch(in_port=in_port)
+        # match = datapath.ofproto_parser.OFPMatch(in_port=in_port)
         self.logger.info("INFO sending packet from s%s (out_port=%s)", dpid, out_port)
-        self.add_flow(datapath, 2, match, actions)
+        # self.add_flow(datapath, 2, match, actions)
         self._send_package(msg, datapath, in_port, actions)
