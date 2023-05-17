@@ -23,7 +23,7 @@ from ryu.ofproto import ofproto_v1_0
 
 middle_ryu_app = "http://192.168.2.2:8090"
 middle_ryu_app_packetin = middle_ryu_app + "/packetin"
-middle_ryu_app_sf = middle_ryu_app + "/switch-features"
+# middle_ryu_app_sf = middle_ryu_app + "/switch-features"
 
 class OfpEmitter(app_manager.RyuApp):
     """Propagate events to interested microservices.
@@ -47,27 +47,27 @@ class OfpEmitter(app_manager.RyuApp):
     def __init__(self, *args, **kwargs):
         super(OfpEmitter, self).__init__(*args, **kwargs)
 
-    @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
-    def switch_features_handler(self, ev):
-        start = datetime.datetime.now()
-        print('_packet_in_handler start timestamp ', start)
-        msg = ev.msg
-        datapath = msg.datapath
-        dpid = datapath.id
+    # @set_ev_cls(ofp_event.EventOFPSwitchFeatures, CONFIG_DISPATCHER)
+    # def switch_features_handler(self, ev):
+    #     start = datetime.datetime.now()
+    #     print('_packet_in_handler start timestamp ', start)
+    #     msg = ev.msg
+    #     datapath = msg.datapath
+    #     dpid = datapath.id
 
-        packet = msg.to_jsondict()
-        packet['dpid'] = dpid
-        print('Packet ', packet)
+    #     packet = msg.to_jsondict()
+    #     packet['dpid'] = dpid
+    #     print('Packet ', packet)
 
-        stop = datetime.datetime.now()
-        time_diff = (stop - start)
-        ex_time = time_diff.total_seconds() * 1000
-        print('_switch_features_handler time ', ex_time)
-        timestp = datetime.datetime.now()
-        print('_switch_features_handler start requests.post ', timestp)
-        x = requests.post(middle_ryu_app_sf,json=packet)
-        timestp = datetime.datetime.now()
-        print('_switch_features_handler end timestamp ', timestp)
+    #     stop = datetime.datetime.now()
+    #     time_diff = (stop - start)
+    #     ex_time = time_diff.total_seconds() * 1000
+    #     print('_switch_features_handler time ', ex_time)
+    #     timestp = datetime.datetime.now()
+    #     print('_switch_features_handler start requests.post ', timestp)
+    #     x = requests.post(middle_ryu_app_sf,json=packet)
+    #     timestp = datetime.datetime.now()
+    #     print('_switch_features_handler end timestamp ', timestp)
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def _packet_in_handler(self, ev):
