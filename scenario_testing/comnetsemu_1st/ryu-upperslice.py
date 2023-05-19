@@ -82,8 +82,8 @@ class DirectionSlicing(app_manager.RyuApp):
             return
 
         actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
-        match = datapath.ofproto_parser.OFPMatch(in_port=in_port)
+        # match = datapath.ofproto_parser.OFPMatch(in_port=in_port)
         self.logger.info("INFO sending packet from s%s (out_port=%s)", dpid, out_port)
 
-        self.add_flow(datapath, 2, match, actions)
+        # self.add_flow(datapath, 2, match, actions)
         self._send_package(msg, datapath, in_port, actions)

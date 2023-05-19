@@ -149,34 +149,34 @@ def post_packetin():
 
     out_port = slice_to_port[dpid][in_port]
 
-    match = {'in_port': in_port}
+    # match = {'in_port': in_port}
     actions = [{"type":"OUTPUT", "port": out_port}]
 
-    start3 = datetime.datetime.now()
-    flow = build_flow(dpid, 2, match, actions)
-    add_flow(flow) # add flow
-    stop3 = datetime.datetime.now()
-    time_diff = (stop3 - start3)
-    ex_time = time_diff.total_seconds() * 1000
-    print('build_flow: ', ex_time)
+    # start3 = datetime.datetime.now()
+    # flow = build_flow(dpid, 2, match, actions)
+    # add_flow(flow) # add flow
+    # stop3 = datetime.datetime.now()
+    # time_diff = (stop3 - start3)
+    # ex_time = time_diff.total_seconds() * 1000
+    # print('build_flow: ', ex_time)
 
     msg = None
     if buffer_id == OFP_NO_BUFFER:
         msg = encoded_data
 
-    # start4 = datetime.datetime.now()
-    # pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
-    # stop4 = datetime.datetime.now()
-    # time_diff = (stop4 - start4)
-    # ex_time = time_diff.total_seconds() * 1000
-    # print('build_packet: ', ex_time)
+    start4 = datetime.datetime.now()
+    pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
+    stop4 = datetime.datetime.now()
+    time_diff = (stop4 - start4)
+    ex_time = time_diff.total_seconds() * 1000
+    print('build_packet: ', ex_time)
 
-    # start5 = datetime.datetime.now()
-    # send_packet(pkt) # send packet
-    # stop5 = datetime.datetime.now()
-    # time_diff = (stop5 - start5)
-    # ex_time = time_diff.total_seconds() * 1000
-    # print('send_packet: ', ex_time)
+    start5 = datetime.datetime.now()
+    send_packet(pkt) # send packet
+    stop5 = datetime.datetime.now()
+    time_diff = (stop5 - start5)
+    ex_time = time_diff.total_seconds() * 1000
+    print('send_packet: ', ex_time)
 
     stop1 = datetime.datetime.now()
     time_diff = (stop1 - start1)

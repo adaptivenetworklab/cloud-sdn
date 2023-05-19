@@ -32,7 +32,7 @@ spec:
         app: ryu-app-upper
     spec:
       containers:
-      - image: adaptivenetlab/ryu-app-upper:1.0
+      - image: adaptivenetlab/ryu-app-upper:2.0
         name: ryu-app-upper
         resources: 
           requests:

@@ -151,16 +151,16 @@ def post_packetin():
 
     out_port = slice_to_port[dpid][in_port]
 
-    match = {'in_port': in_port}
+    # match = {'in_port': in_port}
     actions = [{"type":"OUTPUT", "port": out_port}]
 
-    start3 = datetime.datetime.now()
-    flow = build_flow(dpid, 2, match, actions)
-    add_flow(flow) # add flow
-    stop3 = datetime.datetime.now()
-    time_diff = (stop3 - start3)
-    ex_time = time_diff.total_seconds() * 1000
-    print('build_flow: ', ex_time)
+    # start3 = datetime.datetime.now()
+    # flow = build_flow(dpid, 2, match, actions)
+    # add_flow(flow) # add flow
+    # stop3 = datetime.datetime.now()
+    # time_diff = (stop3 - start3)
+    # ex_time = time_diff.total_seconds() * 1000
+    # print('build_flow: ', ex_time)
 
     msg = None
     if buffer_id == OFP_NO_BUFFER:
@@ -188,45 +188,45 @@ def post_packetin():
 
     return "ACK"
 
-@api.route('/switch-features', methods=['POST'])
-def post_switch_features():
-    start1 = datetime.datetime.now()
-    print('post_switch_features start timestamp', start1)
+# @api.route('/switch-features', methods=['POST'])
+# def post_switch_features():
+#     start1 = datetime.datetime.now()
+#     print('post_switch_features start timestamp', start1)
     
-    if not request.json:
-        abort(400)
+#     if not request.json:
+#         abort(400)
 
-    start2 = datetime.datetime.now()
-    data = extract_data(request.json, "OFPSwitchFeatures")
-    stop2 = datetime.datetime.now()
-    time_diff = (stop2 - start2)
-    ex_time = time_diff.total_seconds() * 1000
-    print('extract_data: ', ex_time)
+#     start2 = datetime.datetime.now()
+#     data = extract_data(request.json, "OFPSwitchFeatures")
+#     stop2 = datetime.datetime.now()
+#     time_diff = (stop2 - start2)
+#     ex_time = time_diff.total_seconds() * 1000
+#     print('extract_data: ', ex_time)
 
-    dpid = data['dpid']
+#     dpid = data['dpid']
 
-    for key in slice_to_port[dpid]:
-        in_port = key
-        out_port = slice_to_port[dpid][key]
+#     for key in slice_to_port[dpid]:
+#         in_port = key
+#         out_port = slice_to_port[dpid][key]
 
-        match = {'in_port': in_port}
-        actions = [{"type":"OUTPUT", "port": out_port}]
+#         match = {'in_port': in_port}
+#         actions = [{"type":"OUTPUT", "port": out_port}]
 
-        start3 = datetime.datetime.now()
-        flow = build_flow(dpid, 2, match, actions)
-        add_flow(flow) # add flow
-        stop3 = datetime.datetime.now()
-        time_diff = (stop3 - start3)
-        ex_time = time_diff.total_seconds() * 1000
-        print('build_flow: ', ex_time)
+#         start3 = datetime.datetime.now()
+#         flow = build_flow(dpid, 2, match, actions)
+#         add_flow(flow) # add flow
+#         stop3 = datetime.datetime.now()
+#         time_diff = (stop3 - start3)
+#         ex_time = time_diff.total_seconds() * 1000
+#         print('build_flow: ', ex_time)
 
-    stop1 = datetime.datetime.now()
-    time_diff = (stop1 - start1)
-    ex_time = time_diff.total_seconds() * 1000
-    print('post_switch_features: ', ex_time)
-    print('post_switch_features stop timestamp', stop1)
+#     stop1 = datetime.datetime.now()
+#     time_diff = (stop1 - start1)
+#     ex_time = time_diff.total_seconds() * 1000
+#     print('post_switch_features: ', ex_time)
+#     print('post_switch_features stop timestamp', stop1)
 
-    return "ACK"
+#     return "ACK"
 
 if __name__ == "__main__":
     api.run(host=middle_ryu_app, port=8090)

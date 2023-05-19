@@ -153,16 +153,16 @@ def post_packetin():
     if out_port == 0:
         return
 
-    match = {'in_port': in_port}
+    # match = {'in_port': in_port}
     actions = [{"type":"OUTPUT", "port": out_port}]
 
-    start3 = datetime.datetime.now()
-    flow = build_flow(dpid, 2, match, actions)
-    add_flow(flow) # add flow
-    stop3 = datetime.datetime.now()
-    time_diff = (stop3 - start3)
-    ex_time = time_diff.total_seconds() * 1000
-    print('build_flow: ', ex_time)
+    # start3 = datetime.datetime.now()
+    # flow = build_flow(dpid, 2, match, actions)
+    # add_flow(flow) # add flow
+    # stop3 = datetime.datetime.now()
+    # time_diff = (stop3 - start3)
+    # ex_time = time_diff.total_seconds() * 1000
+    # print('build_flow: ', ex_time)
 
     msg = None
     if buffer_id == OFP_NO_BUFFER:

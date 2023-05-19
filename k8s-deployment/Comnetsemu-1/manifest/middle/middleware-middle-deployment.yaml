@@ -39,7 +39,7 @@ spec:
         app: middleware-middle
     spec:
       containers:
-      - image: adaptivenetlab/middleware-middle:1.0
+      - image: adaptivenetlab/middleware-middle:2.0
         name: middleware-middle
         resources: 
           requests:
