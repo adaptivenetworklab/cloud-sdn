@@ -70,7 +70,49 @@ class OfpEmitter(app_manager.RyuApp):
         async def send_ofp_msg_to_ryuapp(json_data):
             async with websockets.connect(left_ryu_app) as ws:
                 await ws.send(json_data)
-                print(json_data)
+                
+                while True:
+                    msg = await ws.recv()
+
+                    if msg['type'] == 'PacketOut':
+                        datapath = msg['datapath']
+                        actions = []
+                        for act in msg['actions']:
+                            actions.append(datapath.ofproto_parser.OFPActionOutput(act['port']))
+                        ofproto = datapath.ofproto
+                        if msg['buffer_id'] == ofproto.OFP_NO_BUFFER:
+                            data = msg.data
+
+                        out = datapath.ofproto_parser.OFPPacketOut(
+                            datapath=datapath,
+                            buffer_id=msg['buffer_id'],
+                            in_port=msg['in_port'],
+                            actions=actions,
+                            data=msg['data'],
+                        )
+                        datapath.send_msg(out)
+
+                    elif msg['type'] == 'FlowMod':
+                        datapath = msg['datapath']
+                        actions = []
+                        for act in msg['actions']:
+                            actions.append(datapath.ofproto_parser.OFPActionOutput(act['port']))
+                        ofproto = datapath.ofproto
+                        parser = datapath.ofproto_parser
+
+                        # construct flow_mod message and send it.
+                        mod = parser.OFPFlowMod(
+                            datapath=datapath,
+                            match=msg['match'],
+                            cookie=0,
+                            command=ofproto.OFPFC_ADD,
+                            idle_timeout=20,
+                            hard_timeout=120,
+                            priority=msg['priority'],
+                            flags=ofproto.OFPFF_SEND_FLOW_REM,
+                            actions=actions,
+                        )
+                        datapath.send_msg(mod)
 
         asyncio.run(send_ofp_msg_to_ryuapp(json_data))        
 
