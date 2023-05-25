@@ -20,6 +20,7 @@ from ryu.base import app_manager
 from ryu.controller import ofp_event
 from ryu.controller.handler import MAIN_DISPATCHER
 from ryu.controller.handler import set_ev_cls
+from ryu.controller.controller import Datapath
 from ryu.ofproto import ofproto_v1_0
 import json
 
@@ -46,6 +47,13 @@ class OfpEmitter(app_manager.RyuApp):
 
     def __init__(self, *args, **kwargs):
         super(OfpEmitter, self).__init__(*args, **kwargs)
+        self.datapath_dict = {}
+
+    def get_datapath_by_dpid(self, dpid):
+        if dpid in self.datapath_dict:
+            return self.datapath_dict[dpid]
+        else:
+            return None
 
     @set_ev_cls(ofp_event.EventOFPPacketIn, MAIN_DISPATCHER)
     def _packet_in_handler(self, ev):
@@ -54,6 +62,7 @@ class OfpEmitter(app_manager.RyuApp):
         msg = ev.msg
         datapath = msg.datapath
         dpid = datapath.id
+        self.datapath_dict[dpid] = datapath
 
         packet = msg.to_jsondict()
         packet['dpid'] = dpid
@@ -67,7 +76,7 @@ class OfpEmitter(app_manager.RyuApp):
         print('_packet_in_handler start requests.post ', timestp)
         json_data = json.dumps(packet)
 
-        async def send_ofp_msg_to_ryuapp(json_data, datapath):
+        async def send_ofp_msg_to_ryuapp(json_data):
             async with websockets.connect(left_ryu_app) as ws:
                 await ws.send(json_data)
 
@@ -78,6 +87,7 @@ class OfpEmitter(app_manager.RyuApp):
                         break
                     print(message)
                     msg = json.loads(message)
+                    datapath = self.get_datapath_by_dpid(msg['dpid'])
 
                     if msg['type'] is 'PacketOut':
                         actions = []
@@ -118,7 +128,7 @@ class OfpEmitter(app_manager.RyuApp):
                         )
                         datapath.send_msg(mod)
 
-        asyncio.run(send_ofp_msg_to_ryuapp(json_data, datapath))        
+        asyncio.run(send_ofp_msg_to_ryuapp(json_data))        
 
         timestp = datetime.datetime.now()
         print('_packet_in_handler end timestamp ', timestp)
