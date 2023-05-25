@@ -65,12 +65,12 @@ edge_sw_port = {
 
 rtp_dst_port = 5004 # default rtp port for vlc
 
-def build_flow(datapath, priority, match, actions):
+def build_flow(dpid, priority, match, actions):
     "Build and return a flow entry based on https://ryu.readthedocs.io/en/latest/app/ofctl_rest.html#add-a-flow-entry"
 
     flow = {
         'type' : 'FlowMod',
-        'datapath' : datapath,
+        'dpid' : dpid,
         'match' : match,
         'cookie' : 0,
         'idle_timeout' : 20,
@@ -96,11 +96,11 @@ def add_flow(flow):
     else:
         return False
 
-def build_packet(data, datapath, in_port, actions, buffer_id):
+def build_packet(data, dpid, in_port, actions, buffer_id):
     "Build and return a packet"
     pkt = {
         'type' : 'PacketOut',
-        'datapath' : datapath,
+        'dpid' : dpid,
         'buffer_id': buffer_id,
         'in_port' : in_port,
         'actions': actions,
@@ -163,7 +163,6 @@ async def packetin(websocket, path):
         return
 
     dpid = data['dpid']
-    datapath = data['datapath']
     src = data['src']
     dst = data['dst']
     in_port = data['in_port']
@@ -204,7 +203,7 @@ async def packetin(websocket, path):
                 msg = encoded_data
 
             start4 = datetime.datetime.now()
-            pkt = build_packet(msg, datapath, in_port, actions, buffer_id) # build packet
+            pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
             stop4 = datetime.datetime.now()
             time_diff = (stop4 - start4)
             ex_time = time_diff.total_seconds() * 1000
@@ -239,7 +238,7 @@ async def packetin(websocket, path):
             actions = [{"type":"OUTPUT", "port": out_port}]
 
             # start3 = datetime.datetime.now()
-            # flow = build_flow(datapath, 3, match, actions)
+            # flow = build_flow(dpid, 3, match, actions)
             # add_flow(flow) # add flow
             # json_flow = json.dumps(flow)
             # await websocket.send(json_flow)
@@ -253,7 +252,7 @@ async def packetin(websocket, path):
                 msg = encoded_data
 
             start4 = datetime.datetime.now()
-            pkt = build_packet(msg, datapath, in_port, actions, buffer_id) # build packet
+            pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
             stop4 = datetime.datetime.now()
             time_diff = (stop4 - start4)
             ex_time = time_diff.total_seconds() * 1000
@@ -287,7 +286,7 @@ async def packetin(websocket, path):
             actions = [{"type":"OUTPUT", "port": out_port}]
 
             # start3 = datetime.datetime.now()
-            # flow = build_flow(datapath, 3, match, actions)
+            # flow = build_flow(dpid, 3, match, actions)
             # add_flow(flow) # add flow
             # json_flow = json.dumps(flow)
             # await websocket.send(json_flow)
@@ -301,7 +300,7 @@ async def packetin(websocket, path):
                 msg = encoded_data
 
             start4 = datetime.datetime.now()
-            pkt = build_packet(msg, datapath, in_port, actions, buffer_id) # build packet
+            pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
             stop4 = datetime.datetime.now()
             time_diff = (stop4 - start4)
             ex_time = time_diff.total_seconds() * 1000
@@ -330,7 +329,7 @@ async def packetin(websocket, path):
             actions = [{"type":"OUTPUT", "port": out_port}]
 
             # start3 = datetime.datetime.now()
-            # flow = build_flow(datapath, 1, match, actions)
+            # flow = build_flow(dpid, 1, match, actions)
             # add_flow(flow) # add flow
             # json_flow = json.dumps(flow)
             # await websocket.send(json_flow)
@@ -344,7 +343,7 @@ async def packetin(websocket, path):
                 msg = encoded_data
 
             start4 = datetime.datetime.now()
-            pkt = build_packet(msg, datapath, in_port, actions, buffer_id) # build packet
+            pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
             stop4 = datetime.datetime.now()
             time_diff = (stop4 - start4)
             ex_time = time_diff.total_seconds() * 1000
@@ -359,7 +358,7 @@ async def packetin(websocket, path):
             ex_time = time_diff.total_seconds() * 1000
             print('send_packet: ', ex_time)
 
-    else: # if the datapath is non-edge switch
+    else: # if the dpid is non-edge switch
         if ( # rtp traffic is using short path (considered by src_port)
             pkt.get_protocol(udp.udp) and is_src_match_port
         ):
@@ -379,7 +378,7 @@ async def packetin(websocket, path):
             actions = [{"type":"OUTPUT", "port": out_port}]
 
             # start3 = datetime.datetime.now()
-            # flow = build_flow(datapath, 3, match, actions)
+            # flow = build_flow(dpid, 3, match, actions)
             # add_flow(flow) # add flow
             # json_flow = json.dumps(flow)
             # await websocket.send(json_flow)
@@ -393,7 +392,7 @@ async def packetin(websocket, path):
                 msg = encoded_data
 
             start4 = datetime.datetime.now()
-            pkt = build_packet(msg, datapath, in_port, actions, buffer_id) # build packet
+            pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
             stop4 = datetime.datetime.now()
             time_diff = (stop4 - start4)
             ex_time = time_diff.total_seconds() * 1000
@@ -427,7 +426,7 @@ async def packetin(websocket, path):
             actions = [{"type":"OUTPUT", "port": out_port}]
 
             # start3 = datetime.datetime.now()
-            # flow = build_flow(datapath, 3, match, actions)
+            # flow = build_flow(dpid, 3, match, actions)
             # add_flow(flow) # add flow
             # json_flow = json.dumps(flow)
             # await websocket.send(json_flow)
@@ -441,7 +440,7 @@ async def packetin(websocket, path):
                 msg = encoded_data
 
             start4 = datetime.datetime.now()
-            pkt = build_packet(msg, dpid, datapath, actions, buffer_id) # build packet
+            pkt = build_packet(msg, dpid, dpid, actions, buffer_id) # build packet
             stop4 = datetime.datetime.now()
             time_diff = (stop4 - start4)
             ex_time = time_diff.total_seconds() * 1000
@@ -470,7 +469,7 @@ async def packetin(websocket, path):
             actions = [{"type":"OUTPUT", "port": out_port}]
 
             # start3 = datetime.datetime.now()
-            # flow = build_flow(datapath, 1, match, actions)
+            # flow = build_flow(dpid, 1, match, actions)
             # add_flow(flow) # add flow
             # json_flow = json.dumps(flow)
             # await websocket.send(json_flow)
@@ -484,7 +483,7 @@ async def packetin(websocket, path):
                 msg = encoded_data
 
             start4 = datetime.datetime.now()
-            pkt = build_packet(msg, datapath, in_port, actions, buffer_id) # build packet
+            pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
             stop4 = datetime.datetime.now()
             time_diff = (stop4 - start4)
             ex_time = time_diff.total_seconds() * 1000

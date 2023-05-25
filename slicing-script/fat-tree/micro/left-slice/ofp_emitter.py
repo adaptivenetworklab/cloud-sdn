@@ -67,15 +67,14 @@ class OfpEmitter(app_manager.RyuApp):
         print('_packet_in_handler start requests.post ', timestp)
         json_data = json.dumps(packet)
 
-        async def send_ofp_msg_to_ryuapp(json_data):
+        async def send_ofp_msg_to_ryuapp(json_data, datapath):
             async with websockets.connect(left_ryu_app) as ws:
                 await ws.send(json_data)
-                
+
                 while True:
                     msg = await ws.recv()
 
                     if msg['type'] == 'PacketOut':
-                        datapath = msg['datapath']
                         actions = []
                         for act in msg['actions']:
                             actions.append(datapath.ofproto_parser.OFPActionOutput(act['port']))
@@ -93,7 +92,6 @@ class OfpEmitter(app_manager.RyuApp):
                         datapath.send_msg(out)
 
                     elif msg['type'] == 'FlowMod':
-                        datapath = msg['datapath']
                         actions = []
                         for act in msg['actions']:
                             actions.append(datapath.ofproto_parser.OFPActionOutput(act['port']))
@@ -114,7 +112,7 @@ class OfpEmitter(app_manager.RyuApp):
                         )
                         datapath.send_msg(mod)
 
-        asyncio.run(send_ofp_msg_to_ryuapp(json_data))        
+        asyncio.run(send_ofp_msg_to_ryuapp(json_data, datapath))        
 
         timestp = datetime.datetime.now()
         print('_packet_in_handler end timestamp ', timestp)
