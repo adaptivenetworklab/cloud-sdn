@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import websockets
+import asyncio
 import datetime
 from ryu.base import app_manager
 from ryu.controller import ofp_event
@@ -20,7 +22,6 @@ from ryu.controller.handler import MAIN_DISPATCHER
 from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_0
 import json
-import websocket
 
 left_ryu_app = "ws://192.168.1.2:8090"
 
@@ -64,9 +65,15 @@ class OfpEmitter(app_manager.RyuApp):
         print('_packet_in_handler time ', ex_time)
         timestp = datetime.datetime.now()
         print('_packet_in_handler start requests.post ', timestp)
-        ws = websocket.create_connection(left_ryu_app)
         json_data = json.dumps(packet)
-        ws.send(json_data)
-        ws.close()
+
+        async def listen():
+            async with websockets.connect(left_ryu_app) as ws:
+                await ws.send(json_data)
+                while True:
+                    msg = await ws.recv()
+
+        asyncio.get_event_loop().run_until_complete(listen())        
+
         timestp = datetime.datetime.now()
         print('_packet_in_handler end timestamp ', timestp)

@@ -13,8 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from flask import Flask
-from flask_sock import Sock
+import websockets
+import asyncio
 from lib.packet import packet
 from lib.packet import ethernet
 from lib.packet import ether_types
@@ -24,8 +24,9 @@ import base64
 import datetime
 import json
 
-app = Flask(__name__)
-sock = Sock(app)
+PORT = 8090
+
+print("Server is listenning on port " + str(PORT))
 
 #TODO import from ofp
 OFPP_FLOOD = 0xfffb
@@ -140,341 +141,342 @@ def extract_data(msg, event_name):
 
     return data
 
-@sock.route('packetin')
-def packetin(ws):
-    while True:
-        start1 = datetime.datetime.now()
-        print('post_packetin start timestamp', start1)
-        
-        json_data = json.loads(ws.receive())
-
-        start2 = datetime.datetime.now()
-        data = extract_data(json_data, "OFPPacketIn")
-        stop2 = datetime.datetime.now()
-        time_diff = (stop2 - start2)
-        ex_time = time_diff.total_seconds() * 1000
-        print('extract_data: ', ex_time)
-
-        if data['is_lldp']:
-            # ignore lldp packet
-            #TODO maybe server side
-            return
-
-        dpid = data['dpid']
-        src = data['src']
-        dst = data['dst']
-        in_port = data['in_port']
-        buffer_id = data['buffer_id']
-        encoded_data = data['encoded_data']
-
-        pkt = packet.Packet(data['data'])
-        eth = pkt.get_protocol(ethernet.ethernet)
-        dst_mac = eth.dst
-        src_mac = eth.src
-
-        is_src_match_port = False
-        is_dst_match_port = False
-
-        if pkt.get_protocol(udp.udp):
-            is_src_match_port = pkt.get_protocol(udp.udp).src_port == rtp_dst_port
-            is_dst_match_port = pkt.get_protocol(udp.udp).dst_port == rtp_dst_port
-
-        if dpid in mac_to_port: # if the datapath is edge switch
-            if dst in mac_to_port[dpid]: # traffic to end device
-                out_port = mac_to_port[dpid][dst_mac]
-
-                # match = {'dl_dst': dst_mac}
-                actions = [{"type":"OUTPUT", "port": out_port}]
-
-                # start3 = datetime.datetime.now()
-                # flow = build_flow(dpid, 2, match, actions)
-                # add_flow(flow) # add flow
-                # stop3 = datetime.datetime.now()
-                # time_diff = (stop3 - start3)
-                # ex_time = time_diff.total_seconds() * 1000
-                # print('build_flow: ', ex_time)
-
-                msg = None
-                if buffer_id == OFP_NO_BUFFER:
-                    msg = encoded_data
-
-                start4 = datetime.datetime.now()
-                pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
-                stop4 = datetime.datetime.now()
-                time_diff = (stop4 - start4)
-                ex_time = time_diff.total_seconds() * 1000
-                print('build_packet: ', ex_time)
-
-                start5 = datetime.datetime.now()
-                send_packet(pkt) # send packet
-                stop5 = datetime.datetime.now()
-                time_diff = (stop5 - start5)
-                ex_time = time_diff.total_seconds() * 1000
-                print('send_packet: ', ex_time)
-            
-            elif ( # rtp traffic is using short path (considered by src_port)
-                pkt.get_protocol(udp.udp) and is_src_match_port
-            ):
-                out_port = edge_sw_port[dpid][1]
-
-                if out_port == 0:
-                    return
-
-                # match = {
-                #     'in_port': in_port,
-                #     'dl_src': src_mac,
-                #     'dl_dst': dst_mac,
-                #     'dl_type': ether_types.ETH_TYPE_IP,
-                #     'nw_proto': 0x11, #udp
-                #     'tp_src': pkt.get_protocol(udp.udp).src_port
-                # }
-                actions = [{"type":"OUTPUT", "port": out_port}]
-
-                # start3 = datetime.datetime.now()
-                # flow = build_flow(dpid, 3, match, actions)
-                # add_flow(flow) # add flow
-                # stop3 = datetime.datetime.now()
-                # time_diff = (stop3 - start3)
-                # ex_time = time_diff.total_seconds() * 1000
-                # print('build_flow: ', ex_time)
-
-                msg = None
-                if buffer_id == OFP_NO_BUFFER:
-                    msg = encoded_data
-
-                start4 = datetime.datetime.now()
-                pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
-                stop4 = datetime.datetime.now()
-                time_diff = (stop4 - start4)
-                ex_time = time_diff.total_seconds() * 1000
-                print('build_packet: ', ex_time)
-
-                start5 = datetime.datetime.now()
-                send_packet(pkt) # send packet
-                stop5 = datetime.datetime.now()
-                time_diff = (stop5 - start5)
-                ex_time = time_diff.total_seconds() * 1000
-                print('send_packet: ', ex_time)
-                
-            elif ( # rtp traffic is using short path (considered by dst_port)
-                pkt.get_protocol(udp.udp) and is_dst_match_port
-            ):
-                out_port = edge_sw_port[dpid][1]
-
-                if out_port == 0:
-                    return
-
-                # match = {
-                #     'in_port': in_port,
-                #     'dl_src': src_mac,
-                #     'dl_dst': dst_mac,
-                #     'dl_type': ether_types.ETH_TYPE_IP,
-                #     'nw_proto': 0x11, #udp
-                #     'tp_dst': pkt.get_protocol(udp.udp).dst_port
-                # }
-                actions = [{"type":"OUTPUT", "port": out_port}]
-
-                # start3 = datetime.datetime.now()
-                # flow = build_flow(dpid, 3, match, actions)
-                # add_flow(flow) # add flow
-                # stop3 = datetime.datetime.now()
-                # time_diff = (stop3 - start3)
-                # ex_time = time_diff.total_seconds() * 1000
-                # print('build_flow: ', ex_time)
-
-                msg = None
-                if buffer_id == OFP_NO_BUFFER:
-                    msg = encoded_data
-
-                start4 = datetime.datetime.now()
-                pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
-                stop4 = datetime.datetime.now()
-                time_diff = (stop4 - start4)
-                ex_time = time_diff.total_seconds() * 1000
-                print('build_packet: ', ex_time)
-
-                start5 = datetime.datetime.now()
-                send_packet(pkt) # send packet
-                stop5 = datetime.datetime.now()
-                time_diff = (stop5 - start5)
-                ex_time = time_diff.total_seconds() * 1000
-                print('send_packet: ', ex_time)
-                
-            else: # non-rtp traffic is using long path
-                out_port = edge_sw_port[dpid][2]
-
-                if out_port == 0:
-                    return
-
-                # match = {
-                #     'in_port': in_port,
-                #     'dl_dst': dst_mac,
-                #     'dl_type': ether_types.ETH_TYPE_IP,
-                # }
-                actions = [{"type":"OUTPUT", "port": out_port}]
-
-                # start3 = datetime.datetime.now()
-                # flow = build_flow(dpid, 1, match, actions)
-                # add_flow(flow) # add flow
-                # stop3 = datetime.datetime.now()
-                # time_diff = (stop3 - start3)
-                # ex_time = time_diff.total_seconds() * 1000
-                # print('build_flow: ', ex_time)
-
-                msg = None
-                if buffer_id == OFP_NO_BUFFER:
-                    msg = encoded_data
-
-                start4 = datetime.datetime.now()
-                pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
-                stop4 = datetime.datetime.now()
-                time_diff = (stop4 - start4)
-                ex_time = time_diff.total_seconds() * 1000
-                print('build_packet: ', ex_time)
-
-                start5 = datetime.datetime.now()
-                send_packet(pkt) # send packet
-                stop5 = datetime.datetime.now()
-                time_diff = (stop5 - start5)
-                ex_time = time_diff.total_seconds() * 1000
-                print('send_packet: ', ex_time)
-
-        else: # if the datapath is non-edge switch
-            if ( # rtp traffic is using short path (considered by src_port)
-                pkt.get_protocol(udp.udp) and is_src_match_port
-            ):
-                out_port = short_path[dpid][in_port]
-
-                if out_port == 0:
-                    return
-
-                # match = {
-                #     'in_port': in_port,
-                #     'dl_src': src_mac,
-                #     'dl_dst': dst_mac,
-                #     'dl_type': ether_types.ETH_TYPE_IP,
-                #     'nw_proto': 0x11, # udp
-                #     'tp_src': pkt.get_protocol(udp.udp).src_port
-                # }
-                actions = [{"type":"OUTPUT", "port": out_port}]
-
-                # start3 = datetime.datetime.now()
-                # flow = build_flow(dpid, 3, match, actions)
-                # add_flow(flow) # add flow
-                # stop3 = datetime.datetime.now()
-                # time_diff = (stop3 - start3)
-                # ex_time = time_diff.total_seconds() * 1000
-                # print('build_flow: ', ex_time)
-
-                msg = None
-                if buffer_id == OFP_NO_BUFFER:
-                    msg = encoded_data
-
-                start4 = datetime.datetime.now()
-                pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
-                stop4 = datetime.datetime.now()
-                time_diff = (stop4 - start4)
-                ex_time = time_diff.total_seconds() * 1000
-                print('build_packet: ', ex_time)
-
-                start5 = datetime.datetime.now()
-                send_packet(pkt) # send packet
-                stop5 = datetime.datetime.now()
-                time_diff = (stop5 - start5)
-                ex_time = time_diff.total_seconds() * 1000
-                print('send_packet: ', ex_time)
-
-            elif ( # rtp traffic is using short path (considered by dst_port)
-                pkt.get_protocol(udp.udp) and is_dst_match_port
-            ):
-                out_port = short_path[dpid][in_port]
-
-                if out_port == 0:
-                    return
-
-                # match = {
-                #     'in_port': in_port,
-                #     'dl_src': src_mac,
-                #     'dl_dst': dst_mac,
-                #     'dl_type': ether_types.ETH_TYPE_IP,
-                #     'nw_proto': 0x11, # udp
-                #     'tp_src': pkt.get_protocol(udp.udp).dst_port
-                # }
-                actions = [{"type":"OUTPUT", "port": out_port}]
-
-                # start3 = datetime.datetime.now()
-                # flow = build_flow(dpid, 3, match, actions)
-                # add_flow(flow) # add flow
-                # stop3 = datetime.datetime.now()
-                # time_diff = (stop3 - start3)
-                # ex_time = time_diff.total_seconds() * 1000
-                # print('build_flow: ', ex_time)
-
-                msg = None
-                if buffer_id == OFP_NO_BUFFER:
-                    msg = encoded_data
-
-                start4 = datetime.datetime.now()
-                pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
-                stop4 = datetime.datetime.now()
-                time_diff = (stop4 - start4)
-                ex_time = time_diff.total_seconds() * 1000
-                print('build_packet: ', ex_time)
-
-                start5 = datetime.datetime.now()
-                send_packet(pkt) # send packet
-                stop5 = datetime.datetime.now()
-                time_diff = (stop5 - start5)
-                ex_time = time_diff.total_seconds() * 1000
-                print('send_packet: ', ex_time)
-                
-            else: # non-rtp traffic is using long path
-                out_port = long_path[dpid][in_port]
-
-                if out_port == 0:
-                    return
-
-                # match = {
-                #     'in_port': in_port,
-                #     'dl_dst': dst_mac,
-                #     'dl_type': ether_types.ETH_TYPE_IP,
-                # }
-                actions = [{"type":"OUTPUT", "port": out_port}]
-
-                # start3 = datetime.datetime.now()
-                # flow = build_flow(dpid, 1, match, actions)
-                # add_flow(flow) # add flow
-                # stop3 = datetime.datetime.now()
-                # time_diff = (stop3 - start3)
-                # ex_time = time_diff.total_seconds() * 1000
-                # print('build_flow: ', ex_time)
-
-                msg = None
-                if buffer_id == OFP_NO_BUFFER:
-                    msg = encoded_data
-
-                start4 = datetime.datetime.now()
-                pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
-                stop4 = datetime.datetime.now()
-                time_diff = (stop4 - start4)
-                ex_time = time_diff.total_seconds() * 1000
-                print('build_packet: ', ex_time)
-
-                start5 = datetime.datetime.now()
-                send_packet(pkt) # send packet
-                stop5 = datetime.datetime.now()
-                time_diff = (stop5 - start5)
-                ex_time = time_diff.total_seconds() * 1000
-                print('send_packet: ', ex_time)
-
-        stop1 = datetime.datetime.now()
-        time_diff = (stop1 - start1)
-        ex_time = time_diff.total_seconds() * 1000
-        print('post_packetin: ', ex_time)
+async def packetin(websocket, path):
+    start1 = datetime.datetime.now()
+    print('post_packetin start timestamp', start1)
     
-        print('post_packetin stop timestamp', stop1)
+    json_data = json.loads(websocket.receive())
 
-        return "ACK"
+    start2 = datetime.datetime.now()
+    data = extract_data(json_data, "OFPPacketIn")
+    stop2 = datetime.datetime.now()
+    time_diff = (stop2 - start2)
+    ex_time = time_diff.total_seconds() * 1000
+    print('extract_data: ', ex_time)
+
+    if data['is_lldp']:
+        # ignore lldp packet
+        #TODO maybe server side
+        return
+
+    dpid = data['dpid']
+    src = data['src']
+    dst = data['dst']
+    in_port = data['in_port']
+    buffer_id = data['buffer_id']
+    encoded_data = data['encoded_data']
+
+    pkt = packet.Packet(data['data'])
+    eth = pkt.get_protocol(ethernet.ethernet)
+    dst_mac = eth.dst
+    src_mac = eth.src
+
+    is_src_match_port = False
+    is_dst_match_port = False
+
+    if pkt.get_protocol(udp.udp):
+        is_src_match_port = pkt.get_protocol(udp.udp).src_port == rtp_dst_port
+        is_dst_match_port = pkt.get_protocol(udp.udp).dst_port == rtp_dst_port
+
+    if dpid in mac_to_port: # if the datapath is edge switch
+        if dst in mac_to_port[dpid]: # traffic to end device
+            out_port = mac_to_port[dpid][dst_mac]
+
+            # match = {'dl_dst': dst_mac}
+            actions = [{"type":"OUTPUT", "port": out_port}]
+
+            # start3 = datetime.datetime.now()
+            # flow = build_flow(dpid, 2, match, actions)
+            # add_flow(flow) # add flow
+            # stop3 = datetime.datetime.now()
+            # time_diff = (stop3 - start3)
+            # ex_time = time_diff.total_seconds() * 1000
+            # print('build_flow: ', ex_time)
+
+            msg = None
+            if buffer_id == OFP_NO_BUFFER:
+                msg = encoded_data
+
+            start4 = datetime.datetime.now()
+            pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
+            stop4 = datetime.datetime.now()
+            time_diff = (stop4 - start4)
+            ex_time = time_diff.total_seconds() * 1000
+            print('build_packet: ', ex_time)
+
+            start5 = datetime.datetime.now()
+            send_packet(pkt) # send packet
+            stop5 = datetime.datetime.now()
+            time_diff = (stop5 - start5)
+            ex_time = time_diff.total_seconds() * 1000
+            print('send_packet: ', ex_time)
+        
+        elif ( # rtp traffic is using short path (considered by src_port)
+            pkt.get_protocol(udp.udp) and is_src_match_port
+        ):
+            out_port = edge_sw_port[dpid][1]
+
+            if out_port == 0:
+                return
+
+            # match = {
+            #     'in_port': in_port,
+            #     'dl_src': src_mac,
+            #     'dl_dst': dst_mac,
+            #     'dl_type': ether_types.ETH_TYPE_IP,
+            #     'nw_proto': 0x11, #udp
+            #     'tp_src': pkt.get_protocol(udp.udp).src_port
+            # }
+            actions = [{"type":"OUTPUT", "port": out_port}]
+
+            # start3 = datetime.datetime.now()
+            # flow = build_flow(dpid, 3, match, actions)
+            # add_flow(flow) # add flow
+            # stop3 = datetime.datetime.now()
+            # time_diff = (stop3 - start3)
+            # ex_time = time_diff.total_seconds() * 1000
+            # print('build_flow: ', ex_time)
+
+            msg = None
+            if buffer_id == OFP_NO_BUFFER:
+                msg = encoded_data
+
+            start4 = datetime.datetime.now()
+            pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
+            stop4 = datetime.datetime.now()
+            time_diff = (stop4 - start4)
+            ex_time = time_diff.total_seconds() * 1000
+            print('build_packet: ', ex_time)
+
+            start5 = datetime.datetime.now()
+            send_packet(pkt) # send packet
+            stop5 = datetime.datetime.now()
+            time_diff = (stop5 - start5)
+            ex_time = time_diff.total_seconds() * 1000
+            print('send_packet: ', ex_time)
+            
+        elif ( # rtp traffic is using short path (considered by dst_port)
+            pkt.get_protocol(udp.udp) and is_dst_match_port
+        ):
+            out_port = edge_sw_port[dpid][1]
+
+            if out_port == 0:
+                return
+
+            # match = {
+            #     'in_port': in_port,
+            #     'dl_src': src_mac,
+            #     'dl_dst': dst_mac,
+            #     'dl_type': ether_types.ETH_TYPE_IP,
+            #     'nw_proto': 0x11, #udp
+            #     'tp_dst': pkt.get_protocol(udp.udp).dst_port
+            # }
+            actions = [{"type":"OUTPUT", "port": out_port}]
+
+            # start3 = datetime.datetime.now()
+            # flow = build_flow(dpid, 3, match, actions)
+            # add_flow(flow) # add flow
+            # stop3 = datetime.datetime.now()
+            # time_diff = (stop3 - start3)
+            # ex_time = time_diff.total_seconds() * 1000
+            # print('build_flow: ', ex_time)
+
+            msg = None
+            if buffer_id == OFP_NO_BUFFER:
+                msg = encoded_data
+
+            start4 = datetime.datetime.now()
+            pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
+            stop4 = datetime.datetime.now()
+            time_diff = (stop4 - start4)
+            ex_time = time_diff.total_seconds() * 1000
+            print('build_packet: ', ex_time)
+
+            start5 = datetime.datetime.now()
+            send_packet(pkt) # send packet
+            stop5 = datetime.datetime.now()
+            time_diff = (stop5 - start5)
+            ex_time = time_diff.total_seconds() * 1000
+            print('send_packet: ', ex_time)
+            
+        else: # non-rtp traffic is using long path
+            out_port = edge_sw_port[dpid][2]
+
+            if out_port == 0:
+                return
+
+            # match = {
+            #     'in_port': in_port,
+            #     'dl_dst': dst_mac,
+            #     'dl_type': ether_types.ETH_TYPE_IP,
+            # }
+            actions = [{"type":"OUTPUT", "port": out_port}]
+
+            # start3 = datetime.datetime.now()
+            # flow = build_flow(dpid, 1, match, actions)
+            # add_flow(flow) # add flow
+            # stop3 = datetime.datetime.now()
+            # time_diff = (stop3 - start3)
+            # ex_time = time_diff.total_seconds() * 1000
+            # print('build_flow: ', ex_time)
+
+            msg = None
+            if buffer_id == OFP_NO_BUFFER:
+                msg = encoded_data
+
+            start4 = datetime.datetime.now()
+            pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
+            stop4 = datetime.datetime.now()
+            time_diff = (stop4 - start4)
+            ex_time = time_diff.total_seconds() * 1000
+            print('build_packet: ', ex_time)
+
+            start5 = datetime.datetime.now()
+            send_packet(pkt) # send packet
+            stop5 = datetime.datetime.now()
+            time_diff = (stop5 - start5)
+            ex_time = time_diff.total_seconds() * 1000
+            print('send_packet: ', ex_time)
+
+    else: # if the datapath is non-edge switch
+        if ( # rtp traffic is using short path (considered by src_port)
+            pkt.get_protocol(udp.udp) and is_src_match_port
+        ):
+            out_port = short_path[dpid][in_port]
+
+            if out_port == 0:
+                return
+
+            # match = {
+            #     'in_port': in_port,
+            #     'dl_src': src_mac,
+            #     'dl_dst': dst_mac,
+            #     'dl_type': ether_types.ETH_TYPE_IP,
+            #     'nw_proto': 0x11, # udp
+            #     'tp_src': pkt.get_protocol(udp.udp).src_port
+            # }
+            actions = [{"type":"OUTPUT", "port": out_port}]
+
+            # start3 = datetime.datetime.now()
+            # flow = build_flow(dpid, 3, match, actions)
+            # add_flow(flow) # add flow
+            # stop3 = datetime.datetime.now()
+            # time_diff = (stop3 - start3)
+            # ex_time = time_diff.total_seconds() * 1000
+            # print('build_flow: ', ex_time)
+
+            msg = None
+            if buffer_id == OFP_NO_BUFFER:
+                msg = encoded_data
+
+            start4 = datetime.datetime.now()
+            pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
+            stop4 = datetime.datetime.now()
+            time_diff = (stop4 - start4)
+            ex_time = time_diff.total_seconds() * 1000
+            print('build_packet: ', ex_time)
+
+            start5 = datetime.datetime.now()
+            send_packet(pkt) # send packet
+            stop5 = datetime.datetime.now()
+            time_diff = (stop5 - start5)
+            ex_time = time_diff.total_seconds() * 1000
+            print('send_packet: ', ex_time)
+
+        elif ( # rtp traffic is using short path (considered by dst_port)
+            pkt.get_protocol(udp.udp) and is_dst_match_port
+        ):
+            out_port = short_path[dpid][in_port]
+
+            if out_port == 0:
+                return
+
+            # match = {
+            #     'in_port': in_port,
+            #     'dl_src': src_mac,
+            #     'dl_dst': dst_mac,
+            #     'dl_type': ether_types.ETH_TYPE_IP,
+            #     'nw_proto': 0x11, # udp
+            #     'tp_src': pkt.get_protocol(udp.udp).dst_port
+            # }
+            actions = [{"type":"OUTPUT", "port": out_port}]
+
+            # start3 = datetime.datetime.now()
+            # flow = build_flow(dpid, 3, match, actions)
+            # add_flow(flow) # add flow
+            # stop3 = datetime.datetime.now()
+            # time_diff = (stop3 - start3)
+            # ex_time = time_diff.total_seconds() * 1000
+            # print('build_flow: ', ex_time)
+
+            msg = None
+            if buffer_id == OFP_NO_BUFFER:
+                msg = encoded_data
+
+            start4 = datetime.datetime.now()
+            pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
+            stop4 = datetime.datetime.now()
+            time_diff = (stop4 - start4)
+            ex_time = time_diff.total_seconds() * 1000
+            print('build_packet: ', ex_time)
+
+            start5 = datetime.datetime.now()
+            send_packet(pkt) # send packet
+            stop5 = datetime.datetime.now()
+            time_diff = (stop5 - start5)
+            ex_time = time_diff.total_seconds() * 1000
+            print('send_packet: ', ex_time)
+            
+        else: # non-rtp traffic is using long path
+            out_port = long_path[dpid][in_port]
+
+            if out_port == 0:
+                return
+
+            # match = {
+            #     'in_port': in_port,
+            #     'dl_dst': dst_mac,
+            #     'dl_type': ether_types.ETH_TYPE_IP,
+            # }
+            actions = [{"type":"OUTPUT", "port": out_port}]
+
+            # start3 = datetime.datetime.now()
+            # flow = build_flow(dpid, 1, match, actions)
+            # add_flow(flow) # add flow
+            # stop3 = datetime.datetime.now()
+            # time_diff = (stop3 - start3)
+            # ex_time = time_diff.total_seconds() * 1000
+            # print('build_flow: ', ex_time)
+
+            msg = None
+            if buffer_id == OFP_NO_BUFFER:
+                msg = encoded_data
+
+            start4 = datetime.datetime.now()
+            pkt = build_packet(msg, dpid, in_port, actions, buffer_id) # build packet
+            stop4 = datetime.datetime.now()
+            time_diff = (stop4 - start4)
+            ex_time = time_diff.total_seconds() * 1000
+            print('build_packet: ', ex_time)
+
+            start5 = datetime.datetime.now()
+            send_packet(pkt) # send packet
+            stop5 = datetime.datetime.now()
+            time_diff = (stop5 - start5)
+            ex_time = time_diff.total_seconds() * 1000
+            print('send_packet: ', ex_time)
+
+    stop1 = datetime.datetime.now()
+    time_diff = (stop1 - start1)
+    ex_time = time_diff.total_seconds() * 1000
+    print('post_packetin: ', ex_time)
+
+    print('post_packetin stop timestamp', stop1)
+
+    return "ACK"
 
 if __name__ == "__main__":
-    app.run(host='192.168.1.2', port=8090)
+    start_server = websockets.serve(packetin, "192.168.1.2", PORT)
+
+    asyncio.get_event_loop().run_until_complete(start_server)
+    asyncio.get_event_loop().run_forever()
