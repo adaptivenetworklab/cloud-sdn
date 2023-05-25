@@ -145,7 +145,7 @@ async def packetin(websocket, path):
     start1 = datetime.datetime.now()
     print('post_packetin start timestamp', start1)
     
-    recv_data = await websocket.receive()
+    recv_data = await websocket.recv()
     json_data = json.loads(recv_data)
 
     start2 = datetime.datetime.now()
