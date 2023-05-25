@@ -145,7 +145,8 @@ async def packetin(websocket, path):
     start1 = datetime.datetime.now()
     print('post_packetin start timestamp', start1)
     
-    json_data = json.loads(websocket.receive())
+    recv_data = await websocket.receive()
+    json_data = json.loads(recv_data)
 
     start2 = datetime.datetime.now()
     data = extract_data(json_data, "OFPPacketIn")
