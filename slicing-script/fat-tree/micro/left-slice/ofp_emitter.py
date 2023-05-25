@@ -72,8 +72,12 @@ class OfpEmitter(app_manager.RyuApp):
                 await ws.send(json_data)
 
                 while True:
-                    recv_data = await ws.recv()
-                    msg = json.loads(recv_data)
+                    try:
+                        message = await ws.recv()
+                    except websockets.ConnectionClosedOk:
+                        break
+                    print(message)
+                    msg = json.loads(message)
 
                     if msg['type'] is 'PacketOut':
                         actions = []
