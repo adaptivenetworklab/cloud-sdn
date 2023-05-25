@@ -72,26 +72,28 @@ class OfpEmitter(app_manager.RyuApp):
                 await ws.send(json_data)
 
                 while True:
-                    msg = await ws.recv()
+                    recv_data = await ws.recv()
+                    msg = json.loads(recv_data)
 
-                    if msg['type'] == 'PacketOut':
+                    if msg['type'] is 'PacketOut':
                         actions = []
                         for act in msg['actions']:
                             actions.append(datapath.ofproto_parser.OFPActionOutput(act['port']))
                         ofproto = datapath.ofproto
+                        data = None
                         if msg['buffer_id'] == ofproto.OFP_NO_BUFFER:
-                            data = msg.data
+                            data = msg['data']
 
                         out = datapath.ofproto_parser.OFPPacketOut(
                             datapath=datapath,
                             buffer_id=msg['buffer_id'],
                             in_port=msg['in_port'],
                             actions=actions,
-                            data=msg['data'],
+                            data=data,
                         )
                         datapath.send_msg(out)
 
-                    elif msg['type'] == 'FlowMod':
+                    elif msg['type'] is 'FlowMod':
                         actions = []
                         for act in msg['actions']:
                             actions.append(datapath.ofproto_parser.OFPActionOutput(act['port']))
