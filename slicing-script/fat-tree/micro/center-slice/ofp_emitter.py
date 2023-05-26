@@ -13,15 +13,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import requests
+import websockets
+import asyncio
 import datetime
 from ryu.base import app_manager
 from ryu.controller import ofp_event
 from ryu.controller.handler import MAIN_DISPATCHER
 from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_0
+import json
 
-center_ryu_app = "http://192.168.2.2:8090/packetin"
+center_ryu_app = "ws://192.168.2.2:8090/packetin"
 
 class OfpEmitter(app_manager.RyuApp):
     """Propagate events to interested microservices.
@@ -63,6 +65,14 @@ class OfpEmitter(app_manager.RyuApp):
         print('_packet_in_handler time ', ex_time)
         timestp = datetime.datetime.now()
         print('_packet_in_handler start requests.post ', timestp)
-        x = requests.post(center_ryu_app,json=packet)
+        json_data = json.dumps(packet)
+
+        async def send_ofp_msg_to_ryuapp(json_data):
+            async with websockets.connect(center_ryu_app) as ws:
+                await ws.send(json_data)
+                print(json_data)
+
+        asyncio.run(send_ofp_msg_to_ryuapp(json_data))   
+
         timestp = datetime.datetime.now()
         print('_packet_in_handler end timestamp ', timestp)
