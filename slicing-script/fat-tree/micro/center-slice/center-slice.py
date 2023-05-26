@@ -13,7 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from flask import Flask, request, abort
+import websockets
+import asyncio
 from lib.packet import packet
 from lib.packet import ethernet
 from lib.packet import ether_types
@@ -21,8 +22,11 @@ from lib.packet import tcp
 import requests
 import base64
 import datetime
+import json
 
-api = Flask(__name__)
+PORT = 8090
+
+print("Server is listenning on port " + str(PORT))
 
 #TODO import from ofp
 OFPP_FLOOD = 0xfffb
@@ -137,20 +141,15 @@ def extract_data(msg, event_name):
 
     return data
 
-@api.route('/')
-def index():
-    return 'Center Slice Rest Server'
-
-@api.route('/packetin', methods=['POST'])
-def post_packetin():
+async def packetin(websocket, path):
     start1 = datetime.datetime.now()
     print('post_packetin start timestamp', start1)
     
-    if not request.json:
-        abort(400)
+    recv_data = await websocket.recv()
+    json_data = json.loads(recv_data)
 
     start2 = datetime.datetime.now()
-    data = extract_data(request.json, "OFPPacketIn")
+    data = extract_data(json_data, "OFPPacketIn")
     stop2 = datetime.datetime.now()
     time_diff = (stop2 - start2)
     ex_time = time_diff.total_seconds() * 1000
@@ -478,4 +477,7 @@ def post_packetin():
     return "ACK"
 
 if __name__ == "__main__":
-    api.run(host='192.168.2.2', port=8090)
+    start_server = websockets.serve(packetin, "192.168.2.2", PORT)
+
+    asyncio.get_event_loop().run_until_complete(start_server)
+    asyncio.get_event_loop().run_forever()
