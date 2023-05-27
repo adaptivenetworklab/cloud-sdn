@@ -1,3 +1,5 @@
+sh sleep 270
+
 h4 iperf -s -p 5999 &
 h2 iperf -c h4 -i 1 -t 1000000 -p 5999 &
 
