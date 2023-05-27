@@ -7,7 +7,7 @@ h6 iperf -c h8 -i 1 -t 1000000 -p 5999 &
 h12 iperf -s -p 5999 &
 h10 iperf -c h12 -i 1 -t 1000000 -p 5999 &
 
-h1 sudo -u ubuntu vlc rtp://10.0.0.3:5004 &
+h1 sudo -u ubuntu vlc rtp://@10.0.0.3:5004 &
 h3 sudo -u ubuntu vlc -q /home/ubuntu/cloud-sdn/scenario_testing/test_services/video.mp4 --sout="#rtp{dst=10.0.0.1, port=5004, mux=ts}" --ttl 12 --no-sout-all --sout-keep &
 
 h7 python3 -m http.server 80 &
