@@ -16,4 +16,4 @@ h5 /root/pengujian_web-FatTree.sh &
 h11 ITGRecv -l recieve-h9-to-h11 &
 h9 ITGSend -a 10.0.0.11 -rp 10003 VoIP -x G.711.2 -h RTP -VAD &
 
-sh tshark -i s4-eth5 -i s6-eth6 -i s8-eth6
+sh tshark -i s4-eth5 -i s6-eth6 -i s8-eth6 | tee hasil_tshark &
