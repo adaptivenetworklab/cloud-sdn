@@ -33,7 +33,7 @@ OFPP_FLOOD = 0xfffb
 OFPFF_SEND_FLOW_REM = 1 << 0
 OFP_NO_BUFFER = 0xffffffff
 
-RYU_BASE_URL = "http://192.168.1.1:8080"
+RYU_BASE_URL = "ws://192.168.1.1:8080"
 
 # outport = mac_to_port[dpid][mac_address]
 mac_to_port = {
@@ -110,18 +110,15 @@ def build_packet(data, dpid, in_port, actions, buffer_id):
     return pkt
 
 def send_packet(pkt):
-    "Send a packet to a switch through REST"
-    rest_uri = RYU_BASE_URL + "/stats/sendpacket"
-
-    start1 = datetime.datetime.now()
-    print('send_packet start timestamp', start1)
-    
-    r = requests.post(rest_uri, json=pkt)
-
-    if r.status_code == 200:
-        return True
-    else:
-        return False
+    "Send a packet to a switch through Websocket"
+    mapper_path = "/stats/sendpacket"
+    asyncio.get_event_loop().run_until_complete(send_packet_helper(f"{mapper_path}:{pkt}"))
+        
+async def send_packet_helper(data):
+    async with websockets.connect(RYU_BASE_URL) as websocket:
+        start1 = datetime.datetime.now()
+        print('send_packet start timestamp', start1)
+        await websocket.send(data)
 
 def extract_data(msg, event_name):
     data = msg[event_name]
@@ -210,9 +207,7 @@ async def packetin(websocket, path):
             print('build_packet: ', ex_time)
 
             start5 = datetime.datetime.now()
-            # send_packet(pkt) # send packet
-            json_data = json.dumps(pkt)
-            await websocket.send(json_data)
+            send_packet(pkt) # send packet
 
             stop5 = datetime.datetime.now()
             time_diff = (stop5 - start5)
@@ -259,9 +254,7 @@ async def packetin(websocket, path):
             print('build_packet: ', ex_time)
 
             start5 = datetime.datetime.now()
-            # send_packet(pkt) # send packet
-            json_data = json.dumps(pkt)
-            await websocket.send(json_data)
+            send_packet(pkt) # send packet
             stop5 = datetime.datetime.now()
             time_diff = (stop5 - start5)
             ex_time = time_diff.total_seconds() * 1000
@@ -307,9 +300,7 @@ async def packetin(websocket, path):
             print('build_packet: ', ex_time)
 
             start5 = datetime.datetime.now()
-            # send_packet(pkt) # send packet
-            json_data = json.dumps(pkt)
-            await websocket.send(json_data)
+            send_packet(pkt) # send packet
             stop5 = datetime.datetime.now()
             time_diff = (stop5 - start5)
             ex_time = time_diff.total_seconds() * 1000
@@ -350,9 +341,7 @@ async def packetin(websocket, path):
             print('build_packet: ', ex_time)
 
             start5 = datetime.datetime.now()
-            # send_packet(pkt) # send packet
-            json_data = json.dumps(pkt)
-            await websocket.send(json_data)
+            send_packet(pkt) # send packet
             stop5 = datetime.datetime.now()
             time_diff = (stop5 - start5)
             ex_time = time_diff.total_seconds() * 1000
@@ -399,9 +388,7 @@ async def packetin(websocket, path):
             print('build_packet: ', ex_time)
 
             start5 = datetime.datetime.now()
-            # send_packet(pkt) # send packet
-            json_data = json.dumps(pkt)
-            await websocket.send(json_data)
+            send_packet(pkt) # send packet
             stop5 = datetime.datetime.now()
             time_diff = (stop5 - start5)
             ex_time = time_diff.total_seconds() * 1000
@@ -447,9 +434,7 @@ async def packetin(websocket, path):
             print('build_packet: ', ex_time)
 
             start5 = datetime.datetime.now()
-            # send_packet(pkt) # send packet
-            json_data = json.dumps(pkt)
-            await websocket.send(json_data)
+            send_packet(pkt) # send packet
             stop5 = datetime.datetime.now()
             time_diff = (stop5 - start5)
             ex_time = time_diff.total_seconds() * 1000
@@ -490,9 +475,7 @@ async def packetin(websocket, path):
             print('build_packet: ', ex_time)
 
             start5 = datetime.datetime.now()
-            # send_packet(pkt) # send packet
-            json_data = json.dumps(pkt)
-            await websocket.send(json_data)
+            send_packet(pkt) # send packet
             stop5 = datetime.datetime.now()
             time_diff = (stop5 - start5)
             ex_time = time_diff.total_seconds() * 1000
