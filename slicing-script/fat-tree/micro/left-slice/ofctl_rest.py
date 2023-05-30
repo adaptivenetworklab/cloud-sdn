@@ -540,18 +540,19 @@ class WsStatsApi(app_manager.RyuApp):
                     ofproto_v1_4.OFP_VERSION,
                     ofproto_v1_5.OFP_VERSION]
     _CONTEXTS = {
-        'dpset': dpset.DPSet
+        'dpset': dpset.DPSet,
+        'wsgi': WSGIApplication
     }
 
     def __init__(self, *args, **kwargs):
         super(WsStatsApi, self).__init__(*args, **kwargs)
         self.dpset = kwargs['dpset']
+        wsgi = kwargs['wsgi']
         self.waiters = {}
         self.data = {}
         self.data['dpset'] = self.dpset
         self.data['waiters'] = self.waiters
-        self.data['websocket'] = None
-        self.controller = StatsController(None, None, self.data)
+        wsgi.registory['StatsController'] = self.data
 
         asyncio.run(self.websocket_serve())
 
@@ -571,7 +572,7 @@ class WsStatsApi(app_manager.RyuApp):
 
     async def websocket_serve(self):
         # Create the WebSocket server
-        server = await websockets.serve(self.websocket_handler, '192.168.1.1', 8000)
+        server = await websockets.serve(self.websocket_handler, 'ws://192.168.1.1', 8000)
 
         # Run the WebSocket server
         await server.wait_closed()
