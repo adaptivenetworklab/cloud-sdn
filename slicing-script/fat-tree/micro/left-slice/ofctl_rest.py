@@ -825,7 +825,7 @@ class WsStatsApi(app_manager.RyuApp):
         del self.waiters[dp.id][msg.xid]
         lock.set()
 
-if __name__ == "__main__":
+def run_ryu_app():
     RYU_BASE_IP = "192.168.1.1"
 
     ryu_app = WsStatsApi()
@@ -845,3 +845,6 @@ if __name__ == "__main__":
     loop = asyncio.get_event_loop()
     loop.run_until_complete(asyncio.gather(start_server, httpd.serve_forever()))
     loop.close()
+
+def main():
+    run_ryu_app()
