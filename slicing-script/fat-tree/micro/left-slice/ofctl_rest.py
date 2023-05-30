@@ -555,7 +555,206 @@ class WsStatsApi(app_manager.RyuApp):
         mapper = wsgi.mapper
         wsgi.registory['StatsController'] = self.data
 
-        mapper.connect('stats', '/',
+        path = '/stats'
+        
+        uri = path + '/switches'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='get_dpids',
+                       conditions=dict(method=['GET']))
+
+        uri = path + '/desc/{dpid}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='get_desc_stats',
+                       conditions=dict(method=['GET']))
+
+        uri = path + '/flowdesc/{dpid}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='get_flow_stats',
+                       conditions=dict(method=['GET', 'POST']))
+
+        uri = path + '/flow/{dpid}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='get_flow_stats',
+                       conditions=dict(method=['GET', 'POST']))
+
+        uri = path + '/aggregateflow/{dpid}'
+        mapper.connect('stats', uri,
+                       controller=StatsController,
+                       action='get_aggregate_flow_stats',
+                       conditions=dict(method=['GET', 'POST']))
+
+        uri = path + '/table/{dpid}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='get_table_stats',
+                       conditions=dict(method=['GET']))
+
+        uri = path + '/tablefeatures/{dpid}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='get_table_features',
+                       conditions=dict(method=['GET']))
+
+        uri = path + '/port/{dpid}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='get_port_stats',
+                       conditions=dict(method=['GET']))
+
+        uri = path + '/port/{dpid}/{port}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='get_port_stats',
+                       conditions=dict(method=['GET']))
+
+        uri = path + '/queue/{dpid}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='get_queue_stats',
+                       conditions=dict(method=['GET']))
+
+        uri = path + '/queue/{dpid}/{port}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='get_queue_stats',
+                       conditions=dict(method=['GET']))
+
+        uri = path + '/queue/{dpid}/{port}/{queue_id}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='get_queue_stats',
+                       conditions=dict(method=['GET']))
+
+        uri = path + '/queueconfig/{dpid}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='get_queue_config',
+                       conditions=dict(method=['GET']))
+
+        uri = path + '/queueconfig/{dpid}/{port}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='get_queue_config',
+                       conditions=dict(method=['GET']))
+
+        uri = path + '/queuedesc/{dpid}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='get_queue_desc',
+                       conditions=dict(method=['GET']))
+
+        uri = path + '/queuedesc/{dpid}/{port}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='get_queue_desc',
+                       conditions=dict(method=['GET']))
+
+        uri = path + '/queuedesc/{dpid}/{port}/{queue}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='get_queue_desc',
+                       conditions=dict(method=['GET']))
+
+        uri = path + '/meterfeatures/{dpid}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='get_meter_features',
+                       conditions=dict(method=['GET']))
+
+        uri = path + '/meterconfig/{dpid}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='get_meter_config',
+                       conditions=dict(method=['GET']))
+
+        uri = path + '/meterconfig/{dpid}/{meter_id}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='get_meter_config',
+                       conditions=dict(method=['GET']))
+
+        uri = path + '/meterdesc/{dpid}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='get_meter_desc',
+                       conditions=dict(method=['GET']))
+
+        uri = path + '/meterdesc/{dpid}/{meter_id}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='get_meter_desc',
+                       conditions=dict(method=['GET']))
+
+        uri = path + '/meter/{dpid}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='get_meter_stats',
+                       conditions=dict(method=['GET']))
+
+        uri = path + '/meter/{dpid}/{meter_id}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='get_meter_stats',
+                       conditions=dict(method=['GET']))
+
+        uri = path + '/groupfeatures/{dpid}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='get_group_features',
+                       conditions=dict(method=['GET']))
+
+        uri = path + '/groupdesc/{dpid}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='get_group_desc',
+                       conditions=dict(method=['GET']))
+
+        uri = path + '/groupdesc/{dpid}/{group_id}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='get_group_desc',
+                       conditions=dict(method=['GET']))
+
+        uri = path + '/group/{dpid}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='get_group_stats',
+                       conditions=dict(method=['GET']))
+
+        uri = path + '/group/{dpid}/{group_id}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='get_group_stats',
+                       conditions=dict(method=['GET']))
+
+        uri = path + '/portdesc/{dpid}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='get_port_desc',
+                       conditions=dict(method=['GET']))
+
+        uri = path + '/portdesc/{dpid}/{port_no}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='get_port_desc',
+                       conditions=dict(method=['GET']))
+
+        uri = path + '/role/{dpid}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='get_role',
+                       conditions=dict(method=['GET']))
+
+        uri = path + '/flowentry/{cmd}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='mod_flow_entry',
+                       conditions=dict(method=['POST']))
+
+        uri = path + '/flowentry/clear/{dpid}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='delete_flow_entry',
+                       conditions=dict(method=['DELETE']))
+
+        uri = path + '/meterentry/{cmd}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='mod_meter_entry',
+                       conditions=dict(method=['POST']))
+
+        uri = path + '/groupentry/{cmd}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='mod_group_entry',
+                       conditions=dict(method=['POST']))
+
+        uri = path + '/portdesc/{cmd}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='mod_port_behavior',
+                       conditions=dict(method=['POST']))
+
+        uri = path + '/experimenter/{dpid}'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='send_experimenter',
+                       conditions=dict(method=['POST']))
+
+        uri = path + '/role'
+        mapper.connect('stats', uri,
+                       controller=StatsController, action='set_role',
+                       conditions=dict(method=['POST']))
+
+        uri = path + '/sendpacket'
+        mapper.connect('stats', uri,
                        controller=StatsController, action='send_packet',
                        conditions=dict(method=['POST']))
 
