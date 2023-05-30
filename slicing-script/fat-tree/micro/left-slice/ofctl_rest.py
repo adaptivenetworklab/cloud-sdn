@@ -552,7 +552,12 @@ class WsStatsApi(app_manager.RyuApp):
         self.data = {}
         self.data['dpset'] = self.dpset
         self.data['waiters'] = self.waiters
+        mapper = wsgi.mapper
         wsgi.registory['StatsController'] = self.data
+
+        mapper.connect('stats', '/',
+                       controller=StatsController, action='send_packet',
+                       conditions=dict(method=['POST']))
 
         asyncio.run(self.websocket_serve())
 
@@ -572,7 +577,7 @@ class WsStatsApi(app_manager.RyuApp):
 
     async def websocket_serve(self):
         # Create the WebSocket server
-        server = await websockets.serve(self.websocket_handler, 'ws://192.168.1.1', 8000)
+        server = await websockets.serve(self.websocket_handler, '192.168.1.1', 8080)
 
         # Run the WebSocket server
         await server.wait_closed()
