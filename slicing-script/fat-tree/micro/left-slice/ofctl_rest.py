@@ -553,23 +553,28 @@ class WsStatsApi(app_manager.RyuApp):
         self.data['websocket'] = None
         self.controller = StatsController(None, None, self.data)
 
-        async def receive(websocket, path):
-            recv_data = await websocket.recv()
-            json_data = json.loads(recv_data)
+        asyncio.run(self.websocket_serve())
 
-            body = json_data
-            dpid = json_data['dpid']
+    async def websocket_handler(self, websocket, path):
+        recv_data = await websocket.recv()
+        json_data = json.loads(recv_data)
 
-            # Obtain the datapath instance and ofctl instance based on the dpid
-            dp = self.dpset.get(dpid)
-            ofctl = ofctl_v1_5.OFCTLFactory(dp)  # Replace 'ofctl_v1_5' with the appropriate version
+        body = json_data
+        dpid = json_data['dpid']
 
-            # Call the send_packet method
-            self.controller.send_packet(None, dp, ofctl, body)
+        # Obtain the datapath instance and ofctl instance based on the dpid
+        dp = self.dpset.get(dpid)
+        ofctl = ofctl_v1_5.OFCTLFactory(dp)  # Replace 'ofctl_v1_5' with the appropriate version
 
-        start_server = websockets.serve(receive, "192.168.1.1", 8080)
-        asyncio.get_event_loop().run_until_complete(start_server)
-        asyncio.get_event_loop().run_forever()
+        # Call the send_packet method
+        self.controller.send_packet(None, dp, ofctl, body)
+
+    async def websocket_serve(self):
+        # Create the WebSocket server
+        server = await websockets.serve(self.websocket_handler, '192.168.1.1', 8000)
+
+        # Run the WebSocket server
+        await server.wait_closed()
 
     @set_ev_cls([ofp_event.EventOFPStatsReply,
                  ofp_event.EventOFPDescStatsReply,
