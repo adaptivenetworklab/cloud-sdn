@@ -111,8 +111,8 @@ def build_packet(data, dpid, in_port, actions, buffer_id):
 
 def send_packet(pkt):
     "Send a packet to a switch through Websocket"
-    mapper_path = "/stats/sendpacket"
-    asyncio.get_event_loop().run_until_complete(send_packet_helper(f"{mapper_path}:{pkt}"))
+    # mapper_path = "/stats/sendpacket"
+    asyncio.get_event_loop().run_until_complete(send_packet_helper(pkt))
         
 async def send_packet_helper(data):
     async with websockets.connect(RYU_BASE_URL) as websocket:
@@ -207,7 +207,7 @@ async def packetin(websocket, path):
             print('build_packet: ', ex_time)
 
             start5 = datetime.datetime.now()
-            send_packet(pkt) # send packet
+            await send_packet(pkt) # send packet
 
             stop5 = datetime.datetime.now()
             time_diff = (stop5 - start5)
@@ -254,7 +254,7 @@ async def packetin(websocket, path):
             print('build_packet: ', ex_time)
 
             start5 = datetime.datetime.now()
-            send_packet(pkt) # send packet
+            await send_packet(pkt) # send packet
             stop5 = datetime.datetime.now()
             time_diff = (stop5 - start5)
             ex_time = time_diff.total_seconds() * 1000
@@ -300,7 +300,7 @@ async def packetin(websocket, path):
             print('build_packet: ', ex_time)
 
             start5 = datetime.datetime.now()
-            send_packet(pkt) # send packet
+            await send_packet(pkt) # send packet
             stop5 = datetime.datetime.now()
             time_diff = (stop5 - start5)
             ex_time = time_diff.total_seconds() * 1000
@@ -341,7 +341,7 @@ async def packetin(websocket, path):
             print('build_packet: ', ex_time)
 
             start5 = datetime.datetime.now()
-            send_packet(pkt) # send packet
+            await send_packet(pkt) # send packet
             stop5 = datetime.datetime.now()
             time_diff = (stop5 - start5)
             ex_time = time_diff.total_seconds() * 1000
@@ -388,7 +388,7 @@ async def packetin(websocket, path):
             print('build_packet: ', ex_time)
 
             start5 = datetime.datetime.now()
-            send_packet(pkt) # send packet
+            await send_packet(pkt) # send packet
             stop5 = datetime.datetime.now()
             time_diff = (stop5 - start5)
             ex_time = time_diff.total_seconds() * 1000
@@ -434,7 +434,7 @@ async def packetin(websocket, path):
             print('build_packet: ', ex_time)
 
             start5 = datetime.datetime.now()
-            send_packet(pkt) # send packet
+            await send_packet(pkt) # send packet
             stop5 = datetime.datetime.now()
             time_diff = (stop5 - start5)
             ex_time = time_diff.total_seconds() * 1000
@@ -475,7 +475,7 @@ async def packetin(websocket, path):
             print('build_packet: ', ex_time)
 
             start5 = datetime.datetime.now()
-            send_packet(pkt) # send packet
+            await send_packet(pkt) # send packet
             stop5 = datetime.datetime.now()
             time_diff = (stop5 - start5)
             ex_time = time_diff.total_seconds() * 1000

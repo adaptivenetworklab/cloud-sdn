@@ -755,10 +755,8 @@ class WsStatsApi(app_manager.RyuApp):
         #                controller=StatsController, action='set_role',
         #                conditions=dict(method=['POST']))
 
-        uri = path + '/sendpacket'
-        self.mapper.connect('stats', uri, 
-                       controller=StatsController,
-                       action='send_packet')
+        # uri = path + '/sendpacket'
+        self.mapper.connect('/', controller=StatsController.send_packet)
         # mapper.connect('stats', uri,
         #                controller=StatsController, action='send_packet',
         #                conditions=dict(method=['POST']))
