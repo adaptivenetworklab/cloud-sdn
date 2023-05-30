@@ -99,7 +99,7 @@ if __name__ == "__main__":
     net.start()
 
     #Batch command execution
-    stress_test = "/home/ubuntu/cloud-sdn/scenario_testing/fat-tree/stress-test.sh"
+    stress_test = "/home/ubuntu/cloud-sdn/scenario_testing/fat-tree/stress-test_monolith.sh"
     CLI(net, script=stress_test)
 
     #Manual CLI
