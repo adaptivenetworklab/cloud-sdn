@@ -329,10 +329,10 @@ class StatsController(ControllerBase):
         parsed_message = json.loads(message)
         # Process the message and send a response back if needed
         req = self.req
-        dpid = parsed_message.get('dpid')
+        dpid = parsed_message['dpid']
         dp = self.dpset.get(dpid=dpid)
         ofctl = self.app_manager.get_app('ofctl_rest')
-        body = parsed_message['data']
+        body = parsed_message
         
         # Call the send_packet function with the required arguments
         self.send_packet(req, dp, ofctl, body)
@@ -537,7 +537,6 @@ class StatsController(ControllerBase):
     def set_role(self, req, dp, ofctl, role, **kwargs):
         ofctl.set_role(dp, role)
 
-    @command_method
     def send_packet(self, req, dp, ofctl, body, *args, **kwargs):
         #TODO ofctl.send_packet(dp, body)
 
