@@ -39,11 +39,11 @@ from ryu.lib import ofctl_v1_5
 from ryu.app.wsgi import ControllerBase
 from ryu.app.wsgi import Response
 from ryu.app.wsgi import WSGIApplication
+from ryu.app.wsgi import websocket
 from wsgiref.simple_server import make_server
 from wsgiref.util import setup_testing_defaults
 from ryu.app.wsgi import WebSocketRPCServer
-import websockets
-import asyncio
+from ryu.app.wsgi import WebSocketRPCClient
 import json
 
 LOG = logging.getLogger('ryu.app.ofctl_rest')
@@ -307,8 +307,34 @@ def command_method(method):
 class StatsController(ControllerBase):
     def __init__(self, req, link, data, **config):
         super(StatsController, self).__init__(req, link, data, **config)
+        self.app = data['app']
         self.dpset = data['dpset']
         self.waiters = data['waiters']
+    
+    @websocket('/')
+    def websocket_handler(self, ws):
+        self.websocket_connections.append(ws)
+        try:
+            while True:
+                msg = ws.receive()
+                if msg is None:
+                    break
+                self.handle_message(msg)
+        finally:
+            self.websocket_connections.remove(ws)
+
+    def handle_message(self, message):
+        # Handle incoming WebSocket message
+        parsed_message = json.loads(message)
+        # Process the message and send a response back if needed
+        req = self.req
+        dpid = parsed_message.get('dpid')
+        dp = self.dpset.get(dpid=dpid)
+        ofctl = self.app_manager.get_app('ofctl_rest')
+        body = parsed_message['data']
+        
+        # Call the send_packet function with the required arguments
+        self.send_packet(req, dp, ofctl, body)
 
     def get_dpids(self, req, **_kwargs):
         dps = list(self.dpset.dps.keys())
@@ -540,246 +566,16 @@ class WsStatsApi(app_manager.RyuApp):
                     ofproto_v1_4.OFP_VERSION,
                     ofproto_v1_5.OFP_VERSION]
     _CONTEXTS = {
+        'wsgi': WSGIApplication,
         'dpset': dpset.DPSet,
-        'wsgi': WSGIApplication
     }
 
     def __init__(self, *args, **kwargs):
         super(WsStatsApi, self).__init__(*args, **kwargs)
-        self.dpset = kwargs['dpset']
+        self.app = StatsController.__name__
         wsgi = kwargs['wsgi']
-        self.waiters = {}
-        self.data = {}
-        self.data['dpset'] = self.dpset
-        self.data['waiters'] = self.waiters
-        mapper = wsgi.mapper
-        wsgi.registory['StatsController'] = self.data
-
-        path = '/stats'
-        
-        uri = path + '/switches'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='get_dpids',
-                       conditions=dict(method=['GET']))
-
-        uri = path + '/desc/{dpid}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='get_desc_stats',
-                       conditions=dict(method=['GET']))
-
-        uri = path + '/flowdesc/{dpid}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='get_flow_stats',
-                       conditions=dict(method=['GET', 'POST']))
-
-        uri = path + '/flow/{dpid}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='get_flow_stats',
-                       conditions=dict(method=['GET', 'POST']))
-
-        uri = path + '/aggregateflow/{dpid}'
-        mapper.connect('stats', uri,
-                       controller=StatsController,
-                       action='get_aggregate_flow_stats',
-                       conditions=dict(method=['GET', 'POST']))
-
-        uri = path + '/table/{dpid}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='get_table_stats',
-                       conditions=dict(method=['GET']))
-
-        uri = path + '/tablefeatures/{dpid}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='get_table_features',
-                       conditions=dict(method=['GET']))
-
-        uri = path + '/port/{dpid}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='get_port_stats',
-                       conditions=dict(method=['GET']))
-
-        uri = path + '/port/{dpid}/{port}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='get_port_stats',
-                       conditions=dict(method=['GET']))
-
-        uri = path + '/queue/{dpid}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='get_queue_stats',
-                       conditions=dict(method=['GET']))
-
-        uri = path + '/queue/{dpid}/{port}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='get_queue_stats',
-                       conditions=dict(method=['GET']))
-
-        uri = path + '/queue/{dpid}/{port}/{queue_id}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='get_queue_stats',
-                       conditions=dict(method=['GET']))
-
-        uri = path + '/queueconfig/{dpid}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='get_queue_config',
-                       conditions=dict(method=['GET']))
-
-        uri = path + '/queueconfig/{dpid}/{port}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='get_queue_config',
-                       conditions=dict(method=['GET']))
-
-        uri = path + '/queuedesc/{dpid}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='get_queue_desc',
-                       conditions=dict(method=['GET']))
-
-        uri = path + '/queuedesc/{dpid}/{port}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='get_queue_desc',
-                       conditions=dict(method=['GET']))
-
-        uri = path + '/queuedesc/{dpid}/{port}/{queue}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='get_queue_desc',
-                       conditions=dict(method=['GET']))
-
-        uri = path + '/meterfeatures/{dpid}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='get_meter_features',
-                       conditions=dict(method=['GET']))
-
-        uri = path + '/meterconfig/{dpid}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='get_meter_config',
-                       conditions=dict(method=['GET']))
-
-        uri = path + '/meterconfig/{dpid}/{meter_id}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='get_meter_config',
-                       conditions=dict(method=['GET']))
-
-        uri = path + '/meterdesc/{dpid}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='get_meter_desc',
-                       conditions=dict(method=['GET']))
-
-        uri = path + '/meterdesc/{dpid}/{meter_id}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='get_meter_desc',
-                       conditions=dict(method=['GET']))
-
-        uri = path + '/meter/{dpid}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='get_meter_stats',
-                       conditions=dict(method=['GET']))
-
-        uri = path + '/meter/{dpid}/{meter_id}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='get_meter_stats',
-                       conditions=dict(method=['GET']))
-
-        uri = path + '/groupfeatures/{dpid}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='get_group_features',
-                       conditions=dict(method=['GET']))
-
-        uri = path + '/groupdesc/{dpid}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='get_group_desc',
-                       conditions=dict(method=['GET']))
-
-        uri = path + '/groupdesc/{dpid}/{group_id}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='get_group_desc',
-                       conditions=dict(method=['GET']))
-
-        uri = path + '/group/{dpid}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='get_group_stats',
-                       conditions=dict(method=['GET']))
-
-        uri = path + '/group/{dpid}/{group_id}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='get_group_stats',
-                       conditions=dict(method=['GET']))
-
-        uri = path + '/portdesc/{dpid}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='get_port_desc',
-                       conditions=dict(method=['GET']))
-
-        uri = path + '/portdesc/{dpid}/{port_no}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='get_port_desc',
-                       conditions=dict(method=['GET']))
-
-        uri = path + '/role/{dpid}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='get_role',
-                       conditions=dict(method=['GET']))
-
-        uri = path + '/flowentry/{cmd}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='mod_flow_entry',
-                       conditions=dict(method=['POST']))
-
-        uri = path + '/flowentry/clear/{dpid}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='delete_flow_entry',
-                       conditions=dict(method=['DELETE']))
-
-        uri = path + '/meterentry/{cmd}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='mod_meter_entry',
-                       conditions=dict(method=['POST']))
-
-        uri = path + '/groupentry/{cmd}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='mod_group_entry',
-                       conditions=dict(method=['POST']))
-
-        uri = path + '/portdesc/{cmd}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='mod_port_behavior',
-                       conditions=dict(method=['POST']))
-
-        uri = path + '/experimenter/{dpid}'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='send_experimenter',
-                       conditions=dict(method=['POST']))
-
-        uri = path + '/role'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='set_role',
-                       conditions=dict(method=['POST']))
-
-        uri = path + '/sendpacket'
-        mapper.connect('stats', uri,
-                       controller=StatsController, action='send_packet',
-                       conditions=dict(method=['POST']))
-
-        asyncio.run(self.websocket_serve())
-
-    async def websocket_handler(self, websocket, path):
-        recv_data = await websocket.recv()
-        json_data = json.loads(recv_data)
-
-        body = json_data
-        dpid = json_data['dpid']
-
-        # Obtain the datapath instance and ofctl instance based on the dpid
-        dp = self.dpset.get(dpid)
-        ofctl = ofctl_v1_5.OFCTLFactory(dp)  # Replace 'ofctl_v1_5' with the appropriate version
-
-        # Call the send_packet method
-        self.controller.send_packet(None, dp, ofctl, body)
-
-    async def websocket_serve(self):
-        # Create the WebSocket server
-        server = await websockets.serve(self.websocket_handler, '192.168.1.1', 8080)
-
-        # Run the WebSocket server
-        await server.wait_closed()
+        dpset = kwargs['dpset']
+        wsgi.register(StatsController, {'app': self, 'dpset': dpset})
 
     @set_ev_cls([ofp_event.EventOFPStatsReply,
                  ofp_event.EventOFPDescStatsReply,
@@ -839,41 +635,3 @@ class WsStatsApi(app_manager.RyuApp):
 
         del self.waiters[dp.id][msg.xid]
         lock.set()
-
-
-
-# ---------------------------------------------------
-# how to call send_packet function of the following class from the websocket_open function?
-# class StatsController(ControllerBase):
-#     def __init__(self, req, link, data, **config):
-#         super(StatsController, self).__init__(req, link, data, **config)
-#         self.dpset = data['dpset']
-#         self.waiters = data['waiters']
-
-#     def get_dpids(self, req, **_kwargs):
-#         dps = list(self.dpset.dps.keys())
-#         body = json.dumps(dps)
-#         return Response(content_type='application/json', body=body)
-    
-#     @command_method
-#     def send_packet(self, req, dp, ofctl, body, websocket, *args, **kwargs):
-#         #TODO ofctl.send_packet(dp, body)
-
-#         start = datetime.datetime.now()
-#         print('OFCTL_REST send_packet start timestamp ', start)
-
-#         buffer_id = ofctl.UTIL.ofp_buffer_from_user(
-#             body.get('buffer_id', dp.ofproto.OFP_NO_BUFFER))
-#         actions = ofctl.to_actions(dp, body.get('actions', []))
-#         in_port = ofctl.UTIL.ofp_port_from_user(body.get('in_port', None))
-
-#         out = dp.ofproto_parser.OFPPacketOut(
-#             datapath=dp, buffer_id=buffer_id, in_port=in_port,
-#             actions=actions, data=base64.b64decode(body.get('data')))
-
-#         dp.send_msg(out)
-#         stop = datetime.datetime.now()
-#         time_diff = (stop - start)
-#         ex_time = time_diff.total_seconds() * 1000
-#         print('OFCTL_REST send_packet ex_time ', ex_time)
-#         print('OFCTL_REST send_packet stop timestamp ', stop)
