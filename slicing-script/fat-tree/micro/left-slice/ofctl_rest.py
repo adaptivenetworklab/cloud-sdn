@@ -312,7 +312,7 @@ class StatsController(ControllerBase):
         self.waiters = data['waiters']
         self.websocket_connections = []
     
-    @websocket('/')
+    @websocket('root', '/')
     def websocket_handler(self, ws):
         self.websocket_connections.append(ws)
         try:
@@ -579,8 +579,8 @@ class WsStatsApi(app_manager.RyuApp):
         self.data = {}
         self.dpset = kwargs['dpset']
         self.data['waiters'] = self.waiters
-        self.controller = StatsController(self)
-        self.ws = wsgi.WebsocketWSGIHandler(self.controller.websocket_handler)
+        wsgi.register(StatsController, {'app': self, 'dpset': dpset})
+        self.ws = wsgi.WebsocketWSGIHandler(StatsController.websocket_handler)
 
     @set_ev_cls([ofp_event.EventOFPStatsReply,
                  ofp_event.EventOFPDescStatsReply,
