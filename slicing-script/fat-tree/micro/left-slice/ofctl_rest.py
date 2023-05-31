@@ -310,6 +310,7 @@ class StatsController(ControllerBase):
         self.app = data['app']
         self.dpset = data['dpset']
         self.waiters = data['waiters']
+        self.websocket_connections = []
     
     @websocket('/')
     def websocket_handler(self, ws):
@@ -574,8 +575,12 @@ class WsStatsApi(app_manager.RyuApp):
         super(WsStatsApi, self).__init__(*args, **kwargs)
         self.app = StatsController.__name__
         wsgi = kwargs['wsgi']
-        dpset = kwargs['dpset']
-        wsgi.register(StatsController, {'app': self, 'dpset': dpset})
+        self.waiters = {}
+        self.data = {}
+        self.dpset = kwargs['dpset']
+        self.data['waiters'] = self.waiters
+        self.controller = StatsController(self)
+        self.ws = wsgi.WebsocketWSGIHandler(self.controller.websocket_handler)
 
     @set_ev_cls([ofp_event.EventOFPStatsReply,
                  ofp_event.EventOFPDescStatsReply,
@@ -635,3 +640,12 @@ class WsStatsApi(app_manager.RyuApp):
 
         del self.waiters[dp.id][msg.xid]
         lock.set()
+
+    def start(self):
+        super(WsStatsApi, self).start()
+        # Start your application-specific logic here
+
+        # Start the WebSocket server
+        self.wsgi.start_websocket_server('192.168.56.10', 8080, self.ws)
+
+app_manager.require_app('ryu.app.ofctl_rest')    
