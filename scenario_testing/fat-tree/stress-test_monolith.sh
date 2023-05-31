@@ -1,22 +1,13 @@
 sh sleep 10
 
-h4 iperf -s -p 5999 -w 30M &
-h2 iperf -c h4 -i 1 -t 1000000 -p 5999 -w 30M &
+h4 iperf -s -p 5999 -w 45M &
+h2 iperf -c h4 -i 1 -t 1000000 -p 5999 -w 45M &
 
-h8 iperf -s -p 5999 -w 30M &
-h6 iperf -c h8 -i 1 -t 1000000 -p 5999 -w 30M &
+h8 iperf -s -p 5999 -w 45M &
+h6 iperf -c h8 -i 1 -t 1000000 -p 5999 -w 45M &
 
-h12 iperf -s -p 5999 -w 30M &
-h10 iperf -c h12 -i 1 -t 1000000 -p 5999 -w 30M &
-
-h3 iperf -s -p 5999 -w 30M &
-h1 iperf -c h4 -i 1 -t 1000000 -p 5999 -w 30M &
-
-h7 iperf -s -p 5999 -w 30M &
-h5 iperf -c h8 -i 1 -t 1000000 -p 5999 -w 30M &
-
-h11 iperf -s -p 5999 -w 30M &
-h9 iperf -c h12 -i 1 -t 1000000 -p 5999 -w 30M &
+h12 iperf -s -p 5999 -w 45M &
+h10 iperf -c h12 -i 1 -t 1000000 -p 5999 -w 45M &
 
 h1 sudo -u ubuntu vlc rtp://@:5004 &
 h3 sudo -u ubuntu vlc -q /home/ubuntu/cloud-sdn/scenario_testing/test_services/video.mp4 --sout="#rtp{dst=10.0.0.1, port=5004, mux=ts}" --ttl 12 --no-sout-all --sout-keep &
