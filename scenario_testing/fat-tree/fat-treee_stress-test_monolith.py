@@ -7,8 +7,8 @@ from mininet.cli import CLI
 from mininet.link import TCLink
 
 
-class FVTopo(Topo, n=12):
-    def __init__(self):
+class FVTopo(Topo):
+    def __init__(self, n=12):
         # Initialize topology
         Topo.__init__(self)
 
