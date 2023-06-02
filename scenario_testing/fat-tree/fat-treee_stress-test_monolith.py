@@ -2,7 +2,7 @@
 
 from mininet.topo import Topo
 from mininet.net import Mininet
-from mininet.node import OVSKernelSwitch, RemoteController
+from mininet.node import OVSKernelSwitch, RemoteController, CPULimitedHost
 from mininet.cli import CLI
 from mininet.link import TCLink
 
@@ -14,6 +14,7 @@ class FVTopo(Topo):
 
         # Create template host, switch, and link
         hconfig = {"inNamespace": True}
+        cpuconfig = {"cpu": .75/n}
         http_link_config = {"bw": 1}
         voip_link_config = {"bw": 0.5}
         video_link_config = {"bw": 3}
@@ -26,9 +27,9 @@ class FVTopo(Topo):
         # Create host nodes
         for i in range(12):
             if (i + 1) < 10:
-                self.addHost("h%d" % (i + 1), mac="00:00:00:00:00:0%d" % (i + 1), **hconfig)
+                self.addHost("h%d" % (i + 1), mac="00:00:00:00:00:0%d" % (i + 1), **hconfig, **cpuconfig)
             else:
-                self.addHost("h%d" % (i + 1), mac="00:00:00:00:00:%d" % (i + 1), **hconfig)
+                self.addHost("h%d" % (i + 1), mac="00:00:00:00:00:%d" % (i + 1), **hconfig, **cpuconfig)
 
         # Add switch links
         self.addLink("s4", "s1", **video_link_config)
