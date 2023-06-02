@@ -1,4 +1,4 @@
-sh sleep 300
+sh sleep 240
 
 h4 ITGRecv -l /home/ubuntu/Hasil_Pengambilan_Data/Fat-Tree/BGT/micro/recieve-h2-to-h4_100 &
 h2 ITGSend -T TCP -a 10.0.0.4 -c 300000 -C 1000 -t 80000 &

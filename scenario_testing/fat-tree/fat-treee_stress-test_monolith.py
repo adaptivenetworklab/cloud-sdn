@@ -17,7 +17,7 @@ class FVTopo(Topo):
         cpuconfig = {"cpu": .75/n}
         http_link_config = {"bw": 1}
         voip_link_config = {"bw": 0.5}
-        video_link_config = {"bw": 3}
+        #video_link_config = {"bw": 3}
 
         # Create switch nodes
         for i in range(15):
@@ -32,8 +32,8 @@ class FVTopo(Topo):
                 self.addHost("h%d" % (i + 1), mac="00:00:00:00:00:%d" % (i + 1), **hconfig, **cpuconfig)
 
         # Add switch links
-        self.addLink("s4", "s1", **video_link_config)
-        self.addLink("s5", "s1", **video_link_config)
+        self.addLink("s4", "s1")
+        self.addLink("s5", "s1")
         self.addLink("s6", "s1")
         self.addLink("s7", "s1")
         self.addLink("s8", "s1")
@@ -50,10 +50,10 @@ class FVTopo(Topo):
         self.addLink("s7", "s3")
         self.addLink("s8", "s3", **voip_link_config)
         self.addLink("s9", "s3", **voip_link_config)
-        self.addLink("s10", "s4", **video_link_config)
-        self.addLink("s11", "s4", **video_link_config)
-        self.addLink("s10", "s5", **video_link_config)
-        self.addLink("s11", "s5", **video_link_config)
+        self.addLink("s10", "s4")
+        self.addLink("s11", "s4")
+        self.addLink("s10", "s5")
+        self.addLink("s11", "s5")
         self.addLink("s12", "s5")
         self.addLink("s11", "s6")
         self.addLink("s12", "s6", **http_link_config)
@@ -68,10 +68,10 @@ class FVTopo(Topo):
         self.addLink("s15", "s9", **voip_link_config)
 
         # Add host links
-        self.addLink("h1", "s10", **video_link_config)
-        self.addLink("h2", "s10", **video_link_config)
-        self.addLink("h3", "s11", **video_link_config)
-        self.addLink("h4", "s11", **video_link_config)
+        self.addLink("h1", "s10")
+        self.addLink("h2", "s10")
+        self.addLink("h3", "s11")
+        self.addLink("h4", "s11")
         self.addLink("h5", "s12", **http_link_config)
         self.addLink("h6", "s12", **http_link_config)
         self.addLink("h7", "s13", **http_link_config)
