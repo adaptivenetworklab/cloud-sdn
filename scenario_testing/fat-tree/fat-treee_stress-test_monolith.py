@@ -7,7 +7,7 @@ from mininet.cli import CLI
 from mininet.link import TCLink
 
 
-class FVTopo(Topo):
+class FVTopo(Topo, n=12):
     def __init__(self):
         # Initialize topology
         Topo.__init__(self)
@@ -25,7 +25,7 @@ class FVTopo(Topo):
             self.addSwitch("s%d" % (i + 1), protocols="OpenFlow10", **sconfig)
 
         # Create host nodes
-        for i in range(12):
+        for i in range(n):
             if (i + 1) < 10:
                 self.addHost("h%d" % (i + 1), mac="00:00:00:00:00:0%d" % (i + 1), **hconfig, **cpuconfig)
             else:
