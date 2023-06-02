@@ -1,13 +1,13 @@
 sh sleep 300
 
-h4 iperf -s -p 5999 -M 40 &
-h2 iperf -c h4 -i 1 -t 1000000 -p 5999 -M 40 &
+h4 ITGRecv &
+h2 ITGSend -T TCP -a 10.0.0.4 -c 100000 -C 1000 -t 150000000 &
 
-h8 iperf -s -p 5999 -M 40 &
-h6 iperf -c h8 -i 1 -t 1000000 -p 5999 -M 40 &
+h8 ITGRecv &
+h6 ITGSend -T TCP -a 10.0.0.8 -c 100000 -C 1000 -t 150000000 &
 
-h12 iperf -s -p 5999 -M 40 &
-h10 iperf -c h12 -i 1 -t 1000000 -p 5999 -M 40 &
+h12 ITGRecv &
+h10 ITGSend -T TCP -a 10.0.0.12 -c 100000 -C 1000 -t 150000000 &
 
 h1 sudo -u ubuntu vlc rtp://@:5004 &
 h3 sudo -u ubuntu vlc -q /home/ubuntu/cloud-sdn/scenario_testing/test_services/video.mp4 --sout="#rtp{dst=10.0.0.1, port=5004, mux=ts}" --ttl 12 --no-sout-all --sout-keep &
