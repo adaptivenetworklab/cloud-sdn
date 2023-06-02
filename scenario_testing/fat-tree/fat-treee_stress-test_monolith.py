@@ -97,9 +97,9 @@ if __name__ == "__main__":
     net.addController(controller)
     net.build()
     net.start()
-    net.iperf( (h2, h4), l4Type='UDP', udpBw='1000M', seconds=100000 )
-    net.iperf( (h6, h8), l4Type='UDP', udpBw='1000M', seconds=100000 )
-    net.iperf( (h10, h12), l4Type='UDP', udpBw='1000M', seconds=100000 )
+    net.iperf( hosts = (h2, h4), l4Type='UDP', udpBw='1000M', seconds=100000, port = 5999 )
+    net.iperf( hosts = (h6, h8), l4Type='UDP', udpBw='1000M', seconds=100000, port = 5999 )
+    net.iperf( hosts = (h10, h12), l4Type='UDP', udpBw='1000M', seconds=100000, port = 5999 )
     #Batch command execution
     stress_test = "/home/ubuntu/cloud-sdn/scenario_testing/fat-tree/stress-test_monolith.sh"
     CLI(net, script=stress_test)
