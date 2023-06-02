@@ -1,13 +1,13 @@
 sh sleep 10
 
 h4 ITGRecv -l /home/ubuntu/Hasil_Pengambilan_Data/Fat-Tree/BGT/mono/recieve-h2-to-h4_100 &
-h2 ITGSend -T TCP -a 10.0.0.4 -c 300000 -C 1000 -t 80000 &
+h2 ITGSend -T TCP -a 10.0.0.4 -c 20000 -C 1000 -t 80000 &
 
 h8 ITGRecv -l /home/ubuntu/Hasil_Pengambilan_Data/Fat-Tree/BGT/mono/recieve-h6-to-h8_100 &
-h6 ITGSend -T TCP -a 10.0.0.8 -c 300000 -C 1000 -t 80000 &
+h6 ITGSend -T TCP -a 10.0.0.8 -c 20000 -C 1000 -t 80000 &
 
 h12 ITGRecv -l /home/ubuntu/Hasil_Pengambilan_Data/Fat-Tree/BGT/mono/recieve-h10-to-h12_100 &
-h10 ITGSend -T TCP -a 10.0.0.12 -c 300000 -C 1000 -t 80000 &
+h10 ITGSend -T TCP -a 10.0.0.12 -c 20000 -C 1000 -t 80000 &
 
 h1 sudo -u ubuntu vlc rtp://@:5004 &
 h3 sudo -u ubuntu vlc -q /home/ubuntu/cloud-sdn/scenario_testing/test_services/video.mp4 --sout="#rtp{dst=10.0.0.1, port=5004, mux=ts}" --ttl 12 --no-sout-all --sout-keep &
