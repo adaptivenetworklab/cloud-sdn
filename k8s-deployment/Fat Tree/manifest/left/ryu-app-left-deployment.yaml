@@ -47,5 +47,5 @@ spec:
         - name: LEFT_MIDDLEWARE
           value: middleware-left.default.svc.cluster.local
       nodeSelector:
-        kubernetes.io/hostname : worker2-sdn
+        kubernetes.io/hostname : worker1-sdn
 status: {}

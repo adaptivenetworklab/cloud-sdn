@@ -50,5 +50,5 @@ spec:
         - name: CENTER_RYU_APP
           value: ryu-app-center.default.svc.cluster.local
       nodeSelector:
-        kubernetes.io/hostname : worker1-sdn
+        kubernetes.io/hostname : worker2-sdn
 status: {}
