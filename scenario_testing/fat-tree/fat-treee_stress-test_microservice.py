@@ -97,5 +97,18 @@ if __name__ == "__main__":
     net.addController(controller)
     net.build()
     net.start()
+
+    # h2, h4 = net.get('h2', 'h4')
+    # h6, h8 = net.get('h6', 'h8')
+    # h10, h12 = net.get('h10', 'h12')
+    # net.iperf( hosts = (h2, h4), l4Type='UDP', udpBw='1000M', seconds=100000, port = 5999 )
+    # net.iperf( hosts = (h6, h8), l4Type='UDP', udpBw='1000M', seconds=100000, port = 5999 )
+    # net.iperf( hosts = (h10, h12), l4Type='UDP', udpBw='1000M', seconds=100000, port = 5999 )
+    
+    #Batch command execution
+    stress_test = "/home/ubuntu/cloud-sdn/scenario_testing/fat-tree/stress-test_microservice.sh"
+    CLI(net, script=stress_test)
+
+    #Manual CLI
     CLI(net)
     net.stop()
