@@ -22,11 +22,8 @@ from lib.packet import udp
 import requests
 import base64
 import datetime
-<<<<<<< HEAD:slicing-script/fat-tree/micro/left-slice/left-slice.py
 import json
-=======
 import os
->>>>>>> fbec69869ed959e0936020ebb1b7d55e27bbe4ee:k8s-deployment/Fat Tree/Dockerfile-App/ryu-app/slice/left/left-slice.py
 
 PORT = 8090
 
@@ -483,11 +480,7 @@ async def packetin(websocket, path):
     return "ACK"
 
 if __name__ == "__main__":
-<<<<<<< HEAD:slicing-script/fat-tree/micro/left-slice/left-slice.py
-    start_server = websockets.serve(packetin, "192.168.1.2", PORT)
+    start_server = websockets.serve(packetin, left_ryu_app, PORT)
 
     asyncio.get_event_loop().run_until_complete(start_server)
     asyncio.get_event_loop().run_forever()
-=======
-    api.run(host=left_ryu_app, port=8090)
->>>>>>> fbec69869ed959e0936020ebb1b7d55e27bbe4ee:k8s-deployment/Fat Tree/Dockerfile-App/ryu-app/slice/left/left-slice.py

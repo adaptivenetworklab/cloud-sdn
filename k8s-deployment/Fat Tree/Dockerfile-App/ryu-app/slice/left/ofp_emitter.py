@@ -13,7 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import requests
+import websockets
+import asyncio
 import datetime
 import os
 from ryu.base import app_manager
@@ -21,9 +22,10 @@ from ryu.controller import ofp_event
 from ryu.controller.handler import MAIN_DISPATCHER
 from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_0
+import json
 
-#left_ryu_app = "http://172.17.0.3:8090/packetin"
-left_ryu_app = "http://" + str(os.environ['LEFT_RYU_APP']) + ":8090/packetin"
+#left_ryu_app = "ws://172.17.0.3:8090/packetin"
+left_ryu_app = "ws://" + str(os.environ['LEFT_RYU_APP']) + ":8090/packetin"
 
 class OfpEmitter(app_manager.RyuApp):
     """Propagate events to interested microservices.

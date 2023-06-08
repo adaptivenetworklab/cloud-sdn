@@ -37,7 +37,7 @@ spec:
         app: middleware-right
     spec:
       containers:
-      - image: adaptivenetlab/middleware-right:2.0
+      - image: adaptivenetlab/middleware-right:sw1.0
         name: middleware-right
         resources:
           requests:

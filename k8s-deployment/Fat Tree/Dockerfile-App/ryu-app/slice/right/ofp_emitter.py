@@ -24,17 +24,14 @@ from ryu.controller.handler import set_ev_cls
 from ryu.ofproto import ofproto_v1_0
 import json
 
-<<<<<<< HEAD:slicing-script/fat-tree/micro/center-slice/ofp_emitter.py
-center_ryu_app = "ws://192.168.2.2:8090/packetin"
-=======
-#right_ryu_app = "http://172.17.0.3:8090/packetin"
-right_ryu_app = "http://" + str(os.environ['RIGHT_RYU_APP']) + ":8090/packetin"
->>>>>>> fbec69869ed959e0936020ebb1b7d55e27bbe4ee:k8s-deployment/Fat Tree/Dockerfile-App/ryu-app/slice/right/ofp_emitter.py
+#right_ryu_app = "ws://172.17.0.3:8090/packetin"
+right_ryu_app = "ws://" + str(os.environ['RIGHT_RYU_APP']) + ":8090/packetin"
 
 class OfpEmitter(app_manager.RyuApp):
     """Propagate events to interested microservices.
 
         packet format:
+
         {
             'OFPXXX' : {    //XXX = event name  (ex. OFPPacketIn)
                 'buffer_id'     :   int
@@ -70,18 +67,14 @@ class OfpEmitter(app_manager.RyuApp):
         print('_packet_in_handler time ', ex_time)
         timestp = datetime.datetime.now()
         print('_packet_in_handler start requests.post ', timestp)
-<<<<<<< HEAD:slicing-script/fat-tree/micro/center-slice/ofp_emitter.py
         json_data = json.dumps(packet)
 
         async def send_ofp_msg_to_ryuapp(json_data):
-            async with websockets.connect(center_ryu_app) as ws:
+            async with websockets.connect(right_ryu_app) as ws:
                 await ws.send(json_data)
                 print(json_data)
 
-        asyncio.run(send_ofp_msg_to_ryuapp(json_data))   
+        asyncio.run(send_ofp_msg_to_ryuapp(json_data))      
 
-=======
-        x = requests.post(right_ryu_app,json=packet)
->>>>>>> fbec69869ed959e0936020ebb1b7d55e27bbe4ee:k8s-deployment/Fat Tree/Dockerfile-App/ryu-app/slice/right/ofp_emitter.py
         timestp = datetime.datetime.now()
         print('_packet_in_handler end timestamp ', timestp)
