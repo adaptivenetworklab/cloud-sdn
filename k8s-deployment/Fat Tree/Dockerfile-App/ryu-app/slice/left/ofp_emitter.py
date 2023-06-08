@@ -67,6 +67,14 @@ class OfpEmitter(app_manager.RyuApp):
         print('_packet_in_handler time ', ex_time)
         timestp = datetime.datetime.now()
         print('_packet_in_handler start requests.post ', timestp)
-        x = requests.post(left_ryu_app,json=packet)
+        json_data = json.dumps(packet)
+
+        async def send_ofp_msg_to_ryuapp(json_data):
+            async with websockets.connect(left_ryu_app) as ws:
+                await ws.send(json_data)
+                print(json_data)
+
+        asyncio.run(send_ofp_msg_to_ryuapp(json_data))        
+
         timestp = datetime.datetime.now()
         print('_packet_in_handler end timestamp ', timestp)
