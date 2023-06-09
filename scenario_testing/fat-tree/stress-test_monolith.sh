@@ -1,7 +1,7 @@
 sh sleep 5
 
-h4 iperf -s -p 5999 -b 35M &
-h2 iperf -c h4 -i 1 -t 40 -p 5999 -b 35M &
+h4 iperf -s -p 5999 -b 50M &
+h2 iperf -c h4 -i 1 -t 40 -p 5999 -b 50M &
 
 h8 iperf -s -p 5999 -b 5M &
 h6 iperf -c h8 -i 1 -t 40 -p 5999 -b 5M &
