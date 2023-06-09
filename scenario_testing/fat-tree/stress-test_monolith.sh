@@ -1,10 +1,10 @@
 sh sleep 20
 
-h4 iperf -s -p 5999 -b 1500K &
+h4 iperf -s -p 5999 -b 2500K &
 h2 iperf -c h4 -i 1 -t 1000000 -p 5999 -b 1500K &
 
-h8 iperf -s -p 5999 -b 1500K &
-h6 iperf -c h8 -i 1 -t 1000000 -p 5999 -b 1500K &
+h8 iperf -s -p 5999 -b 2500K &
+h6 iperf -c h8 -i 1 -t 1000000 -p 5999 -b 2500K &
 
 h12 iperf -s -p 5999 -b 1500K &
 h10 iperf -c h12 -i 1 -t 1000000 -p 5999 -b 1500K &
