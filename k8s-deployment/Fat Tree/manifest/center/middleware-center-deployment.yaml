@@ -41,11 +41,11 @@ spec:
         name: middleware-center
         resources:
           requests:
-            memory: "512Mi"
+            memory: "128Mi"
             cpu: "400m"
           limits:
             memory: "512Mi"
-            cpu: "400m"
+            cpu: "600m"
         env:
         - name: CENTER_RYU_APP
           value: ryu-app-center.default.svc.cluster.local

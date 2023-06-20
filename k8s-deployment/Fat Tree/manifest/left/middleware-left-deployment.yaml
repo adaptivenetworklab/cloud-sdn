@@ -41,11 +41,11 @@ spec:
         name: middleware-left
         resources:
           requests:
-            memory: "512Mi"
-            cpu: "400m"
+            memory: "256Mi"
+            cpu: "900m"
           limits:
             memory: "512Mi"
-            cpu: "400m"
+            cpu: "1000m"
         env:
         - name: LEFT_RYU_APP
           value: ryu-app-left.default.svc.cluster.local

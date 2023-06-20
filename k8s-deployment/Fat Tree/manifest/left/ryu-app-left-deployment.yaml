@@ -34,11 +34,11 @@ spec:
         name: ryu-app-left
         resources: 
           requests:
-            memory: "512Mi"
-            cpu: "400m"
+            memory: "256Mi"
+            cpu: "900m"
           limits:
             memory: "512Mi"
-            cpu: "400m"
+            cpu: "1000m"
         env:
         - name: LEFT_RYU_APP
           valueFrom:
