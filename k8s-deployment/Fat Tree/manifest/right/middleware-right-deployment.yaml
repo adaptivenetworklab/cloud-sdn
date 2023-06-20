@@ -41,8 +41,8 @@ spec:
         name: middleware-right
         resources:
           requests:
-            memory: "128Mi"
-            cpu: "100m"
+            memory: "512Mi"
+            cpu: "400m"
           limits:
             memory: "512Mi"
             cpu: "400m"
