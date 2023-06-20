@@ -39,13 +39,13 @@ spec:
       containers:
       - image: adaptivenetlab/middleware-right:sw1.1
         name: middleware-right
-        resources:
-          requests:
-            memory: "128Mi"
-            cpu: "400m"
-          limits:
-            memory: "512Mi"
-            cpu: "600m"
+        # resources:
+        #   requests:
+        #     memory: "128Mi"
+        #     cpu: "400m"
+        #   limits:
+        #     memory: "512Mi"
+        #     cpu: "600m"
         env:
         - name: RIGHT_RYU_APP
           value: ryu-app-right.default.svc.cluster.local
