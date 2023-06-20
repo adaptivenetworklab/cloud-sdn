@@ -42,10 +42,10 @@ spec:
         resources:
           requests:
             memory: "256Mi"
-            cpu: "800m"
+            cpu: "750m"
           limits:
             memory: "512Mi"
-            cpu: "850m"
+            cpu: "800m"
         env:
         - name: LEFT_RYU_APP
           value: ryu-app-left.default.svc.cluster.local
