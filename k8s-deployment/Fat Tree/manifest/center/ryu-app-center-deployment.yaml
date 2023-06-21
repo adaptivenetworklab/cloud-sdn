@@ -32,13 +32,13 @@ spec:
       containers:
       - image: adaptivenetlab/ryu-app-center:sw1.1
         name: ryu-app-center
-        # resources: 
-        #   requests:
-        #     memory: "128Mi"
-        #     cpu: "400m"
-        #   limits:
-        #     memory: "512Mi"
-        #     cpu: "600m"
+        resources: 
+          requests:
+            memory: "128Mi"
+            cpu: "450m"
+          limits:
+            memory: "512Mi"
+            cpu: "600m"
         env:
         - name: CENTER_RYU_APP
           valueFrom:

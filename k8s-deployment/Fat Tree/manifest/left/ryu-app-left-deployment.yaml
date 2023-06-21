@@ -32,13 +32,13 @@ spec:
       containers:
       - image: adaptivenetlab/ryu-app-left:sw1.1
         name: ryu-app-left
-        # resources: 
-        #   requests:
-        #     memory: "256Mi"
-        #     cpu: "750m"
-        #   limits:
-        #     memory: "512Mi"
-        #     cpu: "800m"
+        resources: 
+          requests:
+            memory: "256Mi"
+            cpu: "850m"
+          limits:
+            memory: "512Mi"
+            cpu: "900m"
         env:
         - name: LEFT_RYU_APP
           valueFrom:
