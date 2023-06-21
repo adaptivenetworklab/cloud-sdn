@@ -38,7 +38,7 @@ spec:
             cpu: "800m"
           limits:
             memory: "512Mi"
-            cpu: "900m"
+            cpu: "8500m"
         env:
         - name: LEFT_RYU_APP
           valueFrom:
