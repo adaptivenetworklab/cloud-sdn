@@ -14,9 +14,9 @@ class FVTopo(Topo):
 
         # Create template host, switch, and link
         hconfig = {"inNamespace": True}
-        http_link_config = {"bw": 1}
-        voip_link_config = {"bw": 0.5}
-        video_link_config = {"bw": 3}
+        # http_link_config = {"bw": 1}
+        # voip_link_config = {"bw": 0.5}
+        # video_link_config = {"bw": 3}
 
         # Create switch nodes
         for i in range(15):
