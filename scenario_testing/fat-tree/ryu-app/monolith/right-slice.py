@@ -123,8 +123,8 @@ class RightSlice(app_manager.RyuApp):
                     out_port,
                 )
                 actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
-                # match = datapath.ofproto_parser.OFPMatch(dl_dst=dst)
-                # self.add_flow(datapath, 2, match, actions)
+                match = datapath.ofproto_parser.OFPMatch(dl_dst=dst)
+                self.add_flow(datapath, 2, match, actions)
                 self._send_package(msg, datapath, in_port, actions)
             
             elif ( # voip traffic is using short path (considered by src_port)
@@ -136,17 +136,17 @@ class RightSlice(app_manager.RyuApp):
                     return
                 
                 actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
-                # match = datapath.ofproto_parser.OFPMatch(
-                #     in_port=in_port,
-                #     dl_src=src,
-                #     dl_dst=dst,
-                #     dl_type=ether_types.ETH_TYPE_IP,
-                #     nw_proto=0x11,  # udp
-                #     tp_src=pkt.get_protocol(udp.udp).src_port
-                # )
-                # self.logger.info("INFO sending packet from s%s (out_port=%s)", dpid, out_port)
+                match = datapath.ofproto_parser.OFPMatch(
+                    in_port=in_port,
+                    dl_src=src,
+                    dl_dst=dst,
+                    dl_type=ether_types.ETH_TYPE_IP,
+                    nw_proto=0x11,  # udp
+                    tp_src=pkt.get_protocol(udp.udp).src_port
+                )
+                self.logger.info("INFO sending packet from s%s (out_port=%s)", dpid, out_port)
 
-                # self.add_flow(datapath, 3, match, actions)
+                self.add_flow(datapath, 3, match, actions)
                 self._send_package(msg, datapath, in_port, actions)
 
             elif ( # voip traffic is using short path (considered by dst_port)
@@ -158,17 +158,17 @@ class RightSlice(app_manager.RyuApp):
                     return
                 
                 actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
-                # match = datapath.ofproto_parser.OFPMatch(
-                #     in_port=in_port,
-                #     dl_src=src,
-                #     dl_dst=dst,
-                #     dl_type=ether_types.ETH_TYPE_IP,
-                #     nw_proto=0x11,  # udp
-                #     tp_dst=pkt.get_protocol(udp.udp).dst_port
-                # )
-                # self.logger.info("INFO sending packet from s%s (out_port=%s)", dpid, out_port)
+                match = datapath.ofproto_parser.OFPMatch(
+                    in_port=in_port,
+                    dl_src=src,
+                    dl_dst=dst,
+                    dl_type=ether_types.ETH_TYPE_IP,
+                    nw_proto=0x11,  # udp
+                    tp_dst=pkt.get_protocol(udp.udp).dst_port
+                )
+                self.logger.info("INFO sending packet from s%s (out_port=%s)", dpid, out_port)
 
-                # self.add_flow(datapath, 3, match, actions)
+                self.add_flow(datapath, 3, match, actions)
                 self._send_package(msg, datapath, in_port, actions)
 
             else: # non-voip traffic is using long path
@@ -178,14 +178,14 @@ class RightSlice(app_manager.RyuApp):
                     return
                 
                 actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
-                # match = datapath.ofproto_parser.OFPMatch(
-                #     in_port=in_port,
-                #     dl_dst=dst,
-                #     dl_type=ether_types.ETH_TYPE_IP,
-                # )
-                # self.logger.info("INFO sending packet from s%s (out_port=%s)", dpid, out_port)
+                match = datapath.ofproto_parser.OFPMatch(
+                    in_port=in_port,
+                    dl_dst=dst,
+                    dl_type=ether_types.ETH_TYPE_IP,
+                )
+                self.logger.info("INFO sending packet from s%s (out_port=%s)", dpid, out_port)
 
-                # self.add_flow(datapath, 1, match, actions)
+                self.add_flow(datapath, 1, match, actions)
                 self._send_package(msg, datapath, in_port, actions)
 
         else: # if the datapath is non-edge switch
@@ -198,17 +198,17 @@ class RightSlice(app_manager.RyuApp):
                     return
                 
                 actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
-                # match = datapath.ofproto_parser.OFPMatch(
-                #     in_port=in_port,
-                #     dl_src=src,
-                #     dl_dst=dst,
-                #     dl_type=ether_types.ETH_TYPE_IP,
-                #     nw_proto=0x11,  # udp
-                #     tp_src=pkt.get_protocol(udp.udp).src_port
-                # )
-                # self.logger.info("INFO sending packet from s%s (out_port=%s)", dpid, out_port)
+                match = datapath.ofproto_parser.OFPMatch(
+                    in_port=in_port,
+                    dl_src=src,
+                    dl_dst=dst,
+                    dl_type=ether_types.ETH_TYPE_IP,
+                    nw_proto=0x11,  # udp
+                    tp_src=pkt.get_protocol(udp.udp).src_port
+                )
+                self.logger.info("INFO sending packet from s%s (out_port=%s)", dpid, out_port)
 
-                # self.add_flow(datapath, 3, match, actions)
+                self.add_flow(datapath, 3, match, actions)
                 self._send_package(msg, datapath, in_port, actions)
 
             elif ( # voip traffic is using short path (considered by dst_port)
@@ -220,17 +220,17 @@ class RightSlice(app_manager.RyuApp):
                     return
                 
                 actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
-                # match = datapath.ofproto_parser.OFPMatch(
-                #     in_port=in_port,
-                #     dl_src=src,
-                #     dl_dst=dst,
-                #     dl_type=ether_types.ETH_TYPE_IP,
-                #     nw_proto=0x11,  # udp
-                #     tp_dst=pkt.get_protocol(udp.udp).dst_port
-                # )
-                # self.logger.info("INFO sending packet from s%s (out_port=%s)", dpid, out_port)
+                match = datapath.ofproto_parser.OFPMatch(
+                    in_port=in_port,
+                    dl_src=src,
+                    dl_dst=dst,
+                    dl_type=ether_types.ETH_TYPE_IP,
+                    nw_proto=0x11,  # udp
+                    tp_dst=pkt.get_protocol(udp.udp).dst_port
+                )
+                self.logger.info("INFO sending packet from s%s (out_port=%s)", dpid, out_port)
 
-                # self.add_flow(datapath, 3, match, actions)
+                self.add_flow(datapath, 3, match, actions)
                 self._send_package(msg, datapath, in_port, actions)
             
             else: # non-voip traffic is using long path
@@ -240,14 +240,12 @@ class RightSlice(app_manager.RyuApp):
                     return
                 
                 actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
-                # match = datapath.ofproto_parser.OFPMatch(
-                #     in_port=in_port,
-                #     dl_dst=dst,
-                #     dl_type=ether_types.ETH_TYPE_IP,
-                # )
-                # self.logger.info("INFO sending packet from s%s (out_port=%s)", dpid, out_port)
+                match = datapath.ofproto_parser.OFPMatch(
+                    in_port=in_port,
+                    dl_dst=dst,
+                    dl_type=ether_types.ETH_TYPE_IP,
+                )
+                self.logger.info("INFO sending packet from s%s (out_port=%s)", dpid, out_port)
 
-                # self.add_flow(datapath, 1, match, actions)
+                self.add_flow(datapath, 1, match, actions)
                 self._send_package(msg, datapath, in_port, actions)
-                
-
