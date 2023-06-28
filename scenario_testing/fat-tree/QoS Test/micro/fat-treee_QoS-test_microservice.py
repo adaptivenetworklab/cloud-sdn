@@ -106,7 +106,7 @@ if __name__ == "__main__":
     # net.iperf( hosts = (h10, h12), l4Type='UDP', udpBw='1000M', seconds=100000, port = 5999 )
     
     #Batch command execution
-    stress_test = "/home/ubuntu/cloud-sdn/scenario_testing/fat-tree/stress-testing/micro/stress-test_microservice-9.sh"
+    stress_test = "/home/ubuntu/cloud-sdn/scenario_testing/fat-tree/stress-testing/micro/QoS-test_microservice-1.sh"
     CLI(net, script=stress_test)
 
     #Manual CLI
