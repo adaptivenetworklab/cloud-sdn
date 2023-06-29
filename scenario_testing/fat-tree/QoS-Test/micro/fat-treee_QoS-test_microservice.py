@@ -107,18 +107,18 @@ if __name__ == "__main__":
     
     CLI.do_sh(net, 'sleep 360')
 
-    # #Batch command execution for video streaming
-    # video_test = "/home/ubuntu/cloud-sdn/scenario_testing/fat-tree/QoS-Test/micro/QoS-test_microservice-video.sh"
-    # CLI(net, script=video_test)
+    #Batch command execution for video streaming
+    video_test = "/home/ubuntu/cloud-sdn/scenario_testing/fat-tree/QoS-Test/micro/QoS-test_microservice-video.sh"
+    CLI(net, script=video_test)
 
 
-    # #Batch command execution for Web
-    # web_test = "/home/ubuntu/cloud-sdn/scenario_testing/fat-tree/QoS-Test/micro/QoS-test_microservice-web.sh"
-    # CLI(net, script=web_test)
+    #Batch command execution for Web
+    web_test = "/home/ubuntu/cloud-sdn/scenario_testing/fat-tree/QoS-Test/micro/QoS-test_microservice-web.sh"
+    CLI(net, script=web_test)
 
-    # #Batch command execution for VoIP
-    # voip_test = "/home/ubuntu/cloud-sdn/scenario_testing/fat-tree/QoS-Test/micro/QoS-test_microservice-voip.sh"
-    # CLI(net, script=voip_test)
+    #Batch command execution for VoIP
+    voip_test = "/home/ubuntu/cloud-sdn/scenario_testing/fat-tree/QoS-Test/micro/QoS-test_microservice-voip.sh"
+    CLI(net, script=voip_test)
 
     #Manual CLI
     CLI(net)
