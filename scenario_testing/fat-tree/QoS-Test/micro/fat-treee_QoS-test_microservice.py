@@ -105,9 +105,20 @@ if __name__ == "__main__":
     # net.iperf( hosts = (h6, h8), l4Type='UDP', udpBw='1000M', seconds=100000, port = 5999 )
     # net.iperf( hosts = (h10, h12), l4Type='UDP', udpBw='1000M', seconds=100000, port = 5999 )
     
-    #Batch command execution
-    stress_test = "/home/ubuntu/cloud-sdn/scenario_testing/fat-tree/QoS-Test/micro/QoS-test_microservice-1.sh"
-    CLI(net, script=stress_test)
+    CLI.do_sh(net, 'sh sleep 360')
+
+    # #Batch command execution for video streaming
+    # video_test = "/home/ubuntu/cloud-sdn/scenario_testing/fat-tree/QoS-Test/micro/QoS-test_microservice-video.sh"
+    # CLI(net, script=video_test)
+
+
+    # #Batch command execution for Web
+    # web_test = "/home/ubuntu/cloud-sdn/scenario_testing/fat-tree/QoS-Test/micro/QoS-test_microservice-web.sh"
+    # CLI(net, script=web_test)
+
+    # #Batch command execution for VoIP
+    # voip_test = "/home/ubuntu/cloud-sdn/scenario_testing/fat-tree/QoS-Test/micro/QoS-test_microservice-voip.sh"
+    # CLI(net, script=voip_test)
 
     #Manual CLI
     CLI(net)
