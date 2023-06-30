@@ -1,7 +1,7 @@
 h12 iperf -s -p 5999 -b 1M &
 h10 iperf -c h12 -i 1 -t 18000 -p 5999 -b 1M &
 
-h11 ITGRecv -l /root/hasil_test/micro/voip &
+h11 ITGRecv -l /home/ubuntu/hasil_test/micro-voip &
 h9 ITGSend -a 10.0.0.11 -rp 10003 VoIP -x G.711.2 -h RTP -VAD
 
 h10 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
