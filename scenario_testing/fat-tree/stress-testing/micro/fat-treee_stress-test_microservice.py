@@ -107,9 +107,9 @@ if __name__ == "__main__":
     
     CLI.do_sh(net, 'sleep 360')
 
-    # #Batch command execution for video streaming
-    video_test = "/home/ubuntu/cloud-sdn/scenario_testing/fat-tree/stress-Test/micro/stress-test_microservice.sh"
-    CLI(net, script=video_test)
+    #Batch command execution
+    stress_test = "/home/ubuntu/cloud-sdn/scenario_testing/fat-tree/stress-testing/micro/stress-test_microservice.sh"
+    CLI(net, script=stress_test)
 
     #Manual CLI
     CLI(net)
