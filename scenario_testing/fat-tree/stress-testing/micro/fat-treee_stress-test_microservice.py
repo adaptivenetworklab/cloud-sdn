@@ -2,13 +2,13 @@
 
 from mininet.topo import Topo
 from mininet.net import Mininet
-from mininet.node import OVSKernelSwitch, RemoteController, CPULimitedHost
+from mininet.node import OVSKernelSwitch, RemoteController
 from mininet.cli import CLI
 from mininet.link import TCLink
 
 
 class FVTopo(Topo):
-    def __init__(self, n=12):
+    def __init__(self):
         # Initialize topology
         Topo.__init__(self)
 
@@ -24,12 +24,13 @@ class FVTopo(Topo):
             self.addSwitch("s%d" % (i + 1), protocols="OpenFlow10", **sconfig)
 
         # Create host nodes
-        for i in range(n):
+        for i in range(12):
             if (i + 1) < 10:
                 self.addHost("h%d" % (i + 1), mac="00:00:00:00:00:0%d" % (i + 1), **hconfig)
             else:
                 self.addHost("h%d" % (i + 1), mac="00:00:00:00:00:%d" % (i + 1), **hconfig)
 
+        # Add switch links
         self.addLink("s4", "s1")
         self.addLink("s5", "s1")
         self.addLink("s6", "s1")
@@ -104,9 +105,11 @@ if __name__ == "__main__":
     # net.iperf( hosts = (h6, h8), l4Type='UDP', udpBw='1000M', seconds=100000, port = 5999 )
     # net.iperf( hosts = (h10, h12), l4Type='UDP', udpBw='1000M', seconds=100000, port = 5999 )
     
-    #Batch command execution
-    stress_test = "/home/ubuntu/cloud-sdn/scenario_testing/fat-tree/stress-testing/mono/stress-test_monolith-3.sh"
-    CLI(net, script=stress_test)
+    CLI.do_sh(net, 'sleep 360')
+
+    # #Batch command execution for video streaming
+    video_test = "/home/ubuntu/cloud-sdn/scenario_testing/fat-tree/stress-Test/micro/stress-test_microservice.sh"
+    CLI(net, script=video_test)
 
     #Manual CLI
     CLI(net)

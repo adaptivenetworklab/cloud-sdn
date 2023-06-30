@@ -105,9 +105,11 @@ if __name__ == "__main__":
     # net.iperf( hosts = (h6, h8), l4Type='UDP', udpBw='1000M', seconds=100000, port = 5999 )
     # net.iperf( hosts = (h10, h12), l4Type='UDP', udpBw='1000M', seconds=100000, port = 5999 )
     
-    #Batch command execution
-    stress_test = "/home/ubuntu/cloud-sdn/scenario_testing/fat-tree/stress-testing/micro/stress-test_microservice-9.sh"
-    CLI(net, script=stress_test)
+    CLI.do_sh(net, 'sleep 180')
+
+    # #Batch command execution for video streaming
+    video_test = "/home/ubuntu/cloud-sdn/scenario_testing/fat-tree/stress-Test/mono/stress-test_monolith.sh"
+    CLI(net, script=video_test)
 
     #Manual CLI
     CLI(net)
