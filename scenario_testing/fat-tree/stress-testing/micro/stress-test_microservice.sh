@@ -18,12 +18,16 @@ sh tshark -i s4-eth5 -i s1-eth1 -i s6-eth6 -i s2-eth6 -w /root/hasil_test/micro/
 
 sh sleep 90
 
-h1 getjob=$(ps aux | grep 'ubuntu vlc' | sed -n 1p | awk  '{print $2}')
-h3 getjob=$(ps aux | grep 'ubuntu vlc' | sed -n 1p | awk  '{print $2}')
+h1 getjob=$(ps | grep 'sudo' | sed -n 1p | awk  '{print $1}')
+h1 getps=$(ps aux | grep 'ubuntu vlc -q' | sed -n 1p | awk  '{print $2}')
+h3 getjob=$(ps | grep 'sudo' | sed -n 1p | awk  '{print $1}')
+h3 getps=$(ps aux | grep 'ubuntu vlc rtp' | sed -n 1p | awk  '{print $2}')
 h2 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
 h4 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
 h1 sudo kill -9 $getjob
 h3 sudo kill -9 $getjob
+h1 sudo kill -9 $getps
+h3 sudo kill -9 $getps
 h2 sudo kill -9 $getjob
 h4 sudo kill -9 $getjob
 
@@ -66,12 +70,16 @@ sh tshark -i s4-eth5 -i s1-eth1 -i s6-eth6 -i s2-eth6 -w /root/hasil_test/micro/
 
 sh sleep 90
 
-h1 getjob=$(ps aux | grep 'ubuntu vlc' | sed -n 1p | awk  '{print $2}')
-h3 getjob=$(ps aux | grep 'ubuntu vlc' | sed -n 1p | awk  '{print $2}')
+h1 getjob=$(ps | grep 'sudo' | sed -n 1p | awk  '{print $1}')
+h1 getps=$(ps aux | grep 'ubuntu vlc -q' | sed -n 1p | awk  '{print $2}')
+h3 getjob=$(ps | grep 'sudo' | sed -n 1p | awk  '{print $1}')
+h3 getps=$(ps aux | grep 'ubuntu vlc rtp' | sed -n 1p | awk  '{print $2}')
 h2 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
 h4 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
 h1 sudo kill -9 $getjob
 h3 sudo kill -9 $getjob
+h1 sudo kill -9 $getps
+h3 sudo kill -9 $getps
 h2 sudo kill -9 $getjob
 h4 sudo kill -9 $getjob
 
@@ -113,12 +121,16 @@ sh tshark -i s4-eth5 -i s1-eth1 -i s6-eth6 -i s2-eth6 -w /root/hasil_test/micro/
 
 sh sleep 90
 
-h1 getjob=$(ps aux | grep 'ubuntu vlc' | sed -n 1p | awk  '{print $2}')
-h3 getjob=$(ps aux | grep 'ubuntu vlc' | sed -n 1p | awk  '{print $2}')
+h1 getjob=$(ps | grep 'sudo' | sed -n 1p | awk  '{print $1}')
+h1 getps=$(ps aux | grep 'ubuntu vlc -q' | sed -n 1p | awk  '{print $2}')
+h3 getjob=$(ps | grep 'sudo' | sed -n 1p | awk  '{print $1}')
+h3 getps=$(ps aux | grep 'ubuntu vlc rtp' | sed -n 1p | awk  '{print $2}')
 h2 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
 h4 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
 h1 sudo kill -9 $getjob
 h3 sudo kill -9 $getjob
+h1 sudo kill -9 $getps
+h3 sudo kill -9 $getps
 h2 sudo kill -9 $getjob
 h4 sudo kill -9 $getjob
 
@@ -161,12 +173,16 @@ sh tshark -i s4-eth5 -i s1-eth1 -i s6-eth6 -i s2-eth6 -w /root/hasil_test/micro/
 
 sh sleep 90
 
-h1 getjob=$(ps aux | grep 'ubuntu vlc' | sed -n 1p | awk  '{print $2}')
-h3 getjob=$(ps aux | grep 'ubuntu vlc' | sed -n 1p | awk  '{print $2}')
+h1 getjob=$(ps | grep 'sudo' | sed -n 1p | awk  '{print $1}')
+h1 getps=$(ps aux | grep 'ubuntu vlc -q' | sed -n 1p | awk  '{print $2}')
+h3 getjob=$(ps | grep 'sudo' | sed -n 1p | awk  '{print $1}')
+h3 getps=$(ps aux | grep 'ubuntu vlc rtp' | sed -n 1p | awk  '{print $2}')
 h2 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
 h4 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
 h1 sudo kill -9 $getjob
 h3 sudo kill -9 $getjob
+h1 sudo kill -9 $getps
+h3 sudo kill -9 $getps
 h2 sudo kill -9 $getjob
 h4 sudo kill -9 $getjob
 
@@ -209,12 +225,16 @@ sh tshark -i s4-eth5 -i s1-eth1 -i s6-eth6 -i s2-eth6 -w /root/hasil_test/micro/
 
 sh sleep 90
 
-h1 getjob=$(ps aux | grep 'ubuntu vlc' | sed -n 1p | awk  '{print $2}')
-h3 getjob=$(ps aux | grep 'ubuntu vlc' | sed -n 1p | awk  '{print $2}')
+h1 getjob=$(ps | grep 'sudo' | sed -n 1p | awk  '{print $1}')
+h1 getps=$(ps aux | grep 'ubuntu vlc -q' | sed -n 1p | awk  '{print $2}')
+h3 getjob=$(ps | grep 'sudo' | sed -n 1p | awk  '{print $1}')
+h3 getps=$(ps aux | grep 'ubuntu vlc rtp' | sed -n 1p | awk  '{print $2}')
 h2 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
 h4 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
 h1 sudo kill -9 $getjob
 h3 sudo kill -9 $getjob
+h1 sudo kill -9 $getps
+h3 sudo kill -9 $getps
 h2 sudo kill -9 $getjob
 h4 sudo kill -9 $getjob
 
@@ -258,12 +278,16 @@ sh tshark -i s4-eth5 -i s1-eth1 -i s6-eth6 -i s2-eth6 -w /root/hasil_test/micro/
 
 sh sleep 90
 
-h1 getjob=$(ps aux | grep 'ubuntu vlc' | sed -n 1p | awk  '{print $2}')
-h3 getjob=$(ps aux | grep 'ubuntu vlc' | sed -n 1p | awk  '{print $2}')
+h1 getjob=$(ps | grep 'sudo' | sed -n 1p | awk  '{print $1}')
+h1 getps=$(ps aux | grep 'ubuntu vlc -q' | sed -n 1p | awk  '{print $2}')
+h3 getjob=$(ps | grep 'sudo' | sed -n 1p | awk  '{print $1}')
+h3 getps=$(ps aux | grep 'ubuntu vlc rtp' | sed -n 1p | awk  '{print $2}')
 h2 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
 h4 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
 h1 sudo kill -9 $getjob
 h3 sudo kill -9 $getjob
+h1 sudo kill -9 $getps
+h3 sudo kill -9 $getps
 h2 sudo kill -9 $getjob
 h4 sudo kill -9 $getjob
 
@@ -308,12 +332,16 @@ sh tshark -i s4-eth5 -i s1-eth1 -i s6-eth6 -i s2-eth6 -w /root/hasil_test/micro/
 
 sh sleep 90
 
-h1 getjob=$(ps aux | grep 'ubuntu vlc' | sed -n 1p | awk  '{print $2}')
-h3 getjob=$(ps aux | grep 'ubuntu vlc' | sed -n 1p | awk  '{print $2}')
+h1 getjob=$(ps | grep 'sudo' | sed -n 1p | awk  '{print $1}')
+h1 getps=$(ps aux | grep 'ubuntu vlc -q' | sed -n 1p | awk  '{print $2}')
+h3 getjob=$(ps | grep 'sudo' | sed -n 1p | awk  '{print $1}')
+h3 getps=$(ps aux | grep 'ubuntu vlc rtp' | sed -n 1p | awk  '{print $2}')
 h2 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
 h4 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
 h1 sudo kill -9 $getjob
 h3 sudo kill -9 $getjob
+h1 sudo kill -9 $getps
+h3 sudo kill -9 $getps
 h2 sudo kill -9 $getjob
 h4 sudo kill -9 $getjob
 
@@ -357,12 +385,16 @@ sh tshark -i s4-eth5 -i s1-eth1 -i s6-eth6 -i s2-eth6 -w /root/hasil_test/micro/
 
 sh sleep 90
 
-h1 getjob=$(ps aux | grep 'ubuntu vlc' | sed -n 1p | awk  '{print $2}')
-h3 getjob=$(ps aux | grep 'ubuntu vlc' | sed -n 1p | awk  '{print $2}')
+h1 getjob=$(ps | grep 'sudo' | sed -n 1p | awk  '{print $1}')
+h1 getps=$(ps aux | grep 'ubuntu vlc -q' | sed -n 1p | awk  '{print $2}')
+h3 getjob=$(ps | grep 'sudo' | sed -n 1p | awk  '{print $1}')
+h3 getps=$(ps aux | grep 'ubuntu vlc rtp' | sed -n 1p | awk  '{print $2}')
 h2 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
 h4 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
 h1 sudo kill -9 $getjob
 h3 sudo kill -9 $getjob
+h1 sudo kill -9 $getps
+h3 sudo kill -9 $getps
 h2 sudo kill -9 $getjob
 h4 sudo kill -9 $getjob
 
@@ -406,12 +438,16 @@ sh tshark -i s4-eth5 -i s1-eth1 -i s6-eth6 -i s2-eth6 -w /root/hasil_test/micro/
 
 sh sleep 90
 
-h1 getjob=$(ps aux | grep 'ubuntu vlc' | sed -n 1p | awk  '{print $2}')
-h3 getjob=$(ps aux | grep 'ubuntu vlc' | sed -n 1p | awk  '{print $2}')
+h1 getjob=$(ps | grep 'sudo' | sed -n 1p | awk  '{print $1}')
+h1 getps=$(ps aux | grep 'ubuntu vlc -q' | sed -n 1p | awk  '{print $2}')
+h3 getjob=$(ps | grep 'sudo' | sed -n 1p | awk  '{print $1}')
+h3 getps=$(ps aux | grep 'ubuntu vlc rtp' | sed -n 1p | awk  '{print $2}')
 h2 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
 h4 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
 h1 sudo kill -9 $getjob
 h3 sudo kill -9 $getjob
+h1 sudo kill -9 $getps
+h3 sudo kill -9 $getps
 h2 sudo kill -9 $getjob
 h4 sudo kill -9 $getjob
 
@@ -455,12 +491,16 @@ sh tshark -i s4-eth5 -i s1-eth1 -i s6-eth6 -i s2-eth6 -w /root/hasil_test/micro/
 
 sh sleep 90
 
-h1 getjob=$(ps aux | grep 'ubuntu vlc' | sed -n 1p | awk  '{print $2}')
-h3 getjob=$(ps aux | grep 'ubuntu vlc' | sed -n 1p | awk  '{print $2}')
+h1 getjob=$(ps | grep 'sudo' | sed -n 1p | awk  '{print $1}')
+h1 getps=$(ps aux | grep 'ubuntu vlc -q' | sed -n 1p | awk  '{print $2}')
+h3 getjob=$(ps | grep 'sudo' | sed -n 1p | awk  '{print $1}')
+h3 getps=$(ps aux | grep 'ubuntu vlc rtp' | sed -n 1p | awk  '{print $2}')
 h2 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
 h4 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
 h1 sudo kill -9 $getjob
 h3 sudo kill -9 $getjob
+h1 sudo kill -9 $getps
+h3 sudo kill -9 $getps
 h2 sudo kill -9 $getjob
 h4 sudo kill -9 $getjob
 
