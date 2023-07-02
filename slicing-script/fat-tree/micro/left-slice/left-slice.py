@@ -25,6 +25,7 @@ import datetime
 import json
 
 PORT = 8090
+event_loop = asyncio.get_event_loop()
 
 print("Server is listenning on port " + str(PORT))
 
@@ -112,7 +113,7 @@ def build_packet(data, dpid, in_port, actions, buffer_id):
 def send_packet(pkt):
     "Send a packet to a switch through Websocket"
     # mapper_path = "/stats/sendpacket"
-    asyncio.get_event_loop().run_until_complete(send_packet_helper(pkt))
+    event_loop.run_until_complete(send_packet_helper(pkt))
         
 async def send_packet_helper(data):
     async with websockets.connect(RYU_BASE_URL) as websocket:
@@ -493,5 +494,5 @@ async def packetin(websocket, path):
 if __name__ == "__main__":
     start_server = websockets.serve(packetin, "192.168.1.2", PORT)
 
-    asyncio.get_event_loop().run_until_complete(start_server)
-    asyncio.get_event_loop().run_forever()
+    event_loop.run_until_complete(start_server)
+    event_loop.run_forever()
