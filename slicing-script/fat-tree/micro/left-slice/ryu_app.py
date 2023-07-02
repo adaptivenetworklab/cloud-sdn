@@ -13,8 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import websockets
-import asyncio
+import websocket
+import json
 from lib.packet import packet
 from lib.packet import ethernet
 from lib.packet import ether_types
@@ -25,7 +25,6 @@ import datetime
 import json
 
 PORT = 8090
-event_loop = asyncio.get_event_loop()
 
 print("Server is listenning on port " + str(PORT))
 
@@ -99,22 +98,38 @@ def add_flow(flow):
 
 def build_packet(data, dpid, in_port, actions, buffer_id):
     "Build and return a packet"
+    # pkt = {
+    #     'type' : 'PacketOut',
+    #     'dpid' : dpid,
+    #     'buffer_id': buffer_id,
+    #     'in_port' : in_port,
+    #     'actions': actions,
+    #     'data' : data
+    # }
+
     pkt = {
-        'type' : 'PacketOut',
-        'dpid' : dpid,
-        'buffer_id': buffer_id,
-        'in_port' : in_port,
-        'actions': actions,
-        'data' : data
+        'jsonrpc': '2.0',
+        'method': 'sendpacket',
+        'params': {
+            'pkt': {
+                'type' : 'PacketOut',
+                'dpid' : dpid,
+                'buffer_id': buffer_id,
+                'in_port' : in_port,
+                'actions': actions,
+                'data' : data
+            },
+        },
+        'id': 1
     }
 
     return pkt
         
-async def send_packet(websocket, pkt):
-    async with websockets.connect(RYU_BASE_URL) as websocket:
-        start1 = datetime.datetime.now()
-        print('send_packet start timestamp', start1)
-        await websocket.send(pkt)
+def send_packet(websocket, pkt):
+    start1 = datetime.datetime.now()
+    print('send_packet start timestamp', start1)
+
+    websocket.send(json.dumps(pkt))
 
 def extract_data(msg, event_name):
     data = msg[event_name]
@@ -136,12 +151,13 @@ def extract_data(msg, event_name):
 
     return data
 
-async def packetin(websocket, path):
+def on_message(ws, message):
+    # Handle the received message from the server
+    # In this example, we assume the server will send a JSON response
     start1 = datetime.datetime.now()
     print('post_packetin start timestamp', start1)
     
-    recv_data = await websocket.recv()
-    json_data = json.loads(recv_data)
+    json_data = json.loads(message)
 
     start2 = datetime.datetime.now()
     data = extract_data(json_data, "OFPPacketIn")
@@ -203,7 +219,7 @@ async def packetin(websocket, path):
             print('build_packet: ', ex_time)
 
             start5 = datetime.datetime.now()
-            await send_packet(pkt) # send packet
+            send_packet(ws, pkt) # send packet
 
             stop5 = datetime.datetime.now()
             time_diff = (stop5 - start5)
@@ -232,7 +248,7 @@ async def packetin(websocket, path):
             # flow = build_flow(dpid, 3, match, actions)
             # add_flow(flow) # add flow
             # json_flow = json.dumps(flow)
-            # await websocket.send(json_flow)
+            # websocket.send(json_flow)
             # stop3 = datetime.datetime.now()
             # time_diff = (stop3 - start3)
             # ex_time = time_diff.total_seconds() * 1000
@@ -250,7 +266,7 @@ async def packetin(websocket, path):
             print('build_packet: ', ex_time)
 
             start5 = datetime.datetime.now()
-            await send_packet(pkt) # send packet
+            send_packet(ws, pkt) # send packet
             stop5 = datetime.datetime.now()
             time_diff = (stop5 - start5)
             ex_time = time_diff.total_seconds() * 1000
@@ -278,7 +294,7 @@ async def packetin(websocket, path):
             # flow = build_flow(dpid, 3, match, actions)
             # add_flow(flow) # add flow
             # json_flow = json.dumps(flow)
-            # await websocket.send(json_flow)
+            # websocket.send(json_flow)
             # stop3 = datetime.datetime.now()
             # time_diff = (stop3 - start3)
             # ex_time = time_diff.total_seconds() * 1000
@@ -296,7 +312,7 @@ async def packetin(websocket, path):
             print('build_packet: ', ex_time)
 
             start5 = datetime.datetime.now()
-            await send_packet(pkt) # send packet
+            send_packet(ws, pkt) # send packet
             stop5 = datetime.datetime.now()
             time_diff = (stop5 - start5)
             ex_time = time_diff.total_seconds() * 1000
@@ -319,7 +335,7 @@ async def packetin(websocket, path):
             # flow = build_flow(dpid, 1, match, actions)
             # add_flow(flow) # add flow
             # json_flow = json.dumps(flow)
-            # await websocket.send(json_flow)
+            # websocket.send(json_flow)
             # stop3 = datetime.datetime.now()
             # time_diff = (stop3 - start3)
             # ex_time = time_diff.total_seconds() * 1000
@@ -337,7 +353,7 @@ async def packetin(websocket, path):
             print('build_packet: ', ex_time)
 
             start5 = datetime.datetime.now()
-            await send_packet(pkt) # send packet
+            send_packet(ws, pkt) # send packet
             stop5 = datetime.datetime.now()
             time_diff = (stop5 - start5)
             ex_time = time_diff.total_seconds() * 1000
@@ -366,7 +382,7 @@ async def packetin(websocket, path):
             # flow = build_flow(dpid, 3, match, actions)
             # add_flow(flow) # add flow
             # json_flow = json.dumps(flow)
-            # await websocket.send(json_flow)
+            # websocket.send(json_flow)
             # stop3 = datetime.datetime.now()
             # time_diff = (stop3 - start3)
             # ex_time = time_diff.total_seconds() * 1000
@@ -384,7 +400,7 @@ async def packetin(websocket, path):
             print('build_packet: ', ex_time)
 
             start5 = datetime.datetime.now()
-            await send_packet(pkt) # send packet
+            send_packet(ws, pkt) # send packet
             stop5 = datetime.datetime.now()
             time_diff = (stop5 - start5)
             ex_time = time_diff.total_seconds() * 1000
@@ -412,7 +428,7 @@ async def packetin(websocket, path):
             # flow = build_flow(dpid, 3, match, actions)
             # add_flow(flow) # add flow
             # json_flow = json.dumps(flow)
-            # await websocket.send(json_flow)
+            # websocket.send(json_flow)
             # stop3 = datetime.datetime.now()
             # time_diff = (stop3 - start3)
             # ex_time = time_diff.total_seconds() * 1000
@@ -430,7 +446,7 @@ async def packetin(websocket, path):
             print('build_packet: ', ex_time)
 
             start5 = datetime.datetime.now()
-            await send_packet(pkt) # send packet
+            send_packet(ws, pkt) # send packet
             stop5 = datetime.datetime.now()
             time_diff = (stop5 - start5)
             ex_time = time_diff.total_seconds() * 1000
@@ -453,7 +469,7 @@ async def packetin(websocket, path):
             # flow = build_flow(dpid, 1, match, actions)
             # add_flow(flow) # add flow
             # json_flow = json.dumps(flow)
-            # await websocket.send(json_flow)
+            # websocket.send(json_flow)
             # stop3 = datetime.datetime.now()
             # time_diff = (stop3 - start3)
             # ex_time = time_diff.total_seconds() * 1000
@@ -471,7 +487,7 @@ async def packetin(websocket, path):
             print('build_packet: ', ex_time)
 
             start5 = datetime.datetime.now()
-            await send_packet(pkt) # send packet
+            send_packet(ws, pkt) # send packet
             stop5 = datetime.datetime.now()
             time_diff = (stop5 - start5)
             ex_time = time_diff.total_seconds() * 1000
@@ -486,8 +502,20 @@ async def packetin(websocket, path):
 
     return "ACK"
 
-if __name__ == "__main__":
-    start_server = websockets.serve(packetin, "192.168.1.2", PORT)
+def on_error(ws, error):
+    print("Error:", error)
 
-    event_loop.run_until_complete(start_server)
-    event_loop.run_forever()
+def on_close(ws):
+    print("Connection closed")
+
+# URL of the WebSocket server
+ws_url = 'ws://192.168.56.10:8080/packetin'
+
+# Create a WebSocket connection
+ws = websocket.WebSocketApp(ws_url,
+                            on_message=on_message,
+                            on_error=on_error,
+                            on_close=on_close)
+
+# Start the WebSocket connection
+ws.run_forever()
