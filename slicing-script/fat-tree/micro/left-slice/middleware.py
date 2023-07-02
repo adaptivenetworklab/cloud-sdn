@@ -65,6 +65,7 @@ class MiddlewareWebSocket(app_manager.RyuApp):
     def __init__(self, *args, **kwargs):
         super(MiddlewareWebSocket, self).__init__(*args, **kwargs)
         self.datapath_dict = {}
+        self.ws = None
         wsgi = kwargs['wsgi']
         wsgi.register(
             MiddlewareWebSocketController,
@@ -92,7 +93,10 @@ class MiddlewareWebSocket(app_manager.RyuApp):
 
         self._ws_manager.broadcast(str(json_data))
 
-    @rpc_public
+        message = self.ws.wait()
+        if message is not None:
+            self.sendpacket(message)
+
     def sendpacket(self, pkt):
         pkt = json.loads(pkt)
 
@@ -115,6 +119,7 @@ class MiddlewareWebSocketController(ControllerBase):
 
     @websocket('packetin', url)
     def _websocket_handler(self, ws):
+        self.ws = ws
         simple_switch = self.simple_switch_app
         simple_switch.logger.debug('WebSocket connected: %s', ws)
         rpc_server = WebSocketRPCServer(ws, simple_switch)

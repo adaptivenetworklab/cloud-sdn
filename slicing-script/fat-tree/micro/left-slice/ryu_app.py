@@ -98,30 +98,30 @@ def add_flow(flow):
 
 def build_packet(data, dpid, in_port, actions, buffer_id):
     "Build and return a packet"
-    # pkt = {
-    #     'type' : 'PacketOut',
-    #     'dpid' : dpid,
-    #     'buffer_id': buffer_id,
-    #     'in_port' : in_port,
-    #     'actions': actions,
-    #     'data' : data
-    # }
-
     pkt = {
-        'jsonrpc': '2.0',
-        'method': 'sendpacket',
-        'params': {
-            'pkt': {
-                'type' : 'PacketOut',
-                'dpid' : dpid,
-                'buffer_id': buffer_id,
-                'in_port' : in_port,
-                'actions': actions,
-                'data' : data
-            },
-        },
-        'id': 1
+        'type' : 'PacketOut',
+        'dpid' : dpid,
+        'buffer_id': buffer_id,
+        'in_port' : in_port,
+        'actions': actions,
+        'data' : data
     }
+
+    # pkt = {
+    #     'jsonrpc': '2.0',
+    #     'method': 'sendpacket',
+    #     'params': {
+    #         'pkt': {
+    #             'type' : 'PacketOut',
+    #             'dpid' : dpid,
+    #             'buffer_id': buffer_id,
+    #             'in_port' : in_port,
+    #             'actions': actions,
+    #             'data' : data
+    #         },
+    #     },
+    #     'id': 1
+    # }
 
     return pkt
         
