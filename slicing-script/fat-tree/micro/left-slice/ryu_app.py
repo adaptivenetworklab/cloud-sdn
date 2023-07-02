@@ -13,6 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import websockets
+import asyncio
 import websocket
 import json
 from lib.packet import packet
@@ -33,7 +35,7 @@ OFPP_FLOOD = 0xfffb
 OFPFF_SEND_FLOW_REM = 1 << 0
 OFP_NO_BUFFER = 0xffffffff
 
-RYU_BASE_URL = "http://192.168.1.1:8080"
+middleware = "ws://192.168.56.10:8090"
 
 # outport = mac_to_port[dpid][mac_address]
 mac_to_port = {
@@ -82,19 +84,19 @@ def build_flow(dpid, priority, match, actions):
 
     return flow
 
-def add_flow(flow):
-    "Add a flow entry through REST"
-    rest_uri = RYU_BASE_URL + "/stats/flowentry/add"
+# def add_flow(flow):
+#     "Add a flow entry through REST"
+#     rest_uri = RYU_BASE_URL + "/stats/flowentry/add"
 
-    #TODO verbose mode
-    print("sending {}".format(flow))
+#     #TODO verbose mode
+#     print("sending {}".format(flow))
 
-    r = requests.post(rest_uri, json=flow)
+#     r = requests.post(rest_uri, json=flow)
 
-    if r.status_code == 200:
-        return True
-    else:
-        return False
+#     if r.status_code == 200:
+#         return True
+#     else:
+#         return False
 
 def build_packet(data, dpid, in_port, actions, buffer_id):
     "Build and return a packet"
@@ -125,11 +127,15 @@ def build_packet(data, dpid, in_port, actions, buffer_id):
 
     return pkt
         
-def send_packet(websocket, pkt):
+def send_packet(pkt):
     start1 = datetime.datetime.now()
     print('send_packet start timestamp', start1)
 
-    websocket.send(json.dumps(pkt))
+    pkt = json.dumps(pkt)
+
+    async def send_packet_helper(pkt):
+        async with websockets.connect(middleware) as ws:
+            await ws.send(pkt)
 
 def extract_data(msg, event_name):
     data = msg[event_name]
@@ -219,7 +225,7 @@ def on_message(ws, message):
             print('build_packet: ', ex_time)
 
             start5 = datetime.datetime.now()
-            send_packet(ws, pkt) # send packet
+            send_packet(pkt) # send packet
 
             stop5 = datetime.datetime.now()
             time_diff = (stop5 - start5)
@@ -266,7 +272,7 @@ def on_message(ws, message):
             print('build_packet: ', ex_time)
 
             start5 = datetime.datetime.now()
-            send_packet(ws, pkt) # send packet
+            send_packet(pkt) # send packet
             stop5 = datetime.datetime.now()
             time_diff = (stop5 - start5)
             ex_time = time_diff.total_seconds() * 1000
@@ -312,7 +318,7 @@ def on_message(ws, message):
             print('build_packet: ', ex_time)
 
             start5 = datetime.datetime.now()
-            send_packet(ws, pkt) # send packet
+            send_packet(pkt) # send packet
             stop5 = datetime.datetime.now()
             time_diff = (stop5 - start5)
             ex_time = time_diff.total_seconds() * 1000
@@ -353,7 +359,7 @@ def on_message(ws, message):
             print('build_packet: ', ex_time)
 
             start5 = datetime.datetime.now()
-            send_packet(ws, pkt) # send packet
+            send_packet(pkt) # send packet
             stop5 = datetime.datetime.now()
             time_diff = (stop5 - start5)
             ex_time = time_diff.total_seconds() * 1000
@@ -400,7 +406,7 @@ def on_message(ws, message):
             print('build_packet: ', ex_time)
 
             start5 = datetime.datetime.now()
-            send_packet(ws, pkt) # send packet
+            send_packet(pkt) # send packet
             stop5 = datetime.datetime.now()
             time_diff = (stop5 - start5)
             ex_time = time_diff.total_seconds() * 1000
@@ -446,7 +452,7 @@ def on_message(ws, message):
             print('build_packet: ', ex_time)
 
             start5 = datetime.datetime.now()
-            send_packet(ws, pkt) # send packet
+            send_packet(pkt) # send packet
             stop5 = datetime.datetime.now()
             time_diff = (stop5 - start5)
             ex_time = time_diff.total_seconds() * 1000
@@ -487,7 +493,7 @@ def on_message(ws, message):
             print('build_packet: ', ex_time)
 
             start5 = datetime.datetime.now()
-            send_packet(ws, pkt) # send packet
+            send_packet(pkt) # send packet
             stop5 = datetime.datetime.now()
             time_diff = (stop5 - start5)
             ex_time = time_diff.total_seconds() * 1000

@@ -42,6 +42,8 @@ Get arp table:
 15:0c:de:49": 2}}}
 """
 
+import websockets
+import asyncio
 from ryu.base import app_manager
 from ryu.app.wsgi import ControllerBase
 from ryu.app.wsgi import rpc_public
@@ -65,13 +67,14 @@ class MiddlewareWebSocket(app_manager.RyuApp):
     def __init__(self, *args, **kwargs):
         super(MiddlewareWebSocket, self).__init__(*args, **kwargs)
         self.datapath_dict = {}
-        self.ws = None
         wsgi = kwargs['wsgi']
         wsgi.register(
             MiddlewareWebSocketController,
             data={simple_switch_instance_name: self},
         )
         self._ws_manager = wsgi.websocketmanager
+        # Start the WebSocket server
+        asyncio.run(self.start_server())
 
     def get_datapath_by_dpid(self, dpid):
         if dpid in self.datapath_dict:
@@ -90,26 +93,36 @@ class MiddlewareWebSocket(app_manager.RyuApp):
         packet['dpid'] = dpid
         print('Packet ', packet)
         json_data = json.dumps(packet)
-
         self._ws_manager.broadcast(str(json_data))
 
-        message = self.ws.wait()
-        if message is not None:
-            self.sendpacket(message)
-
-    def sendpacket(self, pkt):
-        pkt = json.loads(pkt)
+    async def sendpacket(self, websocket, path):
+        # Parse the received JSON message
+        pkt = json.loads(websocket.recv())
 
         datapath = self.get_datapath_by_dpid(pkt['dpid'])
 
-        out = datapath.ofproto_parser.OFPPacketOut(
-            datapath=datapath,
-            buffer_id=pkt['buffer_id'],
-            in_port=pkt['in_port'],
-            actions=pkt['actions'],
-            data=pkt['data'],
-        )
-        datapath.send_msg(out)
+        if datapath is not None:
+            out = datapath.ofproto_parser.OFPPacketOut(
+                datapath=datapath,
+                buffer_id=pkt['buffer_id'],
+                in_port=pkt['in_port'],
+                actions=pkt['actions'],
+                data=pkt['data'],
+            )
+            datapath.send_msg(out)
+
+    async def start_server(self):
+        # Define the WebSocket server URL
+        ws_host = '192.168.56.10'
+        ws_port = 8090
+        
+        # Start the WebSocket server
+        server = await websockets.serve(self.sendpacket, ws_host, ws_port)
+        print(f"WebSocket server started at ws://{ws_host}:{ws_port}")
+        
+        # Keep the server running until interrupted
+        await server.wait_closed()
+
 
 class MiddlewareWebSocketController(ControllerBase):
     def __init__(self, req, link, data, **config):
@@ -119,7 +132,6 @@ class MiddlewareWebSocketController(ControllerBase):
 
     @websocket('packetin', url)
     def _websocket_handler(self, ws):
-        self.ws = ws
         simple_switch = self.simple_switch_app
         simple_switch.logger.debug('WebSocket connected: %s', ws)
         rpc_server = WebSocketRPCServer(ws, simple_switch)
