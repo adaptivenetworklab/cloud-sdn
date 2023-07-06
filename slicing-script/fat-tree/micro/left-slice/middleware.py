@@ -42,7 +42,7 @@ Get arp table:
 15:0c:de:49": 2}}}
 """
 
-import websocket
+from websocket import WebSocketApp
 from ryu.base import app_manager
 from ryu.app.wsgi import ControllerBase
 from ryu.app.wsgi import rpc_public
@@ -77,10 +77,7 @@ class MiddlewareWebSocket(app_manager.RyuApp):
         ws_url = 'ws://192.168.56.30:8090'
 
         # Create a WebSocket connection
-        ws = websocket.WebSocketApp(ws_url,
-                                    on_message=self.on_message,
-                                    on_error=self.on_error,
-                                    on_close=self.on_close)
+        ws = WebSocketApp(ws_url, on_message=self.on_message, on_error=self.on_error, on_close=self.on_close)
 
         # Start the WebSocket connection
         ws.run_forever()
