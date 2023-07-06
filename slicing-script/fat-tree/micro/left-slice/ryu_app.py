@@ -13,8 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import websockets
-import asyncio
+from flask import Flask, render_template
+from flask_socketio import SocketIO
 import websocket
 import json
 from lib.packet import packet
@@ -36,6 +36,10 @@ OFPFF_SEND_FLOW_REM = 1 << 0
 OFP_NO_BUFFER = 0xffffffff
 
 middleware = "ws://192.168.56.10:8080/sendpacket"
+
+# flask socketio
+app = Flask(__name__)
+socketio = SocketIO(app)
 
 # outport = mac_to_port[dpid][mac_address]
 mac_to_port = {
@@ -126,16 +130,14 @@ def build_packet(data, dpid, in_port, actions, buffer_id):
     # }
 
     return pkt
-        
+
 def send_packet(pkt):
     start1 = datetime.datetime.now()
     print('send_packet start timestamp', start1)
 
     pkt = json.dumps(pkt)
 
-    async def send_packet_helper(pkt):
-        async with websockets.connect(middleware) as ws:
-            await ws.send(pkt)
+    socketio.emit(pkt)
 
 def extract_data(msg, event_name):
     data = msg[event_name]
@@ -514,14 +516,14 @@ def on_error(ws, error):
 def on_close(ws):
     print("Connection closed")
 
-# URL of the WebSocket server
-ws_url = 'ws://192.168.56.10:8080/packetin'
+if __name__ == '__main__':
+    # establish connection to receive packetin
+    ws_url = 'ws://192.168.56.10:8080/packetin'
+    ws = websocket.WebSocketApp(ws_url,
+                                on_message=on_message,
+                                on_error=on_error,
+                                on_close=on_close)
+    ws.run_forever()
 
-# Create a WebSocket connection
-ws = websocket.WebSocketApp(ws_url,
-                            on_message=on_message,
-                            on_error=on_error,
-                            on_close=on_close)
-
-# Start the WebSocket connection
-ws.run_forever()
+    print("starting the flask ws server")
+    socketio.run(app, host="192.168.56.30", port=PORT)

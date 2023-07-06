@@ -42,8 +42,7 @@ Get arp table:
 15:0c:de:49": 2}}}
 """
 
-import websockets
-import asyncio
+import websocket
 from ryu.base import app_manager
 from ryu.app.wsgi import ControllerBase
 from ryu.app.wsgi import rpc_public
@@ -73,8 +72,18 @@ class MiddlewareWebSocket(app_manager.RyuApp):
             data={simple_switch_instance_name: self},
         )
         self._ws_manager = wsgi.websocketmanager
-        # Start the WebSocket server
-        asyncio.run(self.start_server())
+        
+        # URL of the WebSocket server
+        ws_url = 'ws://192.168.56.30:8090'
+
+        # Create a WebSocket connection
+        ws = websocket.WebSocketApp(ws_url,
+                                    on_message=self.on_message,
+                                    on_error=self.on_error,
+                                    on_close=self.on_close)
+
+        # Start the WebSocket connection
+        ws.run_forever()
 
     def get_datapath_by_dpid(self, dpid):
         if dpid in self.datapath_dict:
@@ -95,13 +104,6 @@ class MiddlewareWebSocket(app_manager.RyuApp):
         json_data = json.dumps(packet)
         self._ws_manager.broadcast(str(json_data))
 
-    @websocket('sendpacket', '/sendpacket')
-    def websocket_handler(self, ws):
-        while True:
-            msg = ws.wait()
-            # Process the received message
-            self.sendpacket(msg)
-
     def sendpacket(self, msg):
         # Parse the received JSON message
         pkt = json.loads(msg)
@@ -118,18 +120,14 @@ class MiddlewareWebSocket(app_manager.RyuApp):
             )
             datapath.send_msg(out)
 
-    # async def start_server(self):
-    #     # Define the WebSocket server URL
-    #     ws_host = '192.168.56.10'
-    #     ws_port = 8090
-        
-    #     # Start the WebSocket server
-    #     server = await websockets.serve(self.sendpacket, ws_host, ws_port)
-    #     print(f"WebSocket server started at ws://{ws_host}:{ws_port}")
-        
-    #     # Keep the server running until interrupted
-    #     await server.wait_closed()
+    def on_message(self, ws, message):
+        self.sendpacket(message)
 
+    def on_error(ws, error):
+        print("Error:", error)
+
+    def on_close(ws):
+        print("Connection closed")
 
 class MiddlewareWebSocketController(ControllerBase):
     def __init__(self, req, link, data, **config):
