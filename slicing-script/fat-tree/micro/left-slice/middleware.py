@@ -53,6 +53,7 @@ from ryu.controller import ofp_event
 from ryu.controller.handler import set_ev_cls
 from ryu.lib.packet import packet
 import json
+import time
 
 simple_switch_instance_name = 'simple_switch_api_app'
 url = '/packetin'
@@ -73,14 +74,23 @@ class MiddlewareWebSocket(app_manager.RyuApp):
         )
         self._ws_manager = wsgi.websocketmanager
         
-        # URL of the WebSocket server
-        ws_url = 'ws://192.168.56.30:8090'
+        while True:
+            try:
+                # URL of the WebSocket server
+                ws_url = 'ws://192.168.56.30:8090'
 
-        # Create a WebSocket connection
-        ws = WebSocketApp(ws_url, on_message=self.on_message, on_error=self.on_error, on_close=self.on_close)
+                # Create a WebSocket connection
+                ws = WebSocketApp(ws_url, on_message=self.on_message, on_error=self.on_error, on_close=self.on_close)
 
-        # Start the WebSocket connection
-        ws.run_forever()
+                # Start the WebSocket connection
+                ws.run_forever()
+
+                break
+
+            except Exception as e:
+                print("Connection failed:", e)
+                # Sleep for a certain duration before retrying the connection
+                time.sleep(5)  # Adjust the sleep duration as needed
 
     def get_datapath_by_dpid(self, dpid):
         if dpid in self.datapath_dict:
