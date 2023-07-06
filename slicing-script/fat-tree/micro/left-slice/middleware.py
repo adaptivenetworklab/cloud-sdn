@@ -111,17 +111,17 @@ class MiddlewareWebSocket(app_manager.RyuApp):
             )
             datapath.send_msg(out)
 
-    async def start_server(self):
-        # Define the WebSocket server URL
-        ws_host = '192.168.56.10'
-        ws_port = 8090
+    # async def start_server(self):
+    #     # Define the WebSocket server URL
+    #     ws_host = '192.168.56.10'
+    #     ws_port = 8090
         
-        # Start the WebSocket server
-        server = await websockets.serve(self.sendpacket, ws_host, ws_port)
-        print(f"WebSocket server started at ws://{ws_host}:{ws_port}")
+    #     # Start the WebSocket server
+    #     server = await websockets.serve(self.sendpacket, ws_host, ws_port)
+    #     print(f"WebSocket server started at ws://{ws_host}:{ws_port}")
         
-        # Keep the server running until interrupted
-        await server.wait_closed()
+    #     # Keep the server running until interrupted
+    #     await server.wait_closed()
 
 
 class MiddlewareWebSocketController(ControllerBase):
