@@ -25,6 +25,7 @@ import requests
 import base64
 import datetime
 import json
+import threading
 
 PORT = 8090
 
@@ -516,7 +517,7 @@ def on_error(ws, error):
 def on_close(ws):
     print("Connection closed")
 
-if __name__ == '__main__':
+def run_websocket_client():
     # establish connection to receive packetin
     ws_url = 'ws://192.168.56.10:8080/packetin'
     ws = websocket.WebSocketApp(ws_url,
@@ -525,5 +526,22 @@ if __name__ == '__main__':
                                 on_close=on_close)
     ws.run_forever()
 
+def run_socketio_server():
     print("starting the flask ws server")
     socketio.run(app, host="192.168.56.30", port=PORT)
+
+if __name__ == '__main__':
+# Create threads for each function
+    thread1 = threading.Thread(target=run_websocket_client)
+    thread2 = threading.Thread(target=run_socketio_server)
+
+    # Start the threads
+    thread1.start()
+    thread2.start()
+
+    # Wait for both threads to complete
+    thread1.join()
+    thread2.join()
+
+    # Execution continues here after both threads have finished
+    print("Both functions completed")
