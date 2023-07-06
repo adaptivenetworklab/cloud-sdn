@@ -95,9 +95,16 @@ class MiddlewareWebSocket(app_manager.RyuApp):
         json_data = json.dumps(packet)
         self._ws_manager.broadcast(str(json_data))
 
-    async def sendpacket(self, websocket, path):
+    @websocket('sendpacket', '/sendpacket')
+    def websocket_handler(self, ws):
+        while True:
+            msg = ws.wait()
+            # Process the received message
+            self.sendpacket(msg)
+
+    def sendpacket(self, msg):
         # Parse the received JSON message
-        pkt = json.loads(websocket.recv())
+        pkt = json.loads(msg)
 
         datapath = self.get_datapath_by_dpid(pkt['dpid'])
 
