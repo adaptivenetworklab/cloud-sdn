@@ -35,7 +35,7 @@ OFPP_FLOOD = 0xfffb
 OFPFF_SEND_FLOW_REM = 1 << 0
 OFP_NO_BUFFER = 0xffffffff
 
-middleware = "ws://192.168.56.10:8090"
+middleware = "ws://192.168.56.10:8090" # asyncio
 
 # outport = mac_to_port[dpid][mac_address]
 mac_to_port = {
