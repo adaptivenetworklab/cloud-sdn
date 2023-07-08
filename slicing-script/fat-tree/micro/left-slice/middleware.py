@@ -101,17 +101,25 @@ class MiddlewareWebSocket(app_manager.RyuApp):
         # Parse the received JSON message
 
         datapath = self.get_datapath_by_dpid(dpid)
+        processed_actions = None
 
-        if datapath is not None:
+        if actions[0]["type"] == "OUTPUT":
+            out_port = actions[0]["port"]
+            processed_actions = [datapath.ofproto_parser.OFPActionOutput(out_port)]
+
+        if (datapath is not None) and (processed_actions is not None):
             out = datapath.ofproto_parser.OFPPacketOut(
                 datapath=datapath,
                 buffer_id=buffer_id,
                 in_port=in_port,
-                actions=actions,
+                actions=processed_actions,
                 data=data,
             )
             datapath.send_msg(out)
             print("a packet was sent to datapath")
+
+        else:
+            return "datapath or action undefined"
 
     def on_message(self, ws, message):
         self.sendpacket(message)
