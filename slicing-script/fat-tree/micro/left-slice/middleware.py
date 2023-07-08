@@ -57,6 +57,7 @@ from ryu.controller.handler import set_ev_cls
 from ryu.lib.packet import packet
 import json
 import time
+import base64
 
 simple_switch_instance_name = 'simple_switch_api_app'
 url = '/packetin'
@@ -113,7 +114,7 @@ class MiddlewareWebSocket(app_manager.RyuApp):
                 buffer_id=buffer_id,
                 in_port=in_port,
                 actions=processed_actions,
-                data=data,
+                data=base64.b64decode(data),
             )
             datapath.send_msg(out)
             print("a packet was sent to datapath")
