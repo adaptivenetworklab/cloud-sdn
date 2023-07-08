@@ -19,16 +19,21 @@ from lib.packet import packet
 from lib.packet import ethernet
 from lib.packet import ether_types
 from lib.packet import udp
+import requests
 import base64
 import datetime
 import json
-from env import LEFT_MIDDLEWARE
-from env import LEFT_FLOWMOD_ACTIVE
+
+PORT = 8090
+
+print("Server is listenning on port " + str(PORT))
 
 #TODO import from ofp
 OFPP_FLOOD = 0xfffb
 OFPFF_SEND_FLOW_REM = 1 << 0
 OFP_NO_BUFFER = 0xffffffff
+
+middleware = "ws://192.168.56.10:8080/sendpacket"
 
 # outport = mac_to_port[dpid][mac_address]
 mac_to_port = {
@@ -62,6 +67,18 @@ rtp_dst_port = 5004 # default rtp port for vlc
 
 def build_flow(dpid, priority, match, actions):
     "Build and return a flow entry based on https://ryu.readthedocs.io/en/latest/app/ofctl_rest.html#add-a-flow-entry"
+
+    # flow = {
+    #     'type' : 'FlowMod',
+    #     'dpid' : dpid,
+    #     'match' : match,
+    #     'cookie' : 0,
+    #     'idle_timeout' : 20,
+    #     'hard_timeout' : 120,
+    #     'priority' : priority,
+    #     'flags' : 1,
+    #     'actions': actions,
+    # }
 
     flow = {
         "jsonrpc": "2.0",
@@ -174,18 +191,16 @@ def on_message(ws, message):
         if dst in mac_to_port[dpid]: # traffic to end device
             out_port = mac_to_port[dpid][dst_mac]
 
+            match = {'dl_dst': dst_mac}
             actions = [{"type":"OUTPUT", "port": out_port}]
 
-            if LEFT_FLOWMOD_ACTIVE:
-                match = {'dl_dst': dst_mac}
-
-                start3 = datetime.datetime.now()
-                flow = build_flow(dpid, 2, match, actions)
-                add_flow(ws, flow) # add flow
-                stop3 = datetime.datetime.now()
-                time_diff = (stop3 - start3)
-                ex_time = time_diff.total_seconds() * 1000
-                print('build_flow: ', ex_time)
+            start3 = datetime.datetime.now()
+            flow = build_flow(dpid, 2, match, actions)
+            add_flow(ws, flow) # add flow
+            stop3 = datetime.datetime.now()
+            time_diff = (stop3 - start3)
+            ex_time = time_diff.total_seconds() * 1000
+            print('build_flow: ', ex_time)
 
             msg = None
             if buffer_id == OFP_NO_BUFFER:
@@ -214,25 +229,23 @@ def on_message(ws, message):
             if out_port == 0:
                 return
 
+            match = {
+                'in_port': in_port,
+                'dl_src': src_mac,
+                'dl_dst': dst_mac,
+                'dl_type': ether_types.ETH_TYPE_IP,
+                'nw_proto': 0x11, #udp
+                'tp_src': pkt.get_protocol(udp.udp).src_port
+            }
             actions = [{"type":"OUTPUT", "port": out_port}]
 
-            if LEFT_FLOWMOD_ACTIVE:
-                match = {
-                    'in_port': in_port,
-                    'dl_src': src_mac,
-                    'dl_dst': dst_mac,
-                    'dl_type': ether_types.ETH_TYPE_IP,
-                    'nw_proto': 0x11, #udp
-                    'tp_src': pkt.get_protocol(udp.udp).src_port
-                }
-
-                start3 = datetime.datetime.now()
-                flow = build_flow(dpid, 3, match, actions)
-                add_flow(ws, flow) # add flow
-                stop3 = datetime.datetime.now()
-                time_diff = (stop3 - start3)
-                ex_time = time_diff.total_seconds() * 1000
-                print('build_flow: ', ex_time)
+            start3 = datetime.datetime.now()
+            flow = build_flow(dpid, 3, match, actions)
+            add_flow(ws, flow) # add flow
+            stop3 = datetime.datetime.now()
+            time_diff = (stop3 - start3)
+            ex_time = time_diff.total_seconds() * 1000
+            print('build_flow: ', ex_time)
 
             msg = None
             if buffer_id == OFP_NO_BUFFER:
@@ -260,25 +273,23 @@ def on_message(ws, message):
             if out_port == 0:
                 return
 
+            match = {
+                'in_port': in_port,
+                'dl_src': src_mac,
+                'dl_dst': dst_mac,
+                'dl_type': ether_types.ETH_TYPE_IP,
+                'nw_proto': 0x11, #udp
+                'tp_dst': pkt.get_protocol(udp.udp).dst_port
+            }
             actions = [{"type":"OUTPUT", "port": out_port}]
-            
-            if LEFT_FLOWMOD_ACTIVE:
-                match = {
-                    'in_port': in_port,
-                    'dl_src': src_mac,
-                    'dl_dst': dst_mac,
-                    'dl_type': ether_types.ETH_TYPE_IP,
-                    'nw_proto': 0x11, #udp
-                    'tp_dst': pkt.get_protocol(udp.udp).dst_port
-                }
 
-                start3 = datetime.datetime.now()
-                flow = build_flow(dpid, 3, match, actions)
-                add_flow(ws, flow) # add flow
-                stop3 = datetime.datetime.now()
-                time_diff = (stop3 - start3)
-                ex_time = time_diff.total_seconds() * 1000
-                print('build_flow: ', ex_time)
+            start3 = datetime.datetime.now()
+            flow = build_flow(dpid, 3, match, actions)
+            add_flow(ws, flow) # add flow
+            stop3 = datetime.datetime.now()
+            time_diff = (stop3 - start3)
+            ex_time = time_diff.total_seconds() * 1000
+            print('build_flow: ', ex_time)
 
             msg = None
             if buffer_id == OFP_NO_BUFFER:
@@ -304,22 +315,20 @@ def on_message(ws, message):
             if out_port == 0:
                 return
 
+            match = {
+                'in_port': in_port,
+                'dl_dst': dst_mac,
+                'dl_type': ether_types.ETH_TYPE_IP,
+            }
             actions = [{"type":"OUTPUT", "port": out_port}]
-            
-            if LEFT_FLOWMOD_ACTIVE:
-                match = {
-                    'in_port': in_port,
-                    'dl_dst': dst_mac,
-                    'dl_type': ether_types.ETH_TYPE_IP,
-                }
 
-                start3 = datetime.datetime.now()
-                flow = build_flow(dpid, 1, match, actions)
-                add_flow(ws, flow) # add flow
-                stop3 = datetime.datetime.now()
-                time_diff = (stop3 - start3)
-                ex_time = time_diff.total_seconds() * 1000
-                print('build_flow: ', ex_time)
+            start3 = datetime.datetime.now()
+            flow = build_flow(dpid, 1, match, actions)
+            add_flow(ws, flow) # add flow
+            stop3 = datetime.datetime.now()
+            time_diff = (stop3 - start3)
+            ex_time = time_diff.total_seconds() * 1000
+            print('build_flow: ', ex_time)
 
             msg = None
             if buffer_id == OFP_NO_BUFFER:
@@ -348,25 +357,23 @@ def on_message(ws, message):
             if out_port == 0:
                 return
 
+            match = {
+                'in_port': in_port,
+                'dl_src': src_mac,
+                'dl_dst': dst_mac,
+                'dl_type': ether_types.ETH_TYPE_IP,
+                'nw_proto': 0x11, # udp
+                'tp_src': pkt.get_protocol(udp.udp).src_port
+            }
             actions = [{"type":"OUTPUT", "port": out_port}]
-            
-            if LEFT_FLOWMOD_ACTIVE:
-                match = {
-                    'in_port': in_port,
-                    'dl_src': src_mac,
-                    'dl_dst': dst_mac,
-                    'dl_type': ether_types.ETH_TYPE_IP,
-                    'nw_proto': 0x11, # udp
-                    'tp_src': pkt.get_protocol(udp.udp).src_port
-                }
 
-                start3 = datetime.datetime.now()
-                flow = build_flow(dpid, 3, match, actions)
-                add_flow(ws, flow) # add flow
-                stop3 = datetime.datetime.now()
-                time_diff = (stop3 - start3)
-                ex_time = time_diff.total_seconds() * 1000
-                print('build_flow: ', ex_time)
+            start3 = datetime.datetime.now()
+            flow = build_flow(dpid, 3, match, actions)
+            add_flow(ws, flow) # add flow
+            stop3 = datetime.datetime.now()
+            time_diff = (stop3 - start3)
+            ex_time = time_diff.total_seconds() * 1000
+            print('build_flow: ', ex_time)
 
             msg = None
             if buffer_id == OFP_NO_BUFFER:
@@ -394,25 +401,23 @@ def on_message(ws, message):
             if out_port == 0:
                 return
 
+            match = {
+                'in_port': in_port,
+                'dl_src': src_mac,
+                'dl_dst': dst_mac,
+                'dl_type': ether_types.ETH_TYPE_IP,
+                'nw_proto': 0x11, # udp
+                'tp_src': pkt.get_protocol(udp.udp).dst_port
+            }
             actions = [{"type":"OUTPUT", "port": out_port}]
-            
-            if LEFT_FLOWMOD_ACTIVE:
-                match = {
-                    'in_port': in_port,
-                    'dl_src': src_mac,
-                    'dl_dst': dst_mac,
-                    'dl_type': ether_types.ETH_TYPE_IP,
-                    'nw_proto': 0x11, # udp
-                    'tp_src': pkt.get_protocol(udp.udp).dst_port
-                }
 
-                start3 = datetime.datetime.now()
-                flow = build_flow(dpid, 3, match, actions)
-                add_flow(ws, flow) # add flow
-                stop3 = datetime.datetime.now()
-                time_diff = (stop3 - start3)
-                ex_time = time_diff.total_seconds() * 1000
-                print('build_flow: ', ex_time)
+            start3 = datetime.datetime.now()
+            flow = build_flow(dpid, 3, match, actions)
+            add_flow(ws, flow) # add flow
+            stop3 = datetime.datetime.now()
+            time_diff = (stop3 - start3)
+            ex_time = time_diff.total_seconds() * 1000
+            print('build_flow: ', ex_time)
 
             msg = None
             if buffer_id == OFP_NO_BUFFER:
@@ -438,22 +443,20 @@ def on_message(ws, message):
             if out_port == 0:
                 return
 
+            match = {
+                'in_port': in_port,
+                'dl_dst': dst_mac,
+                'dl_type': ether_types.ETH_TYPE_IP,
+            }
             actions = [{"type":"OUTPUT", "port": out_port}]
-            
-            if LEFT_FLOWMOD_ACTIVE:
-                match = {
-                    'in_port': in_port,
-                    'dl_dst': dst_mac,
-                    'dl_type': ether_types.ETH_TYPE_IP,
-                }
 
-                start3 = datetime.datetime.now()
-                flow = build_flow(dpid, 1, match, actions)
-                add_flow(ws, flow) # add flow
-                stop3 = datetime.datetime.now()
-                time_diff = (stop3 - start3)
-                ex_time = time_diff.total_seconds() * 1000
-                print('build_flow: ', ex_time)
+            start3 = datetime.datetime.now()
+            flow = build_flow(dpid, 1, match, actions)
+            add_flow(ws, flow) # add flow
+            stop3 = datetime.datetime.now()
+            time_diff = (stop3 - start3)
+            ex_time = time_diff.total_seconds() * 1000
+            print('build_flow: ', ex_time)
 
             msg = None
             if buffer_id == OFP_NO_BUFFER:
@@ -489,8 +492,8 @@ def on_close(ws):
     print("Connection closed")
 
 if __name__ == '__main__':
-    # establish connection to receive packetin from middleware
-    ws_url = "ws://" + LEFT_MIDDLEWARE + "/packetin"
+    # establish connection to receive packetin
+    ws_url = 'ws://192.168.56.10:8080/packetin'
     ws = websocket.WebSocketApp(ws_url,
                                 on_message=on_message,
                                 on_error=on_error,
