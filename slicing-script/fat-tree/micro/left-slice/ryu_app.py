@@ -112,14 +112,11 @@ def build_packet(data, dpid, in_port, actions, buffer_id):
         "id": 1,
         "method": "sendpacket",
         "params": {
-            "msg": {
-                'type' : 'PacketOut',
-                'dpid' : dpid,
-                'buffer_id': buffer_id,
-                'in_port' : in_port,
-                'actions': actions,
-                'data' : data
-            }
+            'dpid' : dpid,
+            'buffer_id': buffer_id,
+            'in_port' : in_port,
+            'actions': actions,
+            'data' : data
         }
     }
 

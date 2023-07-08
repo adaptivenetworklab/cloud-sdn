@@ -97,23 +97,21 @@ class MiddlewareWebSocket(app_manager.RyuApp):
         self._ws_manager.broadcast(str(json_data))
 
     @rpc_public
-    def sendpacket(self, msg):
+    def sendpacket(self, dpid, buffer_id, in_port, actions, data):
         # Parse the received JSON message
-        pkt = json.loads(msg)
 
-        datapath = self.get_datapath_by_dpid(pkt['dpid'])
+        datapath = self.get_datapath_by_dpid(dpid)
 
         if datapath is not None:
             out = datapath.ofproto_parser.OFPPacketOut(
                 datapath=datapath,
-                buffer_id=pkt['buffer_id'],
-                in_port=pkt['in_port'],
-                actions=pkt['actions'],
-                data=pkt['data'],
+                buffer_id=buffer_id,
+                in_port=in_port,
+                actions=actions,
+                data=data,
             )
             datapath.send_msg(out)
             print("a packet was sent to datapath")
-            return pkt
 
     def on_message(self, ws, message):
         self.sendpacket(message)
