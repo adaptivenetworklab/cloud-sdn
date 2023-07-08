@@ -13,8 +13,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from flask import Flask, render_template
-from flask_socketio import SocketIO
 import websocket
 import json
 from lib.packet import packet
@@ -25,7 +23,6 @@ import requests
 import base64
 import datetime
 import json
-import threading
 
 PORT = 8090
 
@@ -37,10 +34,6 @@ OFPFF_SEND_FLOW_REM = 1 << 0
 OFP_NO_BUFFER = 0xffffffff
 
 middleware = "ws://192.168.56.10:8080/sendpacket"
-
-# flask socketio
-app = Flask(__name__)
-socketio = SocketIO(app)
 
 # outport = mac_to_port[dpid][mac_address]
 mac_to_port = {
@@ -105,40 +98,41 @@ def build_flow(dpid, priority, match, actions):
 
 def build_packet(data, dpid, in_port, actions, buffer_id):
     "Build and return a packet"
-    pkt = {
-        'type' : 'PacketOut',
-        'dpid' : dpid,
-        'buffer_id': buffer_id,
-        'in_port' : in_port,
-        'actions': actions,
-        'data' : data
-    }
-
     # pkt = {
-    #     'jsonrpc': '2.0',
-    #     'method': 'sendpacket',
-    #     'params': {
-    #         'pkt': {
-    #             'type' : 'PacketOut',
-    #             'dpid' : dpid,
-    #             'buffer_id': buffer_id,
-    #             'in_port' : in_port,
-    #             'actions': actions,
-    #             'data' : data
-    #         },
-    #     },
-    #     'id': 1
+    #     'type' : 'PacketOut',
+    #     'dpid' : dpid,
+    #     'buffer_id': buffer_id,
+    #     'in_port' : in_port,
+    #     'actions': actions,
+    #     'data' : data
     # }
+
+    pkt = {
+        "jsonrpc": "2.0",
+        "id": 1,
+        "method": "sendpacket",
+        "params": {
+            "msg": {
+                'type' : 'PacketOut',
+                'dpid' : dpid,
+                'buffer_id': buffer_id,
+                'in_port' : in_port,
+                'actions': actions,
+                'data' : data
+            }
+        }
+    }
 
     return pkt
 
-def send_packet(pkt):
-    start1 = datetime.datetime.now()
-    print('send_packet start timestamp', start1)
-
+def send_packet(ws, pkt):
     pkt = json.dumps(pkt)
 
-    socketio.emit(pkt)
+    start1 = datetime.datetime.now()
+    print('send_packet start timestamp', start1)
+    print('send_packet msg:', pkt)
+
+    ws.send(data=pkt)
 
 def extract_data(msg, event_name):
     data = msg[event_name]
@@ -228,7 +222,7 @@ def on_message(ws, message):
             print('build_packet: ', ex_time)
 
             start5 = datetime.datetime.now()
-            send_packet(pkt) # send packet
+            send_packet(ws, pkt) # send packet
 
             stop5 = datetime.datetime.now()
             time_diff = (stop5 - start5)
@@ -275,7 +269,7 @@ def on_message(ws, message):
             print('build_packet: ', ex_time)
 
             start5 = datetime.datetime.now()
-            send_packet(pkt) # send packet
+            send_packet(ws, pkt) # send packet
             stop5 = datetime.datetime.now()
             time_diff = (stop5 - start5)
             ex_time = time_diff.total_seconds() * 1000
@@ -321,7 +315,7 @@ def on_message(ws, message):
             print('build_packet: ', ex_time)
 
             start5 = datetime.datetime.now()
-            send_packet(pkt) # send packet
+            send_packet(ws, pkt) # send packet
             stop5 = datetime.datetime.now()
             time_diff = (stop5 - start5)
             ex_time = time_diff.total_seconds() * 1000
@@ -362,7 +356,7 @@ def on_message(ws, message):
             print('build_packet: ', ex_time)
 
             start5 = datetime.datetime.now()
-            send_packet(pkt) # send packet
+            send_packet(ws, pkt) # send packet
             stop5 = datetime.datetime.now()
             time_diff = (stop5 - start5)
             ex_time = time_diff.total_seconds() * 1000
@@ -409,7 +403,7 @@ def on_message(ws, message):
             print('build_packet: ', ex_time)
 
             start5 = datetime.datetime.now()
-            send_packet(pkt) # send packet
+            send_packet(ws, pkt) # send packet
             stop5 = datetime.datetime.now()
             time_diff = (stop5 - start5)
             ex_time = time_diff.total_seconds() * 1000
@@ -455,7 +449,7 @@ def on_message(ws, message):
             print('build_packet: ', ex_time)
 
             start5 = datetime.datetime.now()
-            send_packet(pkt) # send packet
+            send_packet(ws, pkt) # send packet
             stop5 = datetime.datetime.now()
             time_diff = (stop5 - start5)
             ex_time = time_diff.total_seconds() * 1000
@@ -496,7 +490,7 @@ def on_message(ws, message):
             print('build_packet: ', ex_time)
 
             start5 = datetime.datetime.now()
-            send_packet(pkt) # send packet
+            send_packet(ws, pkt) # send packet
             stop5 = datetime.datetime.now()
             time_diff = (stop5 - start5)
             ex_time = time_diff.total_seconds() * 1000
@@ -517,7 +511,7 @@ def on_error(ws, error):
 def on_close(ws):
     print("Connection closed")
 
-def run_websocket_client():
+if __name__ == '__main__':
     # establish connection to receive packetin
     ws_url = 'ws://192.168.56.10:8080/packetin'
     ws = websocket.WebSocketApp(ws_url,
@@ -525,23 +519,3 @@ def run_websocket_client():
                                 on_error=on_error,
                                 on_close=on_close)
     ws.run_forever()
-
-def run_socketio_server():
-    print("starting the flask ws server")
-    socketio.run(app, host="192.168.56.30", port=PORT)
-
-if __name__ == '__main__':
-# Create threads for each function
-    thread1 = threading.Thread(target=run_websocket_client)
-    thread2 = threading.Thread(target=run_socketio_server)
-
-    # Start the threads
-    thread1.start()
-    thread2.start()
-
-    # Wait for both threads to complete
-    thread1.join()
-    thread2.join()
-
-    # Execution continues here after both threads have finished
-    print("Both functions completed")

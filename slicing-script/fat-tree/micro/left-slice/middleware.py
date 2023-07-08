@@ -40,6 +40,9 @@ Get arp table:
 > {"jsonrpc": "2.0", "id": 1, "method": "get_arp_table", "params" : {}}
 < {"jsonrpc": "2.0", "id": 1, "result": {"1": {"32:1a:51:fb:91:77": 1, "26:8c:
 15:0c:de:49": 2}}}
+
+Send packet to dataplane:
+> {"jsonrpc": "2.0", "id": 1, "method": "sendpacket", "params" : {"msg": "msg"}}
 """
 
 from websocket import WebSocketApp
@@ -73,24 +76,6 @@ class MiddlewareWebSocket(app_manager.RyuApp):
             data={simple_switch_instance_name: self},
         )
         self._ws_manager = wsgi.websocketmanager
-        
-        while True:
-            try:
-                # URL of the WebSocket server
-                ws_url = 'ws://192.168.56.30:8090'
-
-                # Create a WebSocket connection
-                ws = WebSocketApp(ws_url, on_message=self.on_message, on_error=self.on_error, on_close=self.on_close)
-
-                # Start the WebSocket connection
-                ws.run_forever()
-
-                break
-
-            except Exception as e:
-                print("Connection failed:", e)
-                # Sleep for a certain duration before retrying the connection
-                time.sleep(5)  # Adjust the sleep duration as needed
 
     def get_datapath_by_dpid(self, dpid):
         if dpid in self.datapath_dict:
@@ -111,6 +96,7 @@ class MiddlewareWebSocket(app_manager.RyuApp):
         json_data = json.dumps(packet)
         self._ws_manager.broadcast(str(json_data))
 
+    @rpc_public
     def sendpacket(self, msg):
         # Parse the received JSON message
         pkt = json.loads(msg)
@@ -126,6 +112,8 @@ class MiddlewareWebSocket(app_manager.RyuApp):
                 data=pkt['data'],
             )
             datapath.send_msg(out)
+            print("a packet was sent to datapath")
+            return pkt
 
     def on_message(self, ws, message):
         self.sendpacket(message)
