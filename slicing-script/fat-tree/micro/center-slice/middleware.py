@@ -17,14 +17,11 @@
 Usage example
 
 Run this application:
-$ PYTHONPATH=. ./bin/ryu run --verbose ryu.app.simple_switch_websocket_13
+$ PYTHONPATH=. ./bin/ryu run --verbose middleware
 
-Install and run websocket client(in other terminal):
+Install and run websocket client(in other terminal) to test it:
 $ pip install websocket-client
 $ wsdump.py ws://192.168.56.10/packetin
-
-Send packet to dataplane:
-> {"jsonrpc": "2.0", "id": 1, "method": "sendpacket", "params" : {"msg": "msg"}}
 """
 
 from ryu.base import app_manager
@@ -39,7 +36,7 @@ from ryu.lib import ofctl_v1_0
 import json
 import base64
 
-simple_switch_instance_name = 'simple_switch_api_app'
+middleware_instance_name = 'middleware_api_app'
 url = '/packetin'
 
 
@@ -55,7 +52,7 @@ class MiddlewareWebSocket(app_manager.RyuApp):
         wsgi = kwargs['wsgi']
         wsgi.register(
             MiddlewareWebSocketController,
-            data={simple_switch_instance_name: self},
+            data={middleware_instance_name: self},
         )
         self._ws_manager = wsgi.websocketmanager
 
@@ -70,14 +67,19 @@ class MiddlewareWebSocket(app_manager.RyuApp):
         msg = ev.msg
         datapath = msg.datapath
         dpid = datapath.id
+        # save datapath objects based on their dpid
         self.datapath_dict[dpid] = datapath
 
+        # convert packetin from opf format to json
         packet = msg.to_jsondict()
         packet['dpid'] = dpid
         print('Packet ', packet)
         json_data = json.dumps(packet)
+
+        # broadcast or send the packetin to ryu_app logic
         self._ws_manager.broadcast(str(json_data))
 
+    # method to receive packetout from ryu_app logic 
     @rpc_public
     def sendpacket(self, dpid, buffer_id, in_port, actions, data):
         # Parse the received JSON message
@@ -102,6 +104,7 @@ class MiddlewareWebSocket(app_manager.RyuApp):
         else:
             return "datapath or action undefined"
         
+    # method to receive flowmod from ryu_app logic
     @rpc_public
     def addflow(self, dpid, match, priority, actions):
         # Parse the received JSON message
@@ -144,12 +147,12 @@ class MiddlewareWebSocketController(ControllerBase):
     def __init__(self, req, link, data, **config):
         super(MiddlewareWebSocketController, self).__init__(
             req, link, data, **config)
-        self.simple_switch_app = data[simple_switch_instance_name]
+        self.middleware_app = data[middleware_instance_name]
 
     @websocket('packetin', url)
     def _websocket_handler(self, ws):
-        simple_switch = self.simple_switch_app
-        simple_switch.logger.debug('WebSocket connected: %s', ws)
-        rpc_server = WebSocketRPCServer(ws, simple_switch)
+        middleware = self.middleware_app
+        middleware.logger.debug('WebSocket connected: %s', ws)
+        rpc_server = WebSocketRPCServer(ws, middleware)
         rpc_server.serve_forever()
-        simple_switch.logger.debug('WebSocket disconnected: %s', ws)
+        middleware.logger.debug('WebSocket disconnected: %s', ws)

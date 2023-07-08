@@ -89,7 +89,7 @@ def add_flow(ws, flow):
     ws.send(data=flow)
 
 def build_packet(data, dpid, in_port, actions, buffer_id):
-
+    "Build and return a packet"
     pkt = {
         "jsonrpc": "2.0",
         "id": 1,
@@ -494,6 +494,7 @@ def on_close(ws):
 if __name__ == '__main__':
     # establish connection to receive packetin from middleware
     ws_url = "ws://" + LEFT_MIDDLEWARE + "/packetin"
+    print("Accessing", ws_url)
     ws = websocket.WebSocketApp(ws_url,
                                 on_message=on_message,
                                 on_error=on_error,
