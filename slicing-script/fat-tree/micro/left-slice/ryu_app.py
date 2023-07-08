@@ -15,13 +15,16 @@
 
 import websocket
 import json
+import base64
+import datetime
+import json
+
+import sys
+sys.path.append('../')
 from lib.packet import packet
 from lib.packet import ethernet
 from lib.packet import ether_types
 from lib.packet import udp
-import base64
-import datetime
-import json
 from env import LEFT_MIDDLEWARE
 from env import LEFT_FLOWMOD_ACTIVE
 
