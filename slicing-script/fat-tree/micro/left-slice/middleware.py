@@ -119,7 +119,7 @@ class MiddlewareWebSocket(app_manager.RyuApp):
         # construct flow_mod message and send it.
             flow = datapath.ofproto_parser.OFPFlowMod(
                 datapath=datapath,
-                match=match,
+                match=datapath.ofproto_parser.OFPMatch(**match),
                 cookie=0,
                 command=datapath.ofproto.OFPFC_ADD,
                 idle_timeout=20,
