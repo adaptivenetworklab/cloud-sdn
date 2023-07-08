@@ -126,7 +126,7 @@ class MiddlewareWebSocket(app_manager.RyuApp):
                 hard_timeout=120,
                 priority=priority,
                 flags=datapath.ofproto.OFPFF_SEND_FLOW_REM,
-                actions=actions,
+                actions=processed_actions,
             )
             datapath.send_msg(flow)
             print("a flow was sent to dataplane")
