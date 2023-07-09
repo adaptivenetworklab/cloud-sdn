@@ -7,8 +7,9 @@ RUN pip install --upgrade pip
 RUN pip install --root-user-action=ignore requests
 RUN pip install --no-cache-dir -r requirements-apps.txt
 
-COPY ./slice/left/left-slice.py .
+COPY ./slice/left/ryu_app.py .
+COPY ./slice/left/env.py .
 
 EXPOSE 8090
 
-CMD ["python", "./left-slice.py"]
+CMD ["python3", "./ryu_app.py"]
