@@ -30,7 +30,7 @@ spec:
         app: ryu-app-center
     spec:
       containers:
-      - image: adaptivenetlab/ryu-app-center:wf1.1
+      - image: adaptivenetlab/ryu-app-center:wf1.2
         name: ryu-app-center
         resources: 
           requests:
