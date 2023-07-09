@@ -13,4 +13,4 @@ COPY ./slice/center/middleware.py .
 EXPOSE 8080
 EXPOSE 10002
 
-CMD ["ryu-manager", "middleware", "--ofp-tcp-listen-port", "10002"]
+CMD ["ryu-manager", "middleware.py", "--ofp-tcp-listen-port", "10002"]
