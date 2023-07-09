@@ -8,7 +8,7 @@ RUN pip install --upgrade pip
 RUN pip install --root-user-action=ignore requests
 RUN pip install -r requirements-middleware.txt
 
-COPY ./slice/right/middleware .
+COPY ./slice/right/middleware.py .
 
 EXPOSE 8080
 EXPOSE 10003
