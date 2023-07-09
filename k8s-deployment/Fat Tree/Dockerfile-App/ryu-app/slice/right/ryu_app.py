@@ -19,7 +19,6 @@ import base64
 import datetime
 import json
 
-import sys
 from lib.packet import packet
 from lib.packet import ethernet
 from lib.packet import ether_types
