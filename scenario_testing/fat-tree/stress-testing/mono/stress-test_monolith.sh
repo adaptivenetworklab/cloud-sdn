@@ -16,7 +16,7 @@ h9 ITGSend -a 10.0.0.11 -rp 10003 VoIP -x G.711.2 -h RTP -VAD &
 
 sh tshark -i s4-eth5 -i s1-eth1 -i s6-eth6 -i s2-eth6 -w /root/hasil_test/mono/stress_test/1 -F pcapng -a duration:60 &
 
-sh sleep 90
+sh sleep 150
 
 h1 getjob=$(ps | grep 'sudo' | sed -n 1p | awk  '{print $1}')
 h1 getps=$(ps aux | grep 'ubuntu vlc -q' | sed -n 1p | awk  '{print $2}')
@@ -68,7 +68,7 @@ h9 ITGSend -a 10.0.0.11 -rp 10003 VoIP -x G.711.2 -h RTP -VAD &
 
 sh tshark -i s4-eth5 -i s1-eth1 -i s6-eth6 -i s2-eth6 -w /root/hasil_test/mono/stress_test/2 -F pcapng -a duration:60 &
 
-sh sleep 90
+sh sleep 150
 
 h1 getjob=$(ps | grep 'sudo' | sed -n 1p | awk  '{print $1}')
 h1 getps=$(ps aux | grep 'ubuntu vlc -q' | sed -n 1p | awk  '{print $2}')
@@ -119,7 +119,7 @@ h9 ITGSend -a 10.0.0.11 -rp 10003 VoIP -x G.711.2 -h RTP -VAD &
 
 sh tshark -i s4-eth5 -i s1-eth1 -i s6-eth6 -i s2-eth6 -w /root/hasil_test/mono/stress_test/3 -F pcapng -a duration:60 &
 
-sh sleep 90
+sh sleep 150
 
 h1 getjob=$(ps | grep 'sudo' | sed -n 1p | awk  '{print $1}')
 h1 getps=$(ps aux | grep 'ubuntu vlc -q' | sed -n 1p | awk  '{print $2}')
@@ -171,7 +171,7 @@ h9 ITGSend -a 10.0.0.11 -rp 10003 VoIP -x G.711.2 -h RTP -VAD &
 
 sh tshark -i s4-eth5 -i s1-eth1 -i s6-eth6 -i s2-eth6 -w /root/hasil_test/mono/stress_test/4 -F pcapng -a duration:60 &
 
-sh sleep 90
+sh sleep 150
 
 h1 getjob=$(ps | grep 'sudo' | sed -n 1p | awk  '{print $1}')
 h1 getps=$(ps aux | grep 'ubuntu vlc -q' | sed -n 1p | awk  '{print $2}')
@@ -223,7 +223,7 @@ h9 ITGSend -a 10.0.0.11 -rp 10003 VoIP -x G.711.2 -h RTP -VAD &
 
 sh tshark -i s4-eth5 -i s1-eth1 -i s6-eth6 -i s2-eth6 -w /root/hasil_test/mono/stress_test/5 -F pcapng -a duration:60 &
 
-sh sleep 90
+sh sleep 150
 
 h1 getjob=$(ps | grep 'sudo' | sed -n 1p | awk  '{print $1}')
 h1 getps=$(ps aux | grep 'ubuntu vlc -q' | sed -n 1p | awk  '{print $2}')
@@ -276,7 +276,7 @@ h9 ITGSend -a 10.0.0.11 -rp 10003 VoIP -x G.711.2 -h RTP -VAD &
 
 sh tshark -i s4-eth5 -i s1-eth1 -i s6-eth6 -i s2-eth6 -w /root/hasil_test/mono/stress_test/6 -F pcapng -a duration:60 &
 
-sh sleep 90
+sh sleep 150
 
 h1 getjob=$(ps | grep 'sudo' | sed -n 1p | awk  '{print $1}')
 h1 getps=$(ps aux | grep 'ubuntu vlc -q' | sed -n 1p | awk  '{print $2}')
@@ -330,7 +330,7 @@ h9 ITGSend -a 10.0.0.11 -rp 10003 VoIP -x G.711.2 -h RTP -VAD &
 
 sh tshark -i s4-eth5 -i s1-eth1 -i s6-eth6 -i s2-eth6 -w /root/hasil_test/mono/stress_test/7 -F pcapng -a duration:60 &
 
-sh sleep 90
+sh sleep 150
 
 h1 getjob=$(ps | grep 'sudo' | sed -n 1p | awk  '{print $1}')
 h1 getps=$(ps aux | grep 'ubuntu vlc -q' | sed -n 1p | awk  '{print $2}')
@@ -383,7 +383,7 @@ h9 ITGSend -a 10.0.0.11 -rp 10003 VoIP -x G.711.2 -h RTP -VAD &
 
 sh tshark -i s4-eth5 -i s1-eth1 -i s6-eth6 -i s2-eth6 -w /root/hasil_test/mono/stress_test/8 -F pcapng -a duration:60 &
 
-sh sleep 90
+sh sleep 150
 
 h1 getjob=$(ps | grep 'sudo' | sed -n 1p | awk  '{print $1}')
 h1 getps=$(ps aux | grep 'ubuntu vlc -q' | sed -n 1p | awk  '{print $2}')
@@ -436,7 +436,7 @@ h9 ITGSend -a 10.0.0.11 -rp 10003 VoIP -x G.711.2 -h RTP -VAD &
 
 sh tshark -i s4-eth5 -i s1-eth1 -i s6-eth6 -i s2-eth6 -w /root/hasil_test/mono/stress_test/9 -F pcapng -a duration:60 &
 
-sh sleep 90
+sh sleep 150
 
 h1 getjob=$(ps | grep 'sudo' | sed -n 1p | awk  '{print $1}')
 h1 getps=$(ps aux | grep 'ubuntu vlc -q' | sed -n 1p | awk  '{print $2}')
@@ -489,7 +489,7 @@ h9 ITGSend -a 10.0.0.11 -rp 10003 VoIP -x G.711.2 -h RTP -VAD &
 
 sh tshark -i s4-eth5 -i s1-eth1 -i s6-eth6 -i s2-eth6 -w /root/hasil_test/mono/stress_test/10 -F pcapng -a duration:60 &
 
-sh sleep 90
+sh sleep 150
 
 h1 getjob=$(ps | grep 'sudo' | sed -n 1p | awk  '{print $1}')
 h1 getps=$(ps aux | grep 'ubuntu vlc -q' | sed -n 1p | awk  '{print $2}')
