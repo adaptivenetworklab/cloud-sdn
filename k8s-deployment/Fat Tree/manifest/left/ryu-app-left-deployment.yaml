@@ -35,10 +35,10 @@ spec:
         resources: 
           requests:
             memory: "256Mi"
-            cpu: "750m"
+            cpu: "500m"
           limits:
             memory: "512Mi"
-            cpu: "850m"
+            cpu: "600m"
         env:
         - name: LEFT_RYU_APP
           valueFrom:
