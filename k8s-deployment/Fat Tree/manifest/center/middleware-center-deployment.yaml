@@ -37,7 +37,7 @@ spec:
         app: middleware-center
     spec:
       containers:
-      - image: adaptivenetlab/middleware-center:sw1.1
+      - image: adaptivenetlab/middleware-center:wnf1.0
         name: middleware-center
         resources:
           requests:

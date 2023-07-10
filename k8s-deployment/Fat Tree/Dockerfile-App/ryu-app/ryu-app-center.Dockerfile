@@ -7,8 +7,9 @@ RUN pip install --upgrade pip
 RUN pip install --root-user-action=ignore requests
 RUN pip install --no-cache-dir -r requirements-apps.txt
 
-COPY ./slice/center/center-slice.py .
+COPY ./slice/center/ryu_app.py .
+COPY ./slice/center/env.py .
 
 EXPOSE 8090
 
-CMD ["python", "./center-slice.py"]
+CMD ["python3", "./ryu_app.py"]
