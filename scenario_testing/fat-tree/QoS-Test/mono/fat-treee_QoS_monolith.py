@@ -112,7 +112,7 @@ if __name__ == "__main__":
     #CLI(net, script=QoS_test)
 
     #Batch command execution for bg traffic >10
-    QoS2_test = "/home/ubuntu/cloud-sdn/scenario_testing/fat-tree/QoS-Test/mono/QoS-test_monolith.sh"
+    QoS2_test = "/home/ubuntu/cloud-sdn/scenario_testing/fat-tree/QoS-Test/mono/QoS-test_monolith_more.sh"
     CLI(net, script=QoS2_test )
 
     #Manual CLI
