@@ -14,7 +14,7 @@ h5 xterm -e /root/pengujian_web-FatTree.sh &
 h11 ITGRecv -l /home/ubuntu/hasil_test/QoS-mono-voip-1 &
 h9 ITGSend -a 10.0.0.11 -rp 10003 VoIP -x G.711.2 -h RTP -VAD &
 
-sh tshark -i s4-eth5 -i s1-eth1 -i s6-eth6 -i s2-eth6 -w /root/hasil_test/mono/QoS_test/1 -F pcapng -a duration:60 &
+sh tshark -i s4-eth5 -i s6-eth6  -w /root/hasil_test/mono/QoS_test/1 -F pcapng -a duration:60 &
 
 sh sleep 105
 
@@ -66,7 +66,7 @@ h5 xterm -e /root/pengujian_web-FatTree.sh &
 h11 ITGRecv -l /home/ubuntu/hasil_test/QoS-mono-voip-2 &
 h9 ITGSend -a 10.0.0.11 -rp 10003 VoIP -x G.711.2 -h RTP -VAD &
 
-sh tshark -i s4-eth5 -i s1-eth1 -i s6-eth6 -i s2-eth6 -w /root/hasil_test/mono/QoS_test/2 -F pcapng -a duration:60 &
+sh tshark -i s4-eth5 -i s6-eth6  -w /root/hasil_test/mono/QoS_test/2 -F pcapng -a duration:60 &
 
 sh sleep 105
 
@@ -117,7 +117,7 @@ h5 xterm -e /root/pengujian_web-FatTree.sh &
 h11 ITGRecv -l /home/ubuntu/hasil_test/QoS-mono-voip-3 &
 h9 ITGSend -a 10.0.0.11 -rp 10003 VoIP -x G.711.2 -h RTP -VAD &
 
-sh tshark -i s4-eth5 -i s1-eth1 -i s6-eth6 -i s2-eth6 -w /root/hasil_test/mono/QoS_test/3 -F pcapng -a duration:60 &
+sh tshark -i s4-eth5 -i s6-eth6  -w /root/hasil_test/mono/QoS_test/3 -F pcapng -a duration:60 &
 
 sh sleep 105
 
@@ -169,7 +169,7 @@ h5 xterm -e /root/pengujian_web-FatTree.sh &
 h11 ITGRecv -l /home/ubuntu/hasil_test/QoS-mono-voip-4 &
 h9 ITGSend -a 10.0.0.11 -rp 10003 VoIP -x G.711.2 -h RTP -VAD &
 
-sh tshark -i s4-eth5 -i s1-eth1 -i s6-eth6 -i s2-eth6 -w /root/hasil_test/mono/QoS_test/4 -F pcapng -a duration:60 &
+sh tshark -i s4-eth5 -i s6-eth6  -w /root/hasil_test/mono/QoS_test/4 -F pcapng -a duration:60 &
 
 sh sleep 105
 
@@ -221,7 +221,7 @@ h5 xterm -e /root/pengujian_web-FatTree.sh &
 h11 ITGRecv -l /home/ubuntu/hasil_test/QoS-mono-voip-5 &
 h9 ITGSend -a 10.0.0.11 -rp 10003 VoIP -x G.711.2 -h RTP -VAD &
 
-sh tshark -i s4-eth5 -i s1-eth1 -i s6-eth6 -i s2-eth6 -w /root/hasil_test/mono/QoS_test/5 -F pcapng -a duration:60 &
+sh tshark -i s4-eth5 -i s6-eth6  -w /root/hasil_test/mono/QoS_test/5 -F pcapng -a duration:60 &
 
 sh sleep 105
 
@@ -274,7 +274,7 @@ h5 xterm -e /root/pengujian_web-FatTree.sh &
 h11 ITGRecv -l /home/ubuntu/hasil_test/QoS-mono-voip-6 &
 h9 ITGSend -a 10.0.0.11 -rp 10003 VoIP -x G.711.2 -h RTP -VAD &
 
-sh tshark -i s4-eth5 -i s1-eth1 -i s6-eth6 -i s2-eth6 -w /root/hasil_test/mono/QoS_test/6 -F pcapng -a duration:60 &
+sh tshark -i s4-eth5 -i s6-eth6  -w /root/hasil_test/mono/QoS_test/6 -F pcapng -a duration:60 &
 
 sh sleep 105
 
@@ -328,7 +328,7 @@ h5 xterm -e /root/pengujian_web-FatTree.sh &
 h11 ITGRecv -l /home/ubuntu/hasil_test/QoS-mono-voip-7 &
 h9 ITGSend -a 10.0.0.11 -rp 10003 VoIP -x G.711.2 -h RTP -VAD &
 
-sh tshark -i s4-eth5 -i s1-eth1 -i s6-eth6 -i s2-eth6 -w /root/hasil_test/mono/QoS_test/7 -F pcapng -a duration:60 &
+sh tshark -i s4-eth5 -i s6-eth6  -w /root/hasil_test/mono/QoS_test/7 -F pcapng -a duration:60 &
 
 sh sleep 105
 
@@ -381,7 +381,7 @@ h5 xterm -e /root/pengujian_web-FatTree.sh &
 h11 ITGRecv -l /home/ubuntu/hasil_test/QoS-mono-voip-8 &
 h9 ITGSend -a 10.0.0.11 -rp 10003 VoIP -x G.711.2 -h RTP -VAD &
 
-sh tshark -i s4-eth5 -i s1-eth1 -i s6-eth6 -i s2-eth6 -w /root/hasil_test/mono/QoS_test/8 -F pcapng -a duration:60 &
+sh tshark -i s4-eth5 -i s6-eth6  -w /root/hasil_test/mono/QoS_test/8 -F pcapng -a duration:60 &
 
 sh sleep 105
 
@@ -434,7 +434,7 @@ h5 xterm -e /root/pengujian_web-FatTree.sh &
 h11 ITGRecv -l /home/ubuntu/hasil_test/QoS-mono-voip-9 &
 h9 ITGSend -a 10.0.0.11 -rp 10003 VoIP -x G.711.2 -h RTP -VAD &
 
-sh tshark -i s4-eth5 -i s1-eth1 -i s6-eth6 -i s2-eth6 -w /root/hasil_test/mono/QoS_test/9 -F pcapng -a duration:60 &
+sh tshark -i s4-eth5 -i s6-eth6  -w /root/hasil_test/mono/QoS_test/9 -F pcapng -a duration:60 &
 
 sh sleep 105
 
@@ -487,7 +487,7 @@ h5 xterm -e /root/pengujian_web-FatTree.sh &
 h11 ITGRecv -l /home/ubuntu/hasil_test/QoS-mono-voip-10 &
 h9 ITGSend -a 10.0.0.11 -rp 10003 VoIP -x G.711.2 -h RTP -VAD &
 
-sh tshark -i s4-eth5 -i s1-eth1 -i s6-eth6 -i s2-eth6 -w /root/hasil_test/mono/QoS_test/10 -F pcapng -a duration:60 &
+sh tshark -i s4-eth5 -i s6-eth6  -w /root/hasil_test/mono/QoS_test/10 -F pcapng -a duration:60 &
 
 sh sleep 105
 
