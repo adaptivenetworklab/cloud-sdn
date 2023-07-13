@@ -108,8 +108,12 @@ if __name__ == "__main__":
     CLI.do_sh(net, 'sleep 180')
 
     #Batch command execution
-    stress_test = "/home/ubuntu/cloud-sdn/scenario_testing/fat-tree/QoS-Test/mono/QoS-test_monolith.sh"
-    CLI(net, script=stress_test)
+    #QoS_test = "/home/ubuntu/cloud-sdn/scenario_testing/fat-tree/QoS-Test/mono/QoS-test_monolith.sh"
+    #CLI(net, script=QoS_test)
+
+    #Batch command execution for bg traffic >10
+    QoS2_test = "/home/ubuntu/cloud-sdn/scenario_testing/fat-tree/QoS-Test/mono/QoS-test_monolith.sh"
+    CLI(net, script=QoS2_test )
 
     #Manual CLI
     CLI(net)
