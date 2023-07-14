@@ -11,7 +11,7 @@ h3 sudo -u ubuntu vlc -q /home/ubuntu/cloud-sdn/scenario_testing/test_services/v
 h7 xterm -e python3 -m http.server 80 &
 h5 xterm -e /root/pengujian_web-FatTree.sh &
 
-h11 ITGRecv -l /home/ubuntu/hasil_test/QoS-micro-REST-voip-15 &
+h11 ITGRecv -l /home/ubuntu/hasil_test/QoS-micro-REST-voip-15-60 &
 h9 ITGSend -a 10.0.0.11 -rp 10003 VoIP -x G.711.2 -h RTP -VAD &
 
 sh tshark -i s4-eth5 -i s6-eth6  -w /root/hasil_test/micro/QoS_test/REST/15 -F pcapng -a duration:60 &
@@ -38,10 +38,10 @@ h7 sudo kill -9 $getjob
 h6 sudo kill -9 $getjob
 h8 sudo kill -9 $getjob
 
-h11 getjob=$(ps | grep 'ITGRecv' | awk  '{print $1}')
+
 h10 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
 h12 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
-h11 sudo kill -9 $getjob
+
 h10 sudo kill -9 $getjob
 h12 sudo kill -9 $getjob
 
@@ -63,7 +63,7 @@ h3 sudo -u ubuntu vlc -q /home/ubuntu/cloud-sdn/scenario_testing/test_services/v
 h7 xterm -e python3 -m http.server 80 &
 h5 xterm -e /root/pengujian_web-FatTree.sh &
 
-h11 ITGRecv -l /home/ubuntu/hasil_test/QoS-micro-REST-voip-20 &
+
 h9 ITGSend -a 10.0.0.11 -rp 10003 VoIP -x G.711.2 -h RTP -VAD &
 
 sh tshark -i s4-eth5 -i s6-eth6  -w /root/hasil_test/micro/QoS_test/REST/20 -F pcapng -a duration:60 &
@@ -90,10 +90,10 @@ h7 sudo kill -9 $getjob
 h6 sudo kill -9 $getjob
 h8 sudo kill -9 $getjob
 
-h11 getjob=$(ps | grep 'ITGRecv' | awk  '{print $1}')
+
 h10 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
 h12 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
-h11 sudo kill -9 $getjob
+
 h10 sudo kill -9 $getjob
 h12 sudo kill -9 $getjob
 
@@ -114,7 +114,7 @@ h3 sudo -u ubuntu vlc -q /home/ubuntu/cloud-sdn/scenario_testing/test_services/v
 h7 xterm -e python3 -m http.server 80 &
 h5 xterm -e /root/pengujian_web-FatTree.sh &
 
-h11 ITGRecv -l /home/ubuntu/hasil_test/QoS-micro-REST-voip-25 &
+
 h9 ITGSend -a 10.0.0.11 -rp 10003 VoIP -x G.711.2 -h RTP -VAD &
 
 sh tshark -i s4-eth5 -i s6-eth6  -w /root/hasil_test/micro/QoS_test/REST/25 -F pcapng -a duration:60 &
@@ -141,10 +141,10 @@ h7 sudo kill -9 $getjob
 h6 sudo kill -9 $getjob
 h8 sudo kill -9 $getjob
 
-h11 getjob=$(ps | grep 'ITGRecv' | awk  '{print $1}')
+
 h10 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
 h12 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
-h11 sudo kill -9 $getjob
+
 h10 sudo kill -9 $getjob
 h12 sudo kill -9 $getjob
 
@@ -166,7 +166,7 @@ h3 sudo -u ubuntu vlc -q /home/ubuntu/cloud-sdn/scenario_testing/test_services/v
 h7 xterm -e python3 -m http.server 80 &
 h5 xterm -e /root/pengujian_web-FatTree.sh &
 
-h11 ITGRecv -l /home/ubuntu/hasil_test/QoS-micro-REST-voip-30 &
+
 h9 ITGSend -a 10.0.0.11 -rp 10003 VoIP -x G.711.2 -h RTP -VAD &
 
 sh tshark -i s4-eth5 -i s6-eth6  -w /root/hasil_test/micro/QoS_test/REST/30 -F pcapng -a duration:60 &
@@ -193,10 +193,10 @@ h7 sudo kill -9 $getjob
 h6 sudo kill -9 $getjob
 h8 sudo kill -9 $getjob
 
-h11 getjob=$(ps | grep 'ITGRecv' | awk  '{print $1}')
+
 h10 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
 h12 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
-h11 sudo kill -9 $getjob
+
 h10 sudo kill -9 $getjob
 h12 sudo kill -9 $getjob
 
@@ -218,7 +218,7 @@ h3 sudo -u ubuntu vlc -q /home/ubuntu/cloud-sdn/scenario_testing/test_services/v
 h7 xterm -e python3 -m http.server 80 &
 h5 xterm -e /root/pengujian_web-FatTree.sh &
 
-h11 ITGRecv -l /home/ubuntu/hasil_test/QoS-micro-REST-voip-35 &
+
 h9 ITGSend -a 10.0.0.11 -rp 10003 VoIP -x G.711.2 -h RTP -VAD &
 
 sh tshark -i s4-eth5 -i s6-eth6  -w /root/hasil_test/micro/QoS_test/REST/35 -F pcapng -a duration:60 &
@@ -245,10 +245,10 @@ h7 sudo kill -9 $getjob
 h6 sudo kill -9 $getjob
 h8 sudo kill -9 $getjob
 
-h11 getjob=$(ps | grep 'ITGRecv' | awk  '{print $1}')
+
 h10 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
 h12 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
-h11 sudo kill -9 $getjob
+
 h10 sudo kill -9 $getjob
 h12 sudo kill -9 $getjob
 
@@ -271,7 +271,7 @@ h3 sudo -u ubuntu vlc -q /home/ubuntu/cloud-sdn/scenario_testing/test_services/v
 h7 xterm -e python3 -m http.server 80 &
 h5 xterm -e /root/pengujian_web-FatTree.sh &
 
-h11 ITGRecv -l /home/ubuntu/hasil_test/QoS-micro-REST-voip-40 &
+
 h9 ITGSend -a 10.0.0.11 -rp 10003 VoIP -x G.711.2 -h RTP -VAD &
 
 sh tshark -i s4-eth5 -i s6-eth6  -w /root/hasil_test/micro/QoS_test/REST/40 -F pcapng -a duration:60 &
@@ -298,10 +298,10 @@ h7 sudo kill -9 $getjob
 h6 sudo kill -9 $getjob
 h8 sudo kill -9 $getjob
 
-h11 getjob=$(ps | grep 'ITGRecv' | awk  '{print $1}')
+
 h10 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
 h12 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
-h11 sudo kill -9 $getjob
+
 h10 sudo kill -9 $getjob
 h12 sudo kill -9 $getjob
 
@@ -325,7 +325,7 @@ h3 sudo -u ubuntu vlc -q /home/ubuntu/cloud-sdn/scenario_testing/test_services/v
 h7 xterm -e python3 -m http.server 80 &
 h5 xterm -e /root/pengujian_web-FatTree.sh &
 
-h11 ITGRecv -l /home/ubuntu/hasil_test/QoS-micro-REST-voip-45 &
+
 h9 ITGSend -a 10.0.0.11 -rp 10003 VoIP -x G.711.2 -h RTP -VAD &
 
 sh tshark -i s4-eth5 -i s6-eth6  -w /root/hasil_test/micro/QoS_test/REST/45 -F pcapng -a duration:60 &
@@ -352,10 +352,10 @@ h7 sudo kill -9 $getjob
 h6 sudo kill -9 $getjob
 h8 sudo kill -9 $getjob
 
-h11 getjob=$(ps | grep 'ITGRecv' | awk  '{print $1}')
+
 h10 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
 h12 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
-h11 sudo kill -9 $getjob
+
 h10 sudo kill -9 $getjob
 h12 sudo kill -9 $getjob
 
@@ -378,7 +378,7 @@ h3 sudo -u ubuntu vlc -q /home/ubuntu/cloud-sdn/scenario_testing/test_services/v
 h7 xterm -e python3 -m http.server 80 &
 h5 xterm -e /root/pengujian_web-FatTree.sh &
 
-h11 ITGRecv -l /home/ubuntu/hasil_test/QoS-micro-REST-voip-50 &
+
 h9 ITGSend -a 10.0.0.11 -rp 10003 VoIP -x G.711.2 -h RTP -VAD &
 
 sh tshark -i s4-eth5 -i s6-eth6  -w /root/hasil_test/micro/QoS_test/REST/50 -F pcapng -a duration:60 &
@@ -405,10 +405,10 @@ h7 sudo kill -9 $getjob
 h6 sudo kill -9 $getjob
 h8 sudo kill -9 $getjob
 
-h11 getjob=$(ps | grep 'ITGRecv' | awk  '{print $1}')
+
 h10 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
 h12 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
-h11 sudo kill -9 $getjob
+
 h10 sudo kill -9 $getjob
 h12 sudo kill -9 $getjob
 
@@ -431,7 +431,7 @@ h3 sudo -u ubuntu vlc -q /home/ubuntu/cloud-sdn/scenario_testing/test_services/v
 h7 xterm -e python3 -m http.server 80 &
 h5 xterm -e /root/pengujian_web-FatTree.sh &
 
-h11 ITGRecv -l /home/ubuntu/hasil_test/QoS-micro-REST-voip-55 &
+
 h9 ITGSend -a 10.0.0.11 -rp 10003 VoIP -x G.711.2 -h RTP -VAD &
 
 sh tshark -i s4-eth5 -i s6-eth6  -w /root/hasil_test/micro/QoS_test/REST/55 -F pcapng -a duration:60 &
@@ -458,10 +458,10 @@ h7 sudo kill -9 $getjob
 h6 sudo kill -9 $getjob
 h8 sudo kill -9 $getjob
 
-h11 getjob=$(ps | grep 'ITGRecv' | awk  '{print $1}')
+
 h10 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
 h12 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
-h11 sudo kill -9 $getjob
+
 h10 sudo kill -9 $getjob
 h12 sudo kill -9 $getjob
 
@@ -484,7 +484,7 @@ h3 sudo -u ubuntu vlc -q /home/ubuntu/cloud-sdn/scenario_testing/test_services/v
 h7 xterm -e python3 -m http.server 80 &
 h5 xterm -e /root/pengujian_web-FatTree.sh &
 
-h11 ITGRecv -l /home/ubuntu/hasil_test/QoS-micro-REST-voip-60 &
+
 h9 ITGSend -a 10.0.0.11 -rp 10003 VoIP -x G.711.2 -h RTP -VAD &
 
 sh tshark -i s4-eth5 -i s6-eth6  -w /root/hasil_test/micro/QoS_test/REST/60 -F pcapng -a duration:60 &
@@ -511,10 +511,10 @@ h7 sudo kill -9 $getjob
 h6 sudo kill -9 $getjob
 h8 sudo kill -9 $getjob
 
-h11 getjob=$(ps | grep 'ITGRecv' | awk  '{print $1}')
+
 h10 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
 h12 getjob=$(ps | grep 'iperf' | awk  '{print $1}')
-h11 sudo kill -9 $getjob
+
 h10 sudo kill -9 $getjob
 h12 sudo kill -9 $getjob
 
