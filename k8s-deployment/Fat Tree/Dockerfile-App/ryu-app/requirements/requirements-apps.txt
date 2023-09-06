@@ -1,0 +1,2 @@
+ryu==4.34
+websocket-client

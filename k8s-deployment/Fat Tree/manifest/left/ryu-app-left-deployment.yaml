@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ryu-app-left
+spec:
+  selector:
+    app: ryu-app-left
+  ports:
+  - protocol: TCP
+    port: 8090
+    targetPort: 8090
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ryu-app-left
+  name: ryu-app-left
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ryu-app-left
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ryu-app-left
+    spec:
+      containers:
+      - image: adaptivenetlab/ryu-app-left:wf1.2
+        name: ryu-app-left
+        resources: 
+          requests:
+            memory: "256Mi"
+            cpu: "750m"
+          limits:
+            memory: "512Mi"
+            cpu: "850m"
+        env:
+        - name: LEFT_RYU_APP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.podIP
+        - name: LEFT_MIDDLEWARE
+          value: middleware-left.default.svc.cluster.local
+      nodeSelector:
+        kubernetes.io/hostname : worker1-sdn
+status: {}
