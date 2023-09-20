@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: middleware-left
+spec:
+  selector:
+    app: middleware-left
+  type: NodePort
+  ports:
+  - name: to-flowvisor
+    protocol: TCP
+    port: 10001
+    targetPort: 10001
+    nodePort: 31001
+  - name : port-to-ryu-app
+    protocol: TCP
+    port: 8080
+    targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: middeware-left
+  name: middleware-left
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: middleware-left
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: middleware-left
+    spec:
+      containers:
+      - image: adaptivenetlab/middleware-left:wnf1.0
+        name: middleware-left
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "500m"
+          limits:
+            memory: "512Mi"
+            cpu: "600m"
+        env:
+        - name: LEFT_RYU_APP
+          value: ryu-app-left.default.svc.cluster.local
+      nodeSelector:
+        kubernetes.io/hostname : worker1-sdn
+status: {}
